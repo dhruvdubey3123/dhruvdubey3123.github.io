@@ -1,0 +1,1089 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Dhruv Dubey, AI Engineer. Agentic LLM systems that survive production: multi-agent triage, crash-safe agent harnesses, RAG for 300 farmers.">
+<meta property="og:title" content="Dhruv Dubey, AI Engineer">
+<meta property="og:description" content="From 300 farmers to enterprise pipelines. Break a pipeline and watch the triage agent find it.">
+<meta property="og:type" content="website">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Dhruv Dubey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+
+<style>
+/* Layout: one narrative column (story chapters) that widens for two working exhibits:
+   the equation lab and the triage console. Identity: a data pipeline's dependency graph,
+   agent logs, and the math underneath. */
+:root{
+  --bg:#EDEFF0; --surface:#FFFFFF; --surface-2:#E3E8E9;
+  --ink:#121719; --muted:#56646A; --line:#CBD3D5;
+  --accent:#0F5E52; --accent-soft:#D4E8E2; --signal:#B3400C; --signal-soft:#F5DFD3;
+  --amber:#8A6100; --amber-soft:#F4E9CC;
+  --shadow:0 1px 2px rgba(18,23,25,.06), 0 10px 28px rgba(18,23,25,.06);
+  --display:'Archivo','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --math:'STIX Two Text','Cambria Math',Cambria,Georgia,serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1215; --surface:#141B1F; --surface-2:#1A2327;
+    --ink:#E8EEF0; --muted:#8A989E; --line:#26333A;
+    --accent:#52D2B6; --accent-soft:#11302A; --signal:#F2884A; --signal-soft:#36210F;
+    --amber:#E3B44C; --amber-soft:#2E2510;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1215; --surface:#141B1F; --surface-2:#1A2327;
+  --ink:#E8EEF0; --muted:#8A989E; --line:#26333A;
+  --accent:#52D2B6; --accent-soft:#11302A; --signal:#F2884A; --signal-soft:#36210F;
+  --amber:#E3B44C; --amber-soft:#2E2510;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:15.5px; line-height:1.65; -webkit-font-smoothing:antialiased}
+a{color:inherit}
+h1,h2,h3{font-family:var(--display); text-wrap:balance; margin:0; letter-spacing:-.02em; line-height:1.1}
+p{margin:0}
+.wrap{max-width:1120px; margin:0 auto; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px))}
+.narrow{max-width:720px}
+.lbl{font-family:var(--mono); font-size:11px; letter-spacing:.13em; text-transform:uppercase; color:var(--accent)}
+.muted{color:var(--muted)}
+
+/* top bar */
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:30; background:var(--bg)}
+.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:25; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(12px); border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex; align-items:center; gap:14px; padding-block:10px}
+.mark{font-family:var(--mono); font-size:12.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; white-space:nowrap}
+.mark span{color:var(--accent)}
+.topnav{margin-left:auto; display:flex; gap:2px; flex-wrap:wrap; justify-content:flex-end}
+.topnav a{font-family:var(--mono); font-size:12px; text-decoration:none; color:var(--muted); padding:5px 8px; border-radius:4px}
+.topnav a:hover{color:var(--ink); background:var(--surface-2)}
+.themebtn{font-family:var(--mono); font-size:12px; color:var(--muted); background:none; border:1px solid var(--line); border-radius:4px; padding:5px 9px; cursor:pointer}
+.themebtn:hover{color:var(--ink); border-color:var(--accent)}
+
+/* hero */
+.hero{padding-block:48px 40px; overflow:hidden}
+.hero-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:28px; align-items:center}
+.hero h1{font-size:clamp(38px,6.2vw,70px); font-weight:800; max-width:14ch}
+.hero h1 em{font-style:normal; color:var(--accent)}
+.hero .sub{margin-top:20px; font-size:17.5px; color:var(--muted); max-width:54ch}
+.hero .sub b{color:var(--ink); font-weight:600}
+.hero-grid > *{min-width:0}
+.orbit{position:relative; aspect-ratio:1/1; max-width:100%; max-height:620px; margin-inline:auto; width:100%}
+.orbit canvas{display:block; width:100%; height:100%; cursor:grab; touch-action:pan-y}
+.orbit canvas.drag{cursor:grabbing}
+.orbit .hint{position:absolute; left:50%; bottom:6px; transform:translateX(-50%); font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; color:var(--muted); white-space:nowrap; pointer-events:none}
+.otip{position:absolute; pointer-events:none; max-width:250px; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:10px 12px; box-shadow:var(--shadow); opacity:0; transform:translateY(4px); transition:opacity .15s, transform .15s; z-index:3}
+.otip.on{opacity:1; transform:none}
+.otip .ot{font-family:var(--display); font-weight:700; font-size:14.5px}
+.otip .od{font-size:12.5px; color:var(--muted); margin-top:3px; line-height:1.45}
+.otip .ok{font-family:var(--mono); font-size:10.5px; color:var(--accent); margin-top:6px}
+.ticker{margin-top:26px; border:1px solid var(--line); border-radius:8px; background:var(--surface); padding:10px 12px; font-family:var(--mono); font-size:12px; display:flex; gap:10px; align-items:center; min-height:42px; max-width:560px}
+.ticker .dot{width:8px; height:8px; border-radius:50%; background:var(--accent); flex:none; box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 50%, transparent); animation:live 1.8s infinite}
+.ticker .tk{min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis}
+.ticker .tk b{color:var(--accent); font-weight:600}
+.ticker .cur{display:inline-block; width:7px; height:13px; background:var(--ink); vertical-align:-2px; margin-left:2px; animation:blink 1s steps(1) infinite}
+@keyframes live{70%{box-shadow:0 0 0 7px transparent} 100%{box-shadow:0 0 0 0 transparent}}
+@keyframes blink{50%{opacity:0}}
+@media (max-width:880px){ .hero-grid{grid-template-columns:1fr} .orbit{max-height:440px} }
+@media (max-width:640px){ .topnav{display:none} .themebtn{margin-left:auto} }
+
+.chips{display:flex; flex-wrap:wrap; gap:8px; margin-top:28px}
+.chip{font-family:var(--mono); font-size:12px; text-decoration:none; padding:7px 12px; border:1px solid var(--line); border-radius:999px; background:var(--surface)}
+.chip:hover{border-color:var(--accent); color:var(--accent)}
+.chip.primary{background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:600}
+.chip.primary:hover{color:var(--bg); opacity:.9}
+
+/* sections */
+section{padding-block:60px; border-top:1px solid var(--line)}
+section.alt{background:var(--surface)}
+.sechead{display:flex; flex-direction:column; gap:10px; margin-bottom:30px}
+h2{font-size:clamp(26px,3.8vw,36px); font-weight:700}
+
+/* equation lab */
+.eqcard{border:1px solid var(--line); border-radius:12px; background:var(--bg); padding:clamp(22px,4vw,40px); box-shadow:var(--shadow)}
+.eq{font-family:var(--math); font-size:clamp(24px,4.4vw,40px); display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:.18em; padding-block:18px 26px; color:var(--ink)}
+.eq i{font-style:italic}
+.frac{display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; line-height:1.15; margin:0 .08em}
+.frac .num{border-bottom:1.5px solid currentColor; padding:0 .2em .06em}
+.frac .den{padding:.06em .2em 0}
+.sqrt{border-top:1.5px solid currentColor; padding-left:.05em; margin-left:-.02em}
+.eq .soft{color:var(--accent)}
+.eqparts{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-bottom:26px}
+.part{border:1px solid var(--line); border-radius:8px; padding:12px 14px; background:var(--surface); cursor:default; transition:border-color .15s}
+.part:hover,.part:focus-visible{border-color:var(--accent)}
+.part .sym{font-family:var(--math); font-size:20px; font-style:italic; color:var(--accent)}
+.part .what{font-size:13.5px; color:var(--muted); margin-top:4px; line-height:1.5}
+.thoughts{display:flex; flex-direction:column; gap:16px; max-width:66ch; font-size:16.5px}
+.thoughts p:first-child::first-line{font-weight:600}
+
+.attn{margin-top:32px; border-top:1px dashed var(--line); padding-top:26px}
+.attn-head{display:flex; flex-wrap:wrap; gap:12px; align-items:baseline; justify-content:space-between; margin-bottom:14px}
+.attn-q{display:flex; flex-wrap:wrap; gap:6px}
+.qbtn{font-family:var(--mono); font-size:11.5px; padding:6px 10px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--muted); cursor:pointer}
+.qbtn[aria-pressed="true"]{background:var(--accent); color:var(--bg); border-color:var(--accent); font-weight:600}
+.qbtn:hover{border-color:var(--accent)}
+.passages{display:flex; flex-direction:column; gap:7px}
+.psg{display:grid; grid-template-columns:minmax(0,1fr) 120px 46px; gap:12px; align-items:center; font-size:13.5px}
+.psg .t{min-width:0}
+.bar{height:8px; background:var(--surface-2); border-radius:4px; overflow:hidden}
+.bar i{display:block; height:100%; background:var(--accent); border-radius:4px; transition:width .5s cubic-bezier(.2,.7,.2,1)}
+.psg .w{font-family:var(--mono); font-size:11.5px; text-align:right; font-variant-numeric:tabular-nums; color:var(--muted)}
+.temp{display:flex; align-items:center; gap:10px; margin-top:16px; font-family:var(--mono); font-size:11.5px; color:var(--muted); flex-wrap:wrap}
+.temp input{accent-color:var(--accent); width:180px; max-width:100%}
+
+/* story */
+.chapters{display:flex; flex-direction:column}
+.ch{display:grid; grid-template-columns:130px minmax(0,1fr); gap:28px; padding-block:26px; border-top:1px solid var(--line)}
+.ch:first-child{border-top:0; padding-top:0}
+.ch .when{font-family:var(--mono); font-size:11.5px; color:var(--muted); padding-top:4px}
+.ch .place{font-family:var(--mono); font-size:11px; color:var(--accent); letter-spacing:.06em; text-transform:uppercase; margin-top:4px}
+.ch h3{font-size:21px; font-weight:700}
+.ch p{margin-top:10px; color:var(--muted); max-width:64ch}
+.ch p b{color:var(--ink); font-weight:600}
+.figs{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px}
+.fig{font-family:var(--mono); font-size:11.5px; padding:5px 9px; border-radius:4px; background:var(--accent-soft); color:var(--accent)}
+.funnel{display:flex; align-items:center; gap:8px; margin-top:14px; flex-wrap:wrap; font-family:var(--mono); font-size:12px}
+.funnel span{padding:5px 9px; border:1px solid var(--line); border-radius:4px; background:var(--surface)}
+.funnel em{font-style:normal; color:var(--muted)}
+
+/* triage console */
+.console{border:1px solid var(--line); border-radius:12px; background:var(--bg); box-shadow:var(--shadow); overflow:hidden}
+.c-top{display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--line); background:var(--surface)}
+.cases{display:flex; flex-wrap:wrap; gap:6px}
+.case{font-family:var(--mono); font-size:11.5px; padding:7px 11px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--ink); cursor:pointer; text-align:left}
+.case:hover{border-color:var(--accent)}
+.case[aria-pressed="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+.case small{display:block; color:var(--muted); font-size:10.5px; margin-top:2px}
+.runbtn{font-family:var(--mono); font-size:12.5px; font-weight:600; padding:9px 16px; border-radius:6px; border:0; background:var(--accent); color:var(--bg); cursor:pointer}
+.runbtn:disabled{opacity:.45; cursor:default}
+.agents{display:flex; flex-wrap:wrap; gap:6px; padding:12px 16px; border-bottom:1px solid var(--line)}
+.ag{font-family:var(--mono); font-size:11px; padding:5px 9px; border-radius:999px; border:1px solid var(--line); color:var(--muted); transition:all .2s; display:flex; align-items:center; gap:6px}
+.ag::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--line); transition:background .2s}
+.ag.on{border-color:var(--accent); color:var(--ink); background:var(--accent-soft)}
+.ag.on::before{background:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent)}
+.ag.human.on{border-color:var(--amber); background:var(--amber-soft)}
+.ag.human.on::before{background:var(--amber)}
+.ag.done::before{background:var(--accent)}
+.c-body{display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
+.dagwrap{padding:14px 10px 10px; border-right:1px solid var(--line); overflow-x:auto}
+.dagwrap svg{display:block; min-width:640px; width:100%; height:auto}
+.dag-cap{font-family:var(--mono); font-size:10.5px; color:var(--muted); padding:0 8px 4px}
+.logpane{display:flex; flex-direction:column; min-width:0; max-height:520px}
+.log{flex:1; overflow-y:auto; padding:12px 14px; font-family:var(--mono); font-size:11.5px; line-height:1.6; display:flex; flex-direction:column; gap:8px}
+.log .ln{display:grid; grid-template-columns:62px minmax(0,1fr); gap:8px; animation:fadein .25s ease}
+.log .tag{font-weight:600; color:var(--accent); font-size:10.5px; letter-spacing:.04em; text-transform:uppercase; padding-top:1px}
+.log .tag.h{color:var(--amber)}
+.log .tag.x{color:var(--signal)}
+.log .msg{color:var(--ink); min-width:0; overflow-wrap:anywhere}
+.log .msg .dim{color:var(--muted)}
+.log .msg code{background:var(--surface-2); padding:0 4px; border-radius:3px}
+.log .empty{color:var(--muted); font-family:var(--body); font-size:13.5px; line-height:1.55; padding:6px 2px}
+.gate{border-top:1px solid var(--line); padding:12px 14px; display:flex; flex-direction:column; gap:10px; background:var(--amber-soft)}
+.gate[hidden]{display:none!important}
+.gate .g-t{font-family:var(--mono); font-size:11.5px; color:var(--amber); font-weight:600; letter-spacing:.04em; text-transform:uppercase}
+.gate .g-fix{font-size:13.5px}
+.gate .g-row{display:flex; gap:8px; flex-wrap:wrap}
+.gbtn{font-family:var(--mono); font-size:12px; font-weight:600; padding:8px 14px; border-radius:6px; cursor:pointer; border:1px solid transparent}
+.gbtn.ok{background:var(--accent); color:var(--bg)}
+.gbtn.no{background:transparent; border-color:var(--signal); color:var(--signal)}
+.c-foot{display:flex; flex-wrap:wrap; gap:18px; justify-content:space-between; padding:12px 16px; border-top:1px solid var(--line); background:var(--surface); font-family:var(--mono); font-size:11px; color:var(--muted)}
+.c-foot b{color:var(--ink); font-weight:600}
+
+.origin{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:14px 26px; border-left:3px solid var(--accent); padding:4px 0 4px 18px; max-width:980px; font-size:15px; color:var(--ink)}
+.origin a{color:var(--accent)}
+.origin code{font-family:var(--mono); font-size:13px; background:var(--surface-2); padding:0 5px; border-radius:3px}
+.presets,.ctrl{display:flex; flex-wrap:wrap; gap:6px; align-items:center}
+.mini{font-family:var(--mono); font-size:11px; color:var(--muted); margin-right:4px}
+.case[aria-pressed="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+#ftype{font-family:var(--mono); font-size:11.5px; padding:7px 8px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--ink); max-width:100%}
+.resetbtn{font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:6px; border:1px solid var(--line); background:transparent; color:var(--muted); cursor:pointer}
+.resetbtn:hover{border-color:var(--accent); color:var(--ink)}
+.resetbtn:disabled{opacity:.45; cursor:default}
+.n.pick{cursor:pointer}
+.n.pick:hover rect,.n.pick:focus rect{stroke:var(--accent); stroke-width:2}
+.n:focus{outline:none}
+.n.broken rect{stroke:var(--signal); fill:var(--signal-soft); stroke-width:1.8}
+.n.sel rect{stroke-width:2.6}
+/* svg dag */
+.e{stroke:var(--line); stroke-width:1.4; fill:none}
+.e.walk{stroke:var(--accent); stroke-width:2; stroke-dasharray:5 4; animation:dash 1s linear infinite}
+.e.fixed{stroke:var(--accent); stroke-width:1.8}
+.n rect{fill:var(--surface); stroke:var(--line); stroke-width:1.3; transition:fill .25s, stroke .25s}
+.n text{fill:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:11px}
+.n .st{fill:var(--muted); font-size:9.5px}
+.n.visit rect{stroke:var(--accent); stroke-width:2}
+.n.ok rect{stroke:var(--accent); fill:var(--surface)}
+.n.warn rect{stroke:var(--amber); fill:var(--amber-soft)}
+.n.fail rect{stroke:var(--signal); fill:var(--signal-soft); stroke-width:2}
+.n.cause rect{stroke:var(--signal); fill:var(--signal-soft); stroke-dasharray:4 3; stroke-width:1.8}
+.n.fixed rect{stroke:var(--accent); fill:var(--accent-soft)}
+.n.symptom rect{stroke:var(--signal); stroke-width:2}
+.layer{fill:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.12em; text-transform:uppercase}
+
+/* reliability */
+.rel{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:28px; align-items:center; margin-top:28px; border:1px solid var(--line); border-radius:10px; padding:22px; background:var(--surface)}
+.rel .ctl{display:flex; flex-direction:column; gap:14px}
+.rel label{font-family:var(--mono); font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; gap:10px}
+.rel label b{color:var(--ink); font-variant-numeric:tabular-nums}
+.rel input[type=range]{accent-color:var(--accent); width:100%}
+.rel .out{font-family:var(--math); font-size:clamp(26px,4vw,36px)}
+.rel .out .big{font-family:var(--display); font-weight:800; font-size:clamp(34px,5vw,52px); color:var(--accent); font-variant-numeric:tabular-nums}
+.rel .out .big.bad{color:var(--signal)}
+.rel .note{font-size:14px; color:var(--muted); margin-top:8px; max-width:44ch}
+
+/* systems */
+.systems{display:flex; flex-direction:column; gap:12px}
+.sys{border:1px solid var(--line); border-radius:10px; background:var(--bg); overflow:hidden}
+.sys-head{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:start; width:100%; text-align:left; background:none; border:0; color:inherit; font:inherit; padding:18px 20px; cursor:pointer}
+.sys-head:hover{background:var(--surface-2)}
+.sys-title{font-family:var(--display); font-size:18.5px; font-weight:700; display:block}
+.sys-sub{font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-top:6px; display:block; line-height:1.55}
+.status{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; padding:4px 8px; border-radius:3px; white-space:nowrap}
+.status.live{background:var(--accent-soft); color:var(--accent)}
+.status.build{background:var(--signal-soft); color:var(--signal)}
+.sys-right{display:flex; align-items:center; gap:12px}
+.caret{font-family:var(--mono); color:var(--muted); font-size:12px; transition:transform .2s}
+.sys.open .caret{transform:rotate(90deg)}
+.sys-body{display:none; padding:4px 20px 22px; border-top:1px solid var(--line)}
+.sys.open .sys-body{display:block}
+.sys-body p{color:var(--muted); font-size:14.5px; margin-top:14px; max-width:70ch}
+.kv{width:100%; border-collapse:collapse; margin-top:16px; font-size:13px; font-variant-numeric:tabular-nums}
+.kv td{padding:8px 12px 8px 0; border-bottom:1px solid var(--line); vertical-align:top}
+.kv td:first-child{color:var(--muted); width:42%}
+.kv td:last-child{font-family:var(--mono); color:var(--accent)}
+.tags{display:flex; flex-wrap:wrap; gap:6px; margin-top:14px}
+.tag{font-family:var(--mono); font-size:11px; padding:4px 8px; border:1px solid var(--line); border-radius:4px; color:var(--muted)}
+
+/* stack */
+.filters{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:20px}
+.fbtn{font-family:var(--mono); font-size:11.5px; padding:6px 11px; border:1px solid var(--line); border-radius:999px; background:var(--surface); color:var(--muted); cursor:pointer}
+.fbtn:hover{color:var(--ink); border-color:var(--accent)}
+.fbtn[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--bg); font-weight:600}
+.stack{display:flex; flex-wrap:wrap; gap:7px}
+.skill{font-family:var(--mono); font-size:12px; padding:6px 11px; border:1px solid var(--line); border-radius:5px; background:var(--bg); transition:opacity .18s, border-color .18s}
+.skill.dim{opacity:.25}
+.skill.hit{border-color:var(--accent); color:var(--accent)}
+.stackcount{font-family:var(--mono); font-size:11.5px; color:var(--muted); margin-top:14px}
+
+/* contact */
+.cgrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:22px; margin-top:24px}
+.citem .k{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:6px}
+.citem .v{font-family:var(--mono); font-size:13px; overflow-wrap:anywhere}
+.citem .v a{color:var(--accent); text-decoration:none}
+.citem .v a:hover{text-decoration:underline}
+.copy{font-family:var(--mono); font-size:10.5px; margin-left:8px; padding:2px 7px; border:1px solid var(--line); border-radius:3px; background:none; color:var(--muted); cursor:pointer}
+.copy:hover{border-color:var(--accent); color:var(--accent)}
+footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color:var(--muted); display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap; border-top:1px solid var(--line); margin-top:40px}
+
+@keyframes dash{to{stroke-dashoffset:-18}}
+@keyframes fadein{from{opacity:0; transform:translateY(3px)} to{opacity:1; transform:none}}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{animation:none!important; transition:none!important}}
+@media (max-width:880px){
+  .c-body{grid-template-columns:1fr}
+  .dagwrap{border-right:0; border-bottom:1px solid var(--line)}
+  .logpane{max-height:420px}
+  .rel{grid-template-columns:1fr}
+  .ch{grid-template-columns:1fr; gap:6px}
+  .psg{grid-template-columns:minmax(0,1fr) 80px 40px}
+  .topnav a{padding:4px 6px}
+}
+</style>
+
+</head>
+<body>
+<div class="topbar"><div class="wrap">
+  <div class="mark">dhruv dubey <span>/</span> ai engineer</div>
+  <nav class="topnav">
+    <a href="#equation">equation</a>
+    <a href="#story">story</a>
+    <a href="#triage">triage demo</a>
+    <a href="#systems">systems</a>
+    <a href="#contact">contact</a>
+  </nav>
+  <button class="themebtn" id="themebtn" type="button">theme</button>
+</div></div>
+
+<header class="hero"><div class="wrap">
+  <div class="hero-grid">
+    <div>
+      <div class="lbl">AI Engineer &nbsp;·&nbsp; M.S. Data Science, University of Maryland</div>
+      <h1 style="margin-top:16px">From <em>300 farmers</em> to enterprise pipelines.</h1>
+      <p class="sub">I started by building an AI assistant that answers farmers in <b>Hindi, Marathi and English</b>. Now I build multi-agent systems that find the broken stored procedure in a data pipeline <b>in days instead of weeks</b>. The problem underneath both is the same one, and it fits in one line of math.</p>
+      <div class="chips">
+        <a class="chip primary" href="#triage">Break a pipeline, watch the agent</a>
+        <a class="chip" href="resume.pdf">Resume (PDF)</a>
+        <a class="chip" href="https://github.com/dhruvdubey3123">GitHub</a>
+        <a class="chip" href="https://www.linkedin.com/in/dhruv-dubey-502a42284/">LinkedIn</a>
+        <a class="chip" href="https://arxiv.org/abs/2608.26236">arXiv 2608.26236</a>
+      </div>
+      <div class="ticker" aria-live="off"><span class="dot"></span><span class="tk" id="tick"></span></div>
+    </div>
+    <div class="orbit" id="orbit">
+      <canvas id="orbitc" aria-label="A rotating graph of everything I have built. Large nodes are systems, small nodes are the tools each one uses. Drag to spin, hover a system to read about it, click to open it."></canvas>
+      <div class="otip" id="otip"><div class="ot"></div><div class="od"></div><div class="ok"></div></div>
+      <div class="hint">drag to spin · hover a system · click to open</div>
+    </div>
+  </div>
+</div></header>
+
+<!-- ========== EQUATION ========== -->
+<section id="equation" class="alt"><div class="wrap">
+  <div class="sechead">
+    <div class="lbl">Where I start</div>
+    <h2>The most interesting line in AI right now</h2>
+  </div>
+
+  <div class="eqcard">
+    <div class="eq" role="img" aria-label="Attention of Q, K, V equals softmax of Q K transpose over square root of d k, times V">
+      <span>Attention(<i>Q</i>, <i>K</i>, <i>V</i>)</span>
+      <span>=</span>
+      <span>softmax</span>
+      <span>(</span>
+      <span class="frac"><span class="num"><i>Q</i><i>K</i><sup>⊤</sup></span><span class="den">√<span class="sqrt"><i>d</i><sub>k</sub></span></span></span>
+      <span>)</span>
+      <span><i>V</i></span>
+    </div>
+
+    <div class="eqparts">
+      <div class="part" tabindex="0"><div class="sym">Q</div><div class="what">What I am looking for right now. The question.</div></div>
+      <div class="part" tabindex="0"><div class="sym">K</div><div class="what">What each piece of context claims to be about.</div></div>
+      <div class="part" tabindex="0"><div class="sym">QK<sup>⊤</sup></div><div class="what">How well every key matches the question, all at once.</div></div>
+      <div class="part" tabindex="0"><div class="sym">√d<sub>k</sub></div><div class="what">A quiet fix. Without it, scores grow with dimension and softmax collapses onto one token.</div></div>
+      <div class="part" tabindex="0"><div class="sym">V</div><div class="what">What each piece actually says, blended by weight.</div></div>
+    </div>
+
+    <div class="thoughts">
+      <p>Every frontier model since 2017 runs on this line, and what it encodes is a learned answer to one question: what matters right now?</p>
+      <p>The part I find most interesting is that models did not get better by reading more. They got better by <i>weighting</i> better. The softmax is a budget. Every bit of attention spent on an irrelevant token is attention taken from the one that mattered.</p>
+      <p>Most of my work is that same question one level up, where I build the weighting myself. For Krishi Mitra it was: out of a forty-page government scheme document, which paragraph answers this farmer? At Allegis it was: out of hundreds of stored procedures, which one actually broke? <b>Retrieval is attention you engineer by hand.</b> Get the weighting wrong and the model does not stop. It answers confidently from the wrong context.</p>
+    </div>
+
+    <div class="attn">
+      <div class="attn-head">
+        <div>
+          <div class="lbl">Try it</div>
+          <div class="muted" style="font-size:14px; margin-top:4px">A farmer asks a question. Watch where the attention goes across five retrieved passages. The relevance scores are toy values, chosen to show the mechanism.</div>
+        </div>
+        <div class="attn-q" id="attnQ"></div>
+      </div>
+      <div class="passages" id="passages"></div>
+      <div class="temp">
+        <label for="tempR">temperature, i.e. scaling of QK<sup>⊤</sup></label>
+        <input id="tempR" type="range" min="0.3" max="3" step="0.05" value="1">
+        <span id="tempV">1.00</span>
+        <span id="tempNote"></span>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<!-- ========== STORY ========== -->
+<section id="story"><div class="wrap">
+  <div class="sechead">
+    <div class="lbl">How I got here</div>
+    <h2>Four problems, one thread</h2>
+  </div>
+  <div class="chapters">
+
+    <article class="ch">
+      <div><div class="when">2023 &ndash; 2025</div><div class="place">Pune, India</div></div>
+      <div>
+        <h3>Krishi Mitra: AI that speaks the farmer's language</h3>
+        <p>The information farmers need already exists online: government schemes, subsidies, crop and irrigation guidance. It is scattered, written in bureaucratic English, and hard to trust. So most farmers rely on word of mouth instead.</p>
+        <p>With three teammates I built a conversational assistant around a <b>fine-tuned LLaMA 3.2 3B</b>, quantized to run locally through llama.cpp, with a RAG pipeline that pulls live answers from trusted agricultural and government sources and replies in <b>Hindi, Marathi or English</b>. It ran on cheap hardware on purpose. The people it was for do not have GPUs.</p>
+        <div class="figs"><span class="fig">300 farmers piloted</span><span class="fig">ROUGE-1 ≈ 0.75</span><span class="fig">SBERT similarity ≈ 0.83</span><span class="fig">source reliability up to 1.0</span><span class="fig">published</span></div>
+      </div>
+    </article>
+
+    <article class="ch">
+      <div><div class="when">2025</div><div class="place">Fortytwo Labs</div></div>
+      <div>
+        <h3>Finding what does not belong</h3>
+        <p>My first production ML work was security. Autoencoders learned what normal login behaviour looks like, and a hybrid KMeans and DBSCAN layer flagged the rest. The models fed a Drools rule engine that scored risk automatically. It was the first time I saw a model change what people spend their day on.</p>
+        <div class="figs"><span class="fig">+40% detection accuracy</span><span class="fig">35% more outliers found</span><span class="fig">33% fewer manual reviews</span></div>
+      </div>
+    </article>
+
+    <article class="ch">
+      <div><div class="when">2025 &ndash; 2026</div><div class="place">University of Maryland</div></div>
+      <div>
+        <h3>Breaking other people's research to learn where ML quietly fails</h3>
+        <p>Under Prof. William Regli I helped run a reproducibility audit of the neuro-symbolic AI literature. We rebuilt published codebases on the Zaratan HPC cluster and checked whether the numbers held. Often they did not, for boring reasons: a hyperparameter missing from the paper, an evaluation split that quietly changed, an environment nobody pinned.</p>
+        <p>That taught me to distrust a system that cannot show how it was measured. Everything I build now ships with its eval.</p>
+        <div class="funnel"><span>5,497 records</span><em>→</em><span>1,304 eligible</span><em>→</em><span>85 reproduced</span><em>→</em><span>arXiv + under review at IEEE TNNLS</span></div>
+      </div>
+    </article>
+
+    <article class="ch">
+      <div><div class="when">Summer 2026</div><div class="place">Allegis Global Solutions</div></div>
+      <div>
+        <h3>Weeks to days: an agent that debugs the pipeline</h3>
+        <p>When a pipeline feeding AGS's Acumen workforce platform broke, someone had to trace it by hand through layer after layer of stored procedures. Sometimes that took weeks. I built a multi-agent triage system on Snowflake Cortex that does the tracing, checks the data, finds precedent, and proposes the fix for a human to approve. It learned new failure patterns from a YAML instruction layer, without retraining.</p>
+        <p>It is the same problem as the farmers, at enterprise scale: find the one thing that matters in a lot of context, then be honest about how sure you are. You can run a reconstruction of it just below.</p>
+        <div class="figs"><span class="fig">~65% faster root cause</span><span class="fig">weeks → days</span><span class="fig">fix proposals: hours → minutes</span></div>
+      </div>
+    </article>
+
+    <article class="ch">
+      <div><div class="when">Now</div><div class="place">Building in public</div></div>
+      <div>
+        <h3>Making the pattern reusable</h3>
+        <p>Two open-source builds that generalise what Allegis taught me. A <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph" style="color:var(--accent)"><b>LangGraph incident triage graph</b></a> with an MCP server and an eval suite that gates CI. Its noisy test set showed rule-based classification gets fooled about one time in five, which is exactly why the human gate stays. And an <a href="https://github.com/dhruvdubey3123/agent-harness-runtime" style="color:var(--accent)"><b>agent harness runtime</b></a> that resumes crashed runs without ever repeating a side effect in its benchmark.</p>
+      </div>
+    </article>
+
+  </div>
+</div></section>
+
+<!-- ========== TRIAGE ========== -->
+<section id="triage" class="alt"><div class="wrap">
+  <div class="sechead">
+    <div class="lbl">Interactive · reconstruction of the Allegis system</div>
+    <h2>Break the pipeline. Watch the agent find it.</h2>
+    <div class="origin">
+      <p><b>Where this comes from.</b> At Allegis Global Solutions I built the original version of this agent on Snowflake Cortex, so analysts could find the stored procedure that broke a pipeline in days instead of weeks. That code belongs to AGS and stays there.</p>
+      <p>Afterwards I wanted to rebuild the idea on my own, in the open, and measure it properly. The result is <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>. The demo below is wired to that project: its tracer runs the same upstream-walk algorithm as <code>triage/dag.py</code>, and its reviewer applies the same rules.</p>
+    </div>
+    <p class="muted" style="max-width:70ch">Click any box to break it and choose how it fails, or start from a common break, then run triage. Table and job names are invented.</p>
+  </div>
+
+  <div class="console">
+    <div class="c-top">
+      <div class="presets">
+        <span class="mini">Start from</span>
+        <button class="case" type="button" data-preset="p1">Schema change upstream</button>
+        <button class="case" type="button" data-preset="p2">Duplicate rows</button>
+        <button class="case" type="button" data-preset="p3">Load timed out</button>
+      </div>
+      <div class="ctrl">
+        <label class="mini" for="ftype" id="flabel">or click a box to break it</label>
+        <select id="ftype" hidden></select>
+        <button class="runbtn" id="runbtn" type="button" disabled>Run triage</button>
+        <button class="resetbtn" id="resetbtn" type="button">Reset</button>
+      </div>
+    </div>
+    <div class="agents" id="agents">
+      <span class="ag" data-a="intake">Case intake</span>
+      <span class="ag" data-a="tracer">Tracer · dependency graph</span>
+      <span class="ag" data-a="analyst">Cortex Analyst · semantic views</span>
+      <span class="ag" data-a="search">Cortex Search · precedents</span>
+      <span class="ag" data-a="orch">Orchestrator</span>
+      <span class="ag" data-a="review">Reviewer</span>
+      <span class="ag human" data-a="human">Human approval</span>
+    </div>
+    <div class="c-body">
+      <div class="dagwrap">
+        <div class="dag-cap">AGS360 → Matillion → Snowflake → Power BI · click a box to break it</div>
+        <svg id="dag" viewBox="0 0 780 360" aria-label="Pipeline dependency graph. Each box can be selected to inject a failure."></svg>
+      </div>
+      <div class="logpane">
+        <div class="log" id="log" aria-live="polite"></div>
+        <div class="gate" id="gate" hidden>
+          <div class="g-t">Human approval required</div>
+          <div class="g-fix" id="gfix"></div>
+          <div class="g-row">
+            <button class="gbtn ok" id="approve" type="button">Approve and apply</button>
+            <button class="gbtn no" id="reject" type="button">Reject, escalate</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="c-foot">
+      <span><b id="hops">0</b> of <b id="ntotal">12</b> boxes opened by the tracer. Healthy branches are ruled out without being explored.</span>
+      <span>Things to try: break a Matillion load with a schema change that hits two jobs, or break a source system.</span>
+    </div>
+  </div>
+
+  <div class="rel">
+    <div>
+      <div class="lbl">Why a human approves the fix</div>
+      <div class="ctl" style="margin-top:14px">
+        <label for="pR">Reliability of each agent step <b id="pV">95%</b></label>
+        <input id="pR" type="range" min="80" max="99.9" step="0.1" value="95">
+        <label for="nR">Steps chained before anything is checked <b id="nV">10</b></label>
+        <input id="nR" type="range" min="1" max="30" step="1" value="10">
+      </div>
+    </div>
+    <div>
+      <div class="out"><i>P</i>(run succeeds) = <i>p</i><sup><i>n</i></sup> = <span class="big" id="pn">60%</span></div>
+      <p class="note" id="pnNote"></p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ========== SYSTEMS ========== -->
+<section id="systems"><div class="wrap">
+  <div class="sechead">
+    <div class="lbl">Builds</div>
+    <h2>Systems</h2>
+    <p class="muted" style="max-width:62ch">Every number here comes from a real run: a pilot, a published eval, or a benchmark you can rerun from the repo.</p>
+  </div>
+  <div class="systems">
+
+    <article class="sys">
+      <button class="sys-head" type="button" aria-expanded="false">
+        <span><span class="sys-title">Pipeline Incident Triage Graph</span><span class="sys-sub">LangGraph · MCP · FastAPI · Docker · Kubernetes · GitHub Actions</span></span>
+        <span class="sys-right"><span class="status live">Live repo</span><span class="caret">&#9654;</span></span>
+      </button>
+      <div class="sys-body">
+        <p>The open-source rebuild of the Allegis agent, written from scratch. A tracer walks the DAG upstream from the symptom; analyst, precedent, classifier and orchestrator agents build a fix; a separate reviewer blocks unsafe ones; LangGraph interrupts before the gate so nothing changes without a person. The demo above runs the same tracing logic.</p>
+        <table class="kv"><tbody>
+          <tr><td>Eval sets</td><td>2 × 100 synthetic incidents, committed</td></tr>
+          <tr><td>Clean set</td><td>all metrics 1.00 (a spec test, not an accuracy claim)</td></tr>
+          <tr><td>Noisy set, root cause</td><td>1.00</td></tr>
+          <tr><td>Noisy set, category / escalation recall</td><td>0.81 / 0.81: misleading logs fool the rules</td></tr>
+          <tr><td>Tests</td><td>17 passing, eval gated in CI</td></tr>
+        </tbody></table>
+        <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/pipeline-triage-graph">github.com/dhruvdubey3123/pipeline-triage-graph</a></div>
+      </div>
+    </article>
+
+    <article class="sys">
+      <button class="sys-head" type="button" aria-expanded="false">
+        <span><span class="sys-title">Agent Harness Runtime</span><span class="sys-sub">Python · FastAPI · SQLite run log · MCP · Docker · Kubernetes</span></span>
+        <span class="sys-right"><span class="status live">Live repo</span><span class="caret">&#9654;</span></span>
+      </button>
+      <div class="sys-body">
+        <p>The graph decides what happens next. The harness decides what an agent can do at all: the loop, the context budget, the sandbox, the run log. Every tool call is logged as started, dispatched, then done, so a crashed run resumes without repeating a side effect, and stops for a person when it genuinely cannot tell.</p>
+        <table class="kv"><tbody>
+          <tr><td>Crash benchmark</td><td>200 runs, same crashes, two recovery strategies</td></tr>
+          <tr><td>Duplicated side effects</td><td>restart 145/200 · resume 0/200</td></tr>
+          <tr><td>Correct with no human</td><td>restart 55/200 · resume 143/200</td></tr>
+          <tr><td>Stopped for review</td><td>resume 57/200, the honest cost</td></tr>
+          <tr><td>Tests</td><td>18 passing, benchmark gated in CI</td></tr>
+        </tbody></table>
+        <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
+      </div>
+    </article>
+
+    <article class="sys">
+      <button class="sys-head" type="button" aria-expanded="false">
+        <span><span class="sys-title">Krishi Mitra</span><span class="sys-sub">LLaMA 3.2 3B fine-tune · llama.cpp GGUF · RAG · SearXNG · FastAPI · React · TypeScript · Supabase</span></span>
+        <span class="sys-right"><span class="status live">Shipped · 300 farmers</span><span class="caret">&#9654;</span></span>
+      </button>
+      <div class="sys-body">
+        <p>Fine-tuned on government schemes, crops, soil, irrigation, weather and financial support data, then grounded at answer time with retrieval from trusted sources via SearXNG. Quantized and run locally so it works on low-compute machines. Built with Raj Ambavane, Omkar Lande and Oindrilla Banerjee under Dr. Shraddha Phansalkar.</p>
+        <table class="kv"><tbody>
+          <tr><td>ROUGE-1 / ROUGE-L</td><td>≈ 0.75 / ≈ 0.68</td></tr>
+          <tr><td>SBERT semantic similarity</td><td>≈ 0.83</td></tr>
+          <tr><td>Source reliability ratio</td><td>up to 1.0</td></tr>
+          <tr><td>Languages</td><td>Hindi, Marathi, English</td></tr>
+        </tbody></table>
+      </div>
+    </article>
+
+    <article class="sys">
+      <button class="sys-head" type="button" aria-expanded="false">
+        <span><span class="sys-title">Autonomous Data Science Crew</span><span class="sys-sub">CrewAI · MLflow AutoML · Python</span></span>
+        <span class="sys-right"><span class="status live">Shipped</span><span class="caret">&#9654;</span></span>
+      </button>
+      <div class="sys-body">
+        <p>Most ML projects look different on the surface and identical underneath. So instead of tuning another model I redesigned the workflow: six role-driven agents, one stage each, from data understanding and feature reasoning through model selection, evaluation and reporting.</p>
+        <table class="kv"><tbody>
+          <tr><td>Agents</td><td>6, one responsibility each</td></tr>
+          <tr><td>Workflow efficiency</td><td>+35%</td></tr>
+          <tr><td>Model selection</td><td>MLflow AutoML</td></tr>
+        </tbody></table>
+      </div>
+    </article>
+
+    <article class="sys">
+      <button class="sys-head" type="button" aria-expanded="false">
+        <span><span class="sys-title">Smart Plant Health Monitor</span><span class="sys-sub">YOLOv5 · ResNet · LSTM · FastAPI · Docker · Streamlit</span></span>
+        <span class="sys-right"><span class="status live">Shipped</span><span class="caret">&#9654;</span></span>
+      </button>
+      <div class="sys-body">
+        <p>Find the leaf, judge its health, forecast what it needs next. Detection, classification and time-series prediction in one system, served behind an API instead of left in a notebook.</p>
+        <table class="kv"><tbody>
+          <tr><td>Health classification accuracy</td><td>90%</td></tr>
+          <tr><td>Models</td><td>YOLOv5 detect, ResNet classify, LSTM forecast</td></tr>
+          <tr><td>Serving</td><td>Dockerized FastAPI + Streamlit</td></tr>
+        </tbody></table>
+      </div>
+    </article>
+
+  </div>
+
+  <div style="margin-top:44px">
+    <div class="lbl" style="margin-bottom:14px">Stack, filter by layer</div>
+    <div class="filters" id="filters"></div>
+    <div class="stack" id="stack"></div>
+    <p class="stackcount" id="stackcount"></p>
+  </div>
+</div></section>
+
+<!-- ========== CONTACT ========== -->
+<section id="contact" class="alt"><div class="wrap">
+  <div class="sechead">
+    <div class="lbl">Get in touch</div>
+    <h2>Hiring for AI or ML engineering?</h2>
+    <p class="muted" style="max-width:56ch">Graduating May 2027. Open to Summer 2027 internships and full-time roles across the full ML lifecycle: agents, LLM systems, evaluation, deployment.</p>
+  </div>
+  <div class="cgrid">
+    <div class="citem"><div class="k">Email</div><div class="v"><span>ddubey12@umd.edu</span><button class="copy" type="button" data-copy="ddubey12@umd.edu">copy</button></div></div>
+    <div class="citem"><div class="k">LinkedIn</div><div class="v"><a href="https://www.linkedin.com/in/dhruv-dubey-502a42284/">in/dhruv-dubey-502a42284</a></div></div>
+    <div class="citem"><div class="k">GitHub</div><div class="v"><a href="https://github.com/dhruvdubey3123">github.com/dhruvdubey3123</a></div></div>
+    <div class="citem"><div class="k">Resume</div><div class="v"><a href="resume.pdf">resume.pdf</a></div></div>
+  </div>
+  <footer>
+    <span>M.S. Data Science, University of Maryland · B.Tech CSE, MIT-ADT University</span>
+    <span>The triage demo is a reconstruction with invented names.</span>
+  </footer>
+</div></section>
+
+<script>
+/* ---------- theme ---------- */
+(function(){
+  var root=document.documentElement, btn=document.getElementById('themebtn');
+  try{ var s=localStorage.getItem('dd-theme'); if(s) root.setAttribute('data-theme',s); }catch(e){}
+  btn.addEventListener('click',function(){
+    var dark=root.getAttribute('data-theme')==='dark' || (!root.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    var next=dark?'light':'dark'; root.setAttribute('data-theme',next);
+    try{ localStorage.setItem('dd-theme',next); }catch(e){}
+  });
+})();
+
+var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math.min(ms,120) : ms); }); }
+
+/* ---------- hero: the graph of everything built ---------- */
+(function(){
+  var HUBS=[
+    {id:'krishi', t:'Krishi Mitra', d:'Fine-tuned LLaMA 3.2 3B with RAG, answering farmers in Hindi, Marathi and English. Piloted with 300 farmers.', go:'#systems', card:'Krishi Mitra', s:['RAG','LLaMA fine-tune','llama.cpp','Embeddings','FastAPI','React','Supabase']},
+    {id:'allegis', t:'Allegis triage agent', d:'Multi-agent root-cause system on Snowflake Cortex. Diagnosis went from weeks to days.', go:'#triage', s:['Cortex Agents','Cortex Search','Cortex Analyst','Semantic views','Multi-agent','Power BI','Matillion']},
+    {id:'tgraph', t:'Pipeline Triage Graph', d:'Open-source rebuild: LangGraph, MCP server, human gate, eval suite gating CI.', go:'#systems', card:'Pipeline Incident Triage Graph', s:['LangGraph','MCP','Evals','Kubernetes','GitHub Actions','Docker','FastAPI','Human-in-the-loop']},
+    {id:'harness', t:'Agent Harness Runtime', d:'Crash-safe agent runs. In its benchmark, resume duplicated 0 of 200 side effects; restart duplicated 145.', go:'#systems', card:'Agent Harness Runtime', s:['Sandboxing','Run log','MCP','Retries','Context budget','Docker','Skills']},
+    {id:'nsai', t:'Reproducibility audit', d:'5,497 records screened, 85 codebases reproduced on Zaratan HPC. Under review at IEEE TNNLS.', go:'#story', s:['SLURM / HPC','PyTorch','Reproducibility','Docker','Evals']},
+    {id:'crew', t:'Data Science Crew', d:'Six CrewAI agents running the ML lifecycle end to end. +35% workflow efficiency.', go:'#systems', card:'Autonomous Data Science Crew', s:['CrewAI','MLflow','Multi-agent']},
+    {id:'plant', t:'Plant Health Monitor', d:'YOLOv5, ResNet and LSTM in one served system. 90% health classification accuracy.', go:'#systems', card:'Smart Plant Health Monitor', s:['YOLOv5','ResNet','LSTM','FastAPI','Docker']},
+    {id:'ftl', t:'Anomaly detection', d:'Autoencoders and DBSCAN on login data at Fortytwo Labs. 33% fewer manual security reviews.', go:'#story', s:['Autoencoders','DBSCAN','TensorFlow','Drools']}
+  ];
+  var cv=document.getElementById('orbitc'), ctx=cv.getContext('2d'), wrap=document.getElementById('orbit'), tip=document.getElementById('otip');
+  var REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function fib(i,n,r){ var y=1-(i+.5)/n*2, rad=Math.sqrt(1-y*y), th=i*2.39996323; return [Math.cos(th)*rad*r, y*r, Math.sin(th)*rad*r]; }
+  function norm(v,r){ var l=Math.hypot(v[0],v[1],v[2])||1; return [v[0]/l*r,v[1]/l*r,v[2]/l*r]; }
+  var nodes=[], edges=[], byName={}, seed=7;
+  function rnd(){ seed=(seed*16807)%2147483647; return seed/2147483647-.5; }
+  HUBS.forEach(function(h,i){ h.p=fib(i,HUBS.length,.58); h.hub=true; h.r=7.5; nodes.push(h); });
+  HUBS.forEach(function(h){ h.s.forEach(function(name){
+    var n=byName[name];
+    if(!n){ n={t:name, hub:false, r:2.6, links:[]}; byName[name]=n; nodes.push(n); }
+    n.links.push(h); edges.push({a:h,b:n,ph:Math.abs(rnd())*2,sp:.0025+Math.abs(rnd())*.004});
+  }); });
+  Object.keys(byName).forEach(function(k){ var n=byName[k], c=[0,0,0];
+    n.links.forEach(function(h){ c[0]+=h.p[0]; c[1]+=h.p[1]; c[2]+=h.p[2]; });
+    n.p=norm([c[0]+rnd()*.9, c[1]+rnd()*.9, c[2]+rnd()*.9], 1); });
+  // a few faint cross-links between hubs that share a tool, so it reads as one body of work
+  for(var i=0;i<HUBS.length;i++) for(var j=i+1;j<HUBS.length;j++){
+    if(HUBS[i].s.some(function(x){return HUBS[j].s.indexOf(x)>=0;})) edges.push({a:HUBS[i],b:HUBS[j],ph:Math.abs(rnd())*2,sp:.0018,cross:true});
+  }
+
+  var col={}; function readCols(){ var cs=getComputedStyle(document.documentElement); ['--accent','--signal','--ink','--muted','--line','--bg'].forEach(function(k){ col[k]=cs.getPropertyValue(k).trim(); }); }
+  readCols(); new MutationObserver(readCols).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',readCols);
+
+  var W=0,H=0,dpr=1;
+  function size(){ dpr=Math.min(devicePixelRatio||1,2); var r=cv.getBoundingClientRect(); W=r.width; H=r.height; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); }
+  size(); addEventListener('resize',size);
+
+  var ay=.6, ax=-.32, vy=REDUCE?0:.0022, drag=null, hover=null, t0=performance.now(), mouse=null;
+  function rot(p){ var cy=Math.cos(ay), sy=Math.sin(ay), cx=Math.cos(ax), sx=Math.sin(ax);
+    var x=p[0]*cy+p[2]*sy, z=-p[0]*sy+p[2]*cy, y=p[1]*cx-z*sx; z=p[1]*sx+z*cx; return [x,y,z]; }
+  function proj(p,k){ var R=Math.min(W,H)*.44*k, f=3/(3-p[2]); return {x:W/2+p[0]*R*f, y:H/2+p[1]*R*f, z:p[2], f:f}; }
+  function alpha(hex,a){ if(!hex) return 'rgba(0,0,0,'+a+')'; if(hex[0]!=='#') return hex; var n=parseInt(hex.slice(1),16); return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'; }
+  function ease(x){ return 1-Math.pow(1-Math.min(1,x),3); }
+
+  function frame(now){
+    var k=REDUCE?1:ease((now-t0)/1400);
+    if(!drag) ay+=vy;
+    ctx.clearRect(0,0,W,H);
+    nodes.forEach(function(n){ n.q=proj(rot(n.p),k); });
+    var hl=hover&&hover.hub?hover:null;
+    edges.forEach(function(e){
+      var a=e.a.q,b=e.b.q, depth=(a.z+b.z)/2, on=hl&&(e.a===hl||e.b===hl);
+      ctx.strokeStyle=alpha(on?col['--accent']:col['--muted'], on?.75:(e.cross?.10:.18)*(.55+depth*.45));
+      ctx.lineWidth=on?1.4:.8; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+      if(!REDUCE){ e.ph=(e.ph+e.sp)%1; var u=e.ph, x=a.x+(b.x-a.x)*u, y=a.y+(b.y-a.y)*u;
+        ctx.fillStyle=alpha(e.cross?col['--signal']:col['--accent'], (on?1:.75)*(.45+depth*.55));
+        ctx.beginPath(); ctx.arc(x,y,on?2.4:1.6,0,6.283); ctx.fill(); }
+    });
+    nodes.slice().sort(function(a,b){return a.q.z-b.q.z;}).forEach(function(n){
+      var q=n.q, d=.5+q.z*.5, isH=n===hover, lit=hl&&(n===hl||(n.links&&n.links.indexOf(hl)>=0));
+      var r=n.r*q.f*(isH?1.35:1);
+      if(n.hub){
+        ctx.fillStyle=alpha(col['--accent'], .10*d); ctx.beginPath(); ctx.arc(q.x,q.y,r*2.6,0,6.283); ctx.fill();
+        ctx.fillStyle=alpha(col['--accent'], .55+.45*d); ctx.beginPath(); ctx.arc(q.x,q.y,r,0,6.283); ctx.fill();
+        if(q.z>-.35||isH){ ctx.font='600 '+(11.5*q.f).toFixed(1)+'px "IBM Plex Mono", monospace'; ctx.textAlign='center';
+          ctx.fillStyle=alpha(col['--ink'], (.35+.65*d)*(hl&&!lit?.35:1)); ctx.fillText(n.t, q.x, q.y-r-7); }
+      } else {
+        ctx.fillStyle=alpha(lit?col['--accent']:col['--ink'], (lit?.95:.35)*(.4+.6*d)); ctx.beginPath(); ctx.arc(q.x,q.y,r,0,6.283); ctx.fill();
+        if(lit||isH){ ctx.font='500 '+(10.5*q.f).toFixed(1)+'px "IBM Plex Mono", monospace'; ctx.textAlign='left';
+          ctx.fillStyle=alpha(col['--ink'],.9); ctx.fillText(n.t, q.x+r+4, q.y+3.5); }
+      }
+    });
+    if(mouse&&!drag) pickHover();
+    requestAnimationFrame(frame);
+  }
+  function pickHover(){
+    var best=null, bd=22;
+    nodes.forEach(function(n){ var dd=Math.hypot(n.q.x-mouse.x, n.q.y-mouse.y)-(n.hub?6:0); if(dd<bd&&n.q.z>-.6){ bd=dd; best=n; } });
+    if(best!==hover){ hover=best; showTip(); }
+    else if(hover) placeTip();
+    cv.style.cursor=hover&&hover.hub?'pointer':'grab';
+  }
+  function showTip(){
+    if(!hover){ tip.classList.remove('on'); return; }
+    tip.querySelector('.ot').textContent=hover.t;
+    tip.querySelector('.od').textContent=hover.hub?hover.d:'Used in: '+hover.links.map(function(h){return h.t;}).join(', ');
+    tip.querySelector('.ok').textContent=hover.hub?(hover.card?'click to open its card':'click to jump there'):'';
+    tip.classList.add('on'); placeTip();
+  }
+  function placeTip(){ var q=hover.q, tw=tip.offsetWidth, th=tip.offsetHeight;
+    var x=Math.max(4,Math.min(W-tw-4,q.x+14)), y=q.y-th-14; if(y<4) y=q.y+16; tip.style.left=x+'px'; tip.style.top=y+'px'; }
+
+  function pos(ev){ var r=cv.getBoundingClientRect(); return {x:ev.clientX-r.left, y:ev.clientY-r.top}; }
+  cv.addEventListener('pointerdown',function(ev){ drag={x:ev.clientX,y:ev.clientY,ay:ay,ax:ax,moved:false}; cv.classList.add('drag'); cv.setPointerCapture(ev.pointerId); });
+  cv.addEventListener('pointermove',function(ev){ mouse=pos(ev);
+    if(drag){ var dx=ev.clientX-drag.x, dy=ev.clientY-drag.y; if(Math.abs(dx)+Math.abs(dy)>4) drag.moved=true;
+      ay=drag.ay+dx*.008; ax=Math.max(-1.1,Math.min(1.1,drag.ax+dy*.006)); } });
+  cv.addEventListener('pointerup',function(ev){ var wasClick=drag&&!drag.moved; drag=null; cv.classList.remove('drag');
+    if(wasClick){ mouse=pos(ev); pickHover(); if(hover&&hover.hub){ var target=document.querySelector(hover.go); if(hover.card){ [].some.call(document.querySelectorAll('.sys'),function(sx){ if(sx.querySelector('.sys-title').textContent===hover.card){ sx.classList.add('open'); sx.querySelector('.sys-head').setAttribute('aria-expanded','true'); target=sx; return true; } }); } target.scrollIntoView({behavior:REDUCE?'auto':'smooth', block:'center'}); } } });
+  cv.addEventListener('pointerleave',function(){ mouse=null; if(!drag){ hover=null; showTip(); } });
+  requestAnimationFrame(frame);
+
+  /* live ticker: things these systems actually do */
+  var LINES=[
+    ['tracer','sp_merge_cases healthy, branch ruled out'],
+    ['tracer','root cause sp_calc_fill_rate, caused upstream by stg_timesheets'],
+    ['reviewer','blocked: several jobs need fixing at once, escalating'],
+    ['human','approved, applying fix and refreshing downstream'],
+    ['harness','resumed run from the log, 0 side effects repeated'],
+    ['harness','append_line was in flight at crash, stopping for review'],
+    ['eval','noisy set: root cause 1.00, category 0.81, gate passed'],
+    ['krishi mitra','question in Marathi, answer grounded in a scheme document'],
+    ['audit','reproduced on Zaratan, numbers checked against the paper']
+  ];
+  var tk=document.getElementById('tick'), li=0;
+  function render(tag,txt,n){ tk.innerHTML='<b>'+tag+'</b> · '+txt.slice(0,n).replace(/&/g,'&amp;').replace(/</g,'&lt;')+'<span class="cur"></span>'; }
+  if(REDUCE){ render(LINES[0][0],LINES[0][1],999); return; }
+  (function type(){ var L=LINES[li%LINES.length], n=0;
+    (function step(){ render(L[0],L[1],n); n++; if(n<=L[1].length) setTimeout(step,24); else setTimeout(function(){ li++; type(); },1900); })();
+  })();
+})();
+
+/* ---------- attention toy ---------- */
+(function(){
+  var Q = [
+    { q:'Which scheme helps me pay for drip irrigation?', s:[3.1, 0.4, 1.6, 0.2, 0.9] },
+    { q:'Is there crop insurance if the monsoon fails?',  s:[0.3, 2.9, 0.5, 1.2, 0.4] },
+    { q:'How much fertilizer for black soil cotton?',     s:[0.2, 0.3, 0.6, 0.5, 2.7] }
+  ];
+  var P = [
+    'PM Krishi Sinchai Yojana: subsidy for micro-irrigation, drip and sprinkler systems',
+    'PM Fasal Bima Yojana: crop insurance for yield loss from drought, flood, failed rainfall',
+    'State water conservation grants for farm ponds and irrigation infrastructure',
+    'Kisan Credit Card: short-term credit limits for crop cultivation expenses',
+    'Soil Health Card guidance: nutrient dosing by soil type for cotton and soybean'
+  ];
+  var qi=0, wrap=document.getElementById('passages'), qwrap=document.getElementById('attnQ'), tr=document.getElementById('tempR'), tv=document.getElementById('tempV'), tn=document.getElementById('tempNote');
+  Q.forEach(function(x,i){
+    var b=document.createElement('button'); b.type='button'; b.className='qbtn'; b.textContent=x.q;
+    b.addEventListener('click',function(){ qi=i; render(); }); qwrap.appendChild(b);
+  });
+  var rows=P.map(function(t){
+    var r=document.createElement('div'); r.className='psg';
+    r.innerHTML='<div class="t"></div><div class="bar"><i></i></div><div class="w"></div>';
+    r.querySelector('.t').textContent=t; wrap.appendChild(r); return r;
+  });
+  function render(){
+    var T=parseFloat(tr.value), sc=Q[qi].s.map(function(v){ return v/T; });
+    var m=Math.max.apply(null,sc), ex=sc.map(function(v){ return Math.exp(v-m); }), sum=ex.reduce(function(a,b){return a+b;},0);
+    ex.forEach(function(e,i){ var w=e/sum; rows[i].querySelector('i').style.width=(w*100).toFixed(1)+'%'; rows[i].querySelector('.w').textContent=w.toFixed(2); });
+    [].forEach.call(qwrap.children,function(b,i){ b.setAttribute('aria-pressed', i===qi?'true':'false'); });
+    tv.textContent=T.toFixed(2);
+    tn.textContent = T<0.6 ? 'sharp: nearly all weight on one passage' : (T>2 ? 'flat: the model reads everything and trusts nothing' : '');
+  }
+  tr.addEventListener('input',render); render();
+})();
+
+/* ---------- triage console ---------- */
+(function(){
+  var L=[{x:70,t:'Source'},{x:225,t:'Matillion load'},{x:390,t:'Stored procedure'},{x:555,t:'Fact table'},{x:710,t:'Power BI'}];
+  var N={
+    ags:{l:0,y:70,t:'AGS360 cases',k:'source',owner:'source system team'}, tsrc:{l:0,y:170,t:'Timesheet feed',k:'source',owner:'source system team'}, vsrc:{l:0,y:290,t:'Vendor feed',k:'source',owner:'source system team'},
+    stg_cases:{l:1,y:70,t:'stg_cases',k:'load',owner:'data engineering'}, stg_ts:{l:1,y:170,t:'stg_timesheets',k:'load',owner:'data engineering'}, stg_v:{l:1,y:290,t:'stg_vendor',k:'load',owner:'data engineering'},
+    sp_merge:{l:2,y:70,t:'sp_merge_cases',k:'proc',owner:'data engineering'}, sp_fill:{l:2,y:170,t:'sp_calc_fill_rate',k:'proc',owner:'analytics engineering'}, sp_vend:{l:2,y:290,t:'sp_vendor_rollup',k:'proc',owner:'analytics engineering'},
+    fct_wf:{l:3,y:120,t:'fct_workforce',k:'table',owner:'analytics engineering'}, fct_sp:{l:3,y:290,t:'fct_spend',k:'table',owner:'analytics engineering'},
+    bi:{l:4,y:190,t:'Acumen report',k:'report',owner:'BI'}
+  };
+  var E=[['ags','stg_cases'],['tsrc','stg_ts'],['vsrc','stg_v'],['stg_cases','sp_merge'],['stg_ts','sp_fill'],['stg_cases','sp_fill'],['stg_v','sp_vend'],['sp_merge','fct_wf'],['sp_fill','fct_wf'],['sp_vend','fct_sp'],['fct_wf','bi'],['fct_sp','bi']];
+  var PROTECTED={ags:1,tsrc:1,vsrc:1,fct_wf:1,fct_sp:1,bi:1};
+  var W=124,H=34, SYMPTOM='bi';
+  var parents={}, children={}; Object.keys(N).forEach(function(k){parents[k]=[];children[k]=[];});
+  E.forEach(function(e){children[e[0]].push(e[1]); parents[e[1]].push(e[0]);});
+  function downstream(id){ var out=[],q=[id],seen={}; seen[id]=1; while(q.length){ var c=q.shift(); children[c].forEach(function(ch){ if(!seen[ch]){seen[ch]=1; out.push(ch); q.push(ch);} }); } return out; }
+
+  /* failure types a person can inject, by kind of box */
+  var FAILS={
+    source:[{v:'down',l:'Source system unavailable'}],
+    load:[{v:'schema',l:'Schema change upstream (column renamed)'},{v:'timeout',l:'Load job timed out'}],
+    proc:[{v:'ident',l:'Job fails: column not found'},{v:'dup',l:'Duplicate rows from MERGE'},{v:'perm',l:'Lost permission on schema'}],
+    table:[{v:'weird',l:'Unrecognised internal error'}]
+  };
+  var SYMPTOMS={down:'Report stopped updating',schema:'Report shows blanks where a metric should be',timeout:'Report numbers have not moved since the last load',ident:'Report shows blanks where a metric should be',dup:'A total on the report roughly doubled overnight',perm:'Report stopped updating',weird:'Report refresh fails with an error'};
+
+  function inject(id,type){
+    var s={};
+    if(type==='down'){ s[id]={status:'missing',err:'source extract failed: system unavailable'}; }
+    else if(type==='timeout'){ s[id]={status:'missing',err:'load job timed out; dependent jobs skipped'}; }
+    else if(type==='schema'){ s[id]={status:'changed',err:'upstream column renamed'};
+      children[id].forEach(function(c){ if(N[c].k==='proc') s[c]={status:'failed',err:'invalid identifier: column not found'}; }); }
+    else if(type==='ident'){ s[id]={status:'failed',err:'invalid identifier: column not found'}; }
+    else if(type==='dup'){ s[id]={status:'failed',err:'MERGE matched more than one source row; duplicate rows written'}; }
+    else if(type==='perm'){ s[id]={status:'failed',err:'insufficient privileges on target schema'}; }
+    else if(type==='weird'){ s[id]={status:'failed',err:'unexpected internal error'}; }
+    Object.keys(s).forEach(function(k){ downstream(k).forEach(function(d){ if(!s[d]) s[d]={status:'stale',err:'not refreshed since last good run'}; }); });
+    return s;
+  }
+  function st(S,id){ return (S[id]&&S[id].status)||'ok'; }
+
+  /* same algorithm as triage/dag.py: walk upstream through unhealthy boxes only */
+  var STRENGTH={failed:3,missing:3,changed:2,stale:1};
+  function trace(S,symptom){
+    var hops=[],seen={},cands=[],q=[symptom];
+    while(q.length){
+      var id=q.shift(); if(seen[id]) continue; seen[id]=1;
+      var s=st(S,id), healthy=s==='ok';
+      hops.push({id:id,status:s,ruled:healthy&&id!==symptom});
+      if(healthy&&id!==symptom) continue;
+      var sick=parents[id].filter(function(p){return st(S,p)!=='ok';});
+      parents[id].forEach(function(p){ if(!seen[p]) q.push(p); });
+      if(!sick.length&&id!==symptom) cands.push(id);
+    }
+    var res={};
+    function put(t,cause,s2){ var str=STRENGTH[s2]||0, prev=res[t]; if(!prev||str>prev.str||(!prev.cause&&cause)) res[t]={cause:cause,str:str}; }
+    cands.forEach(function(c){
+      var s2=st(S,c), fc=s2==='changed'?children[c].filter(function(ch){return st(S,ch)==='failed';}):[];
+      if(fc.length) fc.forEach(function(ch){put(ch,c,'failed');}); else put(c,null,s2);
+    });
+    var ranked=Object.keys(res).sort(function(a,b){return res[b].str-res[a].str;});
+    if(!ranked.length) return {hops:hops,target:null,cause:null,ambiguous:false,ranked:[]};
+    var top=res[ranked[0]].str, amb=ranked.filter(function(t){return res[t].str===top;}).length>1;
+    return {hops:hops,target:ranked[0],cause:res[ranked[0]].cause,ambiguous:amb,ranked:ranked};
+  }
+
+  /* same rule set as triage/knowledge.py */
+  var RULES=[['permission',/insufficient privileges|access denied/i],['schema_drift',/invalid identifier|column .*not found|renamed/i],['duplicate_merge',/duplicate|more than one source row/i],['missed_load',/timed? ?out|skipped|unavailable/i]];
+  function classify(text){ for(var i=0;i<RULES.length;i++){ if(RULES[i][1].test(text)) return RULES[i][0]; } return 'unknown'; }
+  var CASES={
+    schema_drift:'procedure failed with invalid identifier after an upstream load renamed a column',
+    duplicate_merge:'fact table doubled after the source started sending versioned rows; MERGE key too narrow',
+    missed_load:'load job timed out after source throttling; downstream jobs skipped',
+    permission:'procedure lost its grant after a service role rotation'
+  };
+  function fixText(cat,t,cause,ds){
+    var d=ds.length?ds.map(function(x){return N[x].t;}).join(', '):'dependent jobs';
+    if(cat==='schema_drift') return 'Update '+N[t].t+' to the new column name'+(cause?' introduced by '+N[cause].t:'')+', keep an alias for the old one, re-run it, then refresh '+d+'.';
+    if(cat==='duplicate_merge') return 'Widen the MERGE key in '+N[t].t+' so each versioned source row matches one target row, remove the duplicates from the last run, then refresh '+d+'.';
+    if(cat==='missed_load') return 'Re-run '+N[t].t+' with a backfill from its last successful run, then trigger '+d+'. Transient: no code change.';
+    if(cat==='permission') return 'Restore the grant '+N[t].t+' needs on its target schema, re-run it, then refresh '+d+'.';
+    return null;
+  }
+
+  var svg=document.getElementById('dag'), NS='http://www.w3.org/2000/svg';
+  function el(t,a){ var e=document.createElementNS(NS,t); for(var k in a) e.setAttribute(k,a[k]); return e; }
+  function cx(id){ return L[N[id].l].x; }
+  L.forEach(function(l){ var t=el('text',{x:l.x,y:22,'text-anchor':'middle','class':'layer'}); t.textContent=l.t; svg.appendChild(t); });
+  var edgeEls={};
+  E.forEach(function(p){ var a=N[p[0]],b=N[p[1]],x1=cx(p[0])+W/2,x2=cx(p[1])-W/2,mx=(x1+x2)/2;
+    var path=el('path',{d:'M'+x1+','+a.y+' C'+mx+','+a.y+' '+mx+','+b.y+' '+x2+','+b.y,'class':'e'}); svg.appendChild(path); edgeEls[p[0]+'>'+p[1]]=path; });
+  var nodeEls={};
+  Object.keys(N).forEach(function(id){
+    var n=N[id], breakable=n.k!=='report';
+    var g=el('g',{'class':'n'+(breakable?' pick':''), tabindex: breakable?'0':'-1', role: breakable?'button':'img', 'aria-label': n.t+(breakable?', select to break':'')});
+    g.appendChild(el('rect',{x:cx(id)-W/2,y:n.y-H/2,width:W,height:H,rx:6}));
+    var t=el('text',{x:cx(id),y:n.y+1,'text-anchor':'middle','dominant-baseline':'middle'}); t.textContent=n.t; g.appendChild(t);
+    var s=el('text',{x:cx(id),y:n.y+H/2+12,'text-anchor':'middle','class':'st'}); g.appendChild(s);
+    svg.appendChild(g); nodeEls[id]=g;
+    if(breakable){ g.addEventListener('click',function(){ pick(id); }); g.addEventListener('keydown',function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); pick(id); } }); }
+  });
+  document.getElementById('ntotal').textContent=Object.keys(N).length;
+
+  var logEl=document.getElementById('log'), runbtn=document.getElementById('runbtn'), resetbtn=document.getElementById('resetbtn'),
+      gate=document.getElementById('gate'), gfix=document.getElementById('gfix'), hopsEl=document.getElementById('hops'),
+      ftype=document.getElementById('ftype'), flabel=document.getElementById('flabel');
+  var S={}, chosen=null, running=false, symptomText='';
+
+  function setNode(id,cls,txt){ var g=nodeEls[id], base=N[id].k!=='report'?'n pick':'n'; g.setAttribute('class',base+(cls?' '+cls:'')); g.querySelector('.st').textContent=txt||''; }
+  function paintInjected(){
+    Object.keys(N).forEach(function(id){ setNode(id,'',''); });
+    Object.keys(edgeEls).forEach(function(k){ edgeEls[k].setAttribute('class','e'); });
+    Object.keys(S).forEach(function(id){ var s=S[id].status; if(s!=='stale') setNode(id,'broken', s==='changed'?'changed':'broken'); });
+    if(chosen) setNode(chosen,'broken sel', S[chosen]?(S[chosen].status==='changed'?'changed':'broken'):'');
+  }
+  function line(tag,html,cls){ var d=document.createElement('div'); d.className='ln'; d.innerHTML='<span class="tag '+(cls||'')+'">'+tag+'</span><span class="msg">'+html+'</span>'; logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight; }
+  function idle(msg){ logEl.innerHTML='<div class="empty">'+msg+'</div>'; }
+  function setAgent(a){ document.querySelectorAll('.ag').forEach(function(x){ if(x.dataset.a===a) x.classList.add('on'); else if(x.classList.contains('on')){ x.classList.remove('on'); x.classList.add('done'); } }); }
+  function clearAgents(){ document.querySelectorAll('.ag').forEach(function(x){ x.classList.remove('on','done'); }); }
+  function code(id){ return '<code>'+N[id].t+'</code>'; }
+
+  function pick(id){
+    if(running) return;
+    chosen=id; var opts=FAILS[N[id].k];
+    ftype.innerHTML=opts.map(function(o){return '<option value="'+o.v+'">'+o.l+'</option>';}).join('');
+    ftype.hidden=false; flabel.textContent='Break '+N[id].t+':';
+    applyChoice();
+  }
+  function applyChoice(){
+    S=inject(chosen,ftype.value); symptomText=SYMPTOMS[ftype.value];
+    clearAgents(); gate.hidden=true; hopsEl.textContent='0'; paintInjected(); markPresets(null);
+    runbtn.disabled=false; runbtn.textContent='Run triage';
+    idle('<b>'+N[chosen].t+'</b> is broken: '+S[chosen].err+'. Everything downstream of it is now stale. The analyst only sees the symptom on the report: <i>'+symptomText.toLowerCase()+'</i>. Press <b>Run triage</b>.');
+  }
+  ftype.addEventListener('change',applyChoice);
+
+  var PRESETS={p1:['stg_ts','schema'],p2:['sp_vend','dup'],p3:['stg_cases','timeout']};
+  function markPresets(p){ document.querySelectorAll('[data-preset]').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.preset===p?'true':'false'); }); }
+  document.querySelectorAll('[data-preset]').forEach(function(b){ b.addEventListener('click',function(){ if(running) return; var p=PRESETS[b.dataset.preset]; pick(p[0]); ftype.value=p[1]; applyChoice(); markPresets(b.dataset.preset); }); });
+
+  function reset(){ if(running) return; S={}; chosen=null; ftype.hidden=true; flabel.textContent='or click a box to break it'; runbtn.disabled=true; clearAgents(); gate.hidden=true; hopsEl.textContent='0'; markPresets(null); paintInjected();
+    idle('Nothing is broken yet. Pick a common break above, or click any box in the pipeline to break it yourself.'); }
+  resetbtn.addEventListener('click',reset);
+
+  async function run(){
+    if(running||!chosen) return; running=true; runbtn.disabled=true; resetbtn.disabled=true; logEl.innerHTML=''; clearAgents(); gate.hidden=true;
+    Object.keys(N).forEach(function(id){ setNode(id,'',''); });
+    setAgent('intake'); line('intake','Case opened in AGS360, landed in Snowflake via Matillion.'); await sleep(550);
+    line('intake','Symptom on '+code(SYMPTOM)+': '+symptomText.toLowerCase()+'.'); setNode(SYMPTOM,'symptom','symptom'); await sleep(550);
+
+    setAgent('tracer'); line('tracer','Walking upstream from the report, opening only boxes that look unhealthy.');
+    var T=trace(S,SYMPTOM), opened=0;
+    for(var i=0;i<T.hops.length;i++){
+      var h=T.hops[i]; if(h.id===SYMPTOM){ opened++; hopsEl.textContent=opened; continue; }
+      setNode(h.id,'visit','checking'); await sleep(420); opened++; hopsEl.textContent=opened;
+      var cls=h.status==='ok'?'ok':h.status==='stale'?'warn':h.status==='changed'?'cause':'fail';
+      setNode(h.id,cls,h.status==='ok'?'healthy':h.status==='stale'?'stale':h.status==='changed'?'changed':h.status);
+      children[h.id].forEach(function(c){ var e=edgeEls[h.id+'>'+c]; if(e&&h.status!=='ok') e.setAttribute('class','e walk'); });
+      line('tracer', code(h.id)+' '+(h.status==='ok'?'healthy, branch ruled out':(S[h.id]?S[h.id].err:'')), (h.status==='failed'||h.status==='missing')?'x':'');
+      await sleep(260);
+    }
+    var target=T.target, cause=T.cause;
+    if(target){ line('tracer','Root cause: '+code(target)+(cause?', caused upstream by '+code(cause):'')+(T.ambiguous?'. More than one box failed independently: '+T.ranked.map(code).join(', '):'')+'.','x'); setNode(target,'fail','root cause'); }
+    else line('tracer','No unhealthy upstream box found.');
+
+    setAgent('analyst'); line('analyst','Querying the semantic view behind '+code(SYMPTOM)+' to confirm the data matches the symptom.'); await sleep(700);
+    line('analyst','Confirmed: affected rows trace back through '+(target?code(target):'an unknown box')+'.'); await sleep(350);
+
+    var evidence=[target&&S[target]?S[target].err:'', cause&&S[cause]?S[cause].err:''].join(' ');
+    var cat=classify(evidence);
+    setAgent('search'); line('search','Searching resolved cases.'); await sleep(600);
+    line('search', CASES[cat]?'Closest past case: <span class="dim">'+CASES[cat]+'</span>':'No similar resolved case found.'); await sleep(350);
+
+    setAgent('orch');
+    var ds=target?downstream(target):[], fix=target?fixText(cat,target,cause,ds):null;
+    line('orch','Failure type: <b>'+cat.replace('_',' ')+'</b>.'); await sleep(450);
+    line('orch', fix?'Proposed fix: '+fix:'No safe fix template for this failure type.'); await sleep(450);
+
+    setAgent('review');
+    var issues=[];
+    if(!target) issues.push('no root cause found');
+    if(target&&PROTECTED[target]) issues.push(N[target].t+' is owned by the '+N[target].owner+'; the agent may not change it');
+    if(cat==='unknown') issues.push('failure type not recognised');
+    if(T.ambiguous) issues.push('several boxes need fixing at once');
+    await sleep(500);
+    var decision;
+    if(issues.length){
+      line('review','Blocked: '+issues.join('; ')+'.','x');
+      decision='blocked';
+    } else {
+      line('review','Checks passed: single root, not a protected box, known failure type.');
+      setAgent('human'); line('human','Waiting for an engineer. Nothing changes until someone approves.','h');
+      gfix.textContent=fix; gate.hidden=false;
+      decision=await new Promise(function(res){ window.__decide=res; });
+      gate.hidden=true;
+    }
+    if(decision==='approve'){
+      line('human','Approved.','h'); setAgent('orch'); line('orch','Applying the fix, then refreshing downstream in dependency order.');
+      var order=[target].concat(ds);
+      for(var j=0;j<order.length;j++){ setNode(order[j],'fixed',j===0?'fixed':'refreshed');
+        E.forEach(function(p){ if(order.indexOf(p[0])>=0&&order.indexOf(p[1])>=0) edgeEls[p[0]+'>'+p[1]].setAttribute('class','e fixed'); });
+        await sleep(330); }
+      line('orch','Report healthy again. Analyst notified in the Power BI chat.');
+    } else {
+      var owner=target?N[target].owner:'on-call';
+      line(decision==='reject'?'human':'review', (decision==='reject'?'Rejected. ':'')+'Escalated to '+owner+' with the full trace, evidence and closest past case attached. No changes made.', decision==='reject'?'h':'x');
+    }
+    await sleep(300);
+    line('learn', cat!=='unknown'&&target?'Case added to the instruction layer as <code>'+cat+'</code>. The next break like this starts from here.':'Not added to the case library: nothing confirmed to learn from.');
+    document.querySelectorAll('.ag').forEach(function(x){ if(x.classList.contains('on')){ x.classList.remove('on'); x.classList.add('done'); } });
+    running=false; runbtn.disabled=false; resetbtn.disabled=false; runbtn.textContent='Run again';
+  }
+  document.getElementById('approve').addEventListener('click',function(){ if(window.__decide) window.__decide('approve'); });
+  document.getElementById('reject').addEventListener('click',function(){ if(window.__decide) window.__decide('reject'); });
+  runbtn.addEventListener('click',function(){ if(!running){ var keep=chosen, v=ftype.value; S=inject(keep,v); run(); } });
+  reset();
+})();
+
+/* ---------- reliability ---------- */
+(function(){
+  var p=document.getElementById('pR'), n=document.getElementById('nR'), pv=document.getElementById('pV'), nv=document.getElementById('nV'), out=document.getElementById('pn'), note=document.getElementById('pnNote');
+  function r(){
+    var P=parseFloat(p.value)/100, Nn=parseInt(n.value,10), v=Math.pow(P,Nn);
+    pv.textContent=(P*100).toFixed(1).replace(/\.0$/,'')+'%'; nv.textContent=Nn;
+    out.textContent=(v*100).toFixed(v<0.1?1:0)+'%'; out.classList.toggle('bad', v<0.7);
+    note.textContent = v<0.7
+      ? 'Each step is right '+(P*100).toFixed(1).replace(/\.0$/,'')+'% of the time, but chain '+Nn+' of them and the run is right only '+(v*100).toFixed(0)+'% of the time. That is why a person sits between the proposal and the change, and why the eval suite matters more than the prompt.'
+      : 'Short chains of reliable steps hold up. The gap opens as steps get longer, which is where gates and checkpoints earn their keep.';
+  }
+  p.addEventListener('input',r); n.addEventListener('input',r); r();
+})();
+
+/* ---------- systems expand ---------- */
+document.querySelectorAll('.sys-head').forEach(function(h){
+  h.addEventListener('click',function(){ var s=h.parentElement; s.classList.toggle('open'); h.setAttribute('aria-expanded', s.classList.contains('open')); });
+});
+
+/* ---------- stack ---------- */
+(function(){
+  var DATA={
+    'Agents':['LangGraph','LangChain','CrewAI','Model Context Protocol','Snowflake Cortex Agents','Cortex Search','Cortex Analyst','Multi-agent orchestration','Tool calling','Human-in-the-loop gates'],
+    'LLMs & Retrieval':['RAG','LLaMA fine-tuning','LoRA / QLoRA / PEFT','llama.cpp / GGUF','Embeddings','Vector databases','Hybrid search','Prompt & context engineering','Semantic views'],
+    'Evaluation':['RAGAS','ROUGE / SBERT','LLM-as-judge','Golden datasets','Reproducibility audits','CI eval gates','OpenTelemetry','Cost & latency tracking'],
+    'Backend':['Python','FastAPI','REST APIs','Pydantic','Microservices','React','TypeScript','SQL'],
+    'Infra':['Docker','Kubernetes','GitHub Actions','SLURM / HPC','AWS','MLflow','Weights & Biases','Matillion'],
+    'ML':['PyTorch','TensorFlow','Scikit-learn','Autoencoders','KMeans / DBSCAN','YOLOv5','ResNet','LSTM','Anomaly detection'],
+    'Data':['Snowflake','PostgreSQL','Supabase','Redis','MongoDB','Neo4j','Power BI']
+  };
+  var cats=Object.keys(DATA), active=null, fw=document.getElementById('filters'), sw=document.getElementById('stack'), cnt=document.getElementById('stackcount'), items=[];
+  cats.forEach(function(c){ var b=document.createElement('button'); b.type='button'; b.className='fbtn'; b.textContent=c.toLowerCase(); b.addEventListener('click',function(){ active=active===c?null:c; render(); }); fw.appendChild(b); });
+  cats.forEach(function(c){ DATA[c].forEach(function(s){ var e=document.createElement('span'); e.className='skill'; e.textContent=s; e.dataset.cat=c; sw.appendChild(e); items.push(e); }); });
+  function render(){
+    [].forEach.call(fw.children,function(b,i){ b.setAttribute('aria-pressed', cats[i]===active?'true':'false'); });
+    var k=0; items.forEach(function(e){ var hit=!active||e.dataset.cat===active; e.classList.toggle('dim',!hit); e.classList.toggle('hit',!!active&&hit); if(hit)k++; });
+    cnt.textContent = active ? k+' of '+items.length+' in '+active.toLowerCase()+'. Click again to clear.' : items.length+' tools across '+cats.length+' layers, every one used in a build above.';
+  }
+  render();
+})();
+
+/* ---------- copy ---------- */
+document.querySelectorAll('.copy').forEach(function(b){
+  b.addEventListener('click',function(){
+    var v=b.dataset.copy;
+    function sel(){ var r=document.createRange(); r.selectNodeContents(b.previousElementSibling); var s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent='selected'; setTimeout(function(){ b.textContent='copy'; },1500); }
+    try{ navigator.clipboard.writeText(v).then(function(){ b.textContent='copied'; setTimeout(function(){ b.textContent='copy'; },1400); }, sel); }catch(e){ sel(); }
+  });
+});
+</script>
+
+</body>
+</html>
