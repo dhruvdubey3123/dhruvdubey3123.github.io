@@ -7,6 +7,12 @@
 <meta property="og:title" content="Dhruv Dubey, AI Engineer">
 <meta property="og:description" content="From 300 farmers to enterprise pipelines. Break a pipeline and watch the triage agent find it.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://dhruvdubey3123.github.io/">
+<meta property="og:image" content="https://dhruvdubey3123.github.io/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://dhruvdubey3123.github.io/og.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Dhruv Dubey</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -331,7 +337,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <div class="orbit" id="orbit">
       <canvas id="orbitc" aria-label="A rotating graph of everything I have built. Large nodes are systems, small nodes are the tools each one uses. Drag to spin, hover a system to read about it, click to open it."></canvas>
       <div class="otip" id="otip"><div class="ot"></div><div class="od"></div><div class="ok"></div></div>
-      <div class="hint">drag to spin · hover a system · click to open</div>
+      <div class="hint">hover to pause · drag to spin · click a system to open</div>
     </div>
   </div>
 </div></header>
@@ -696,7 +702,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
   function size(){ dpr=Math.min(devicePixelRatio||1,2); var r=cv.getBoundingClientRect(); W=r.width; H=r.height; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); }
   size(); addEventListener('resize',size);
 
-  var ay=.6, ax=-.32, vy=REDUCE?0:.0022, drag=null, hover=null, t0=performance.now(), mouse=null;
+  var ay=.6, ax=-.32, vy=REDUCE?0:.0022, spin=vy, drag=null, hover=null, t0=performance.now(), mouse=null;
   function rot(p){ var cy=Math.cos(ay), sy=Math.sin(ay), cx=Math.cos(ax), sx=Math.sin(ax);
     var x=p[0]*cy+p[2]*sy, z=-p[0]*sy+p[2]*cy, y=p[1]*cx-z*sx; z=p[1]*sx+z*cx; return [x,y,z]; }
   function proj(p,k){ var R=Math.min(W,H)*.44*k, f=3/(3-p[2]); return {x:W/2+p[0]*R*f, y:H/2+p[1]*R*f, z:p[2], f:f}; }
@@ -705,7 +711,9 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
 
   function frame(now){
     var k=REDUCE?1:ease((now-t0)/1400);
-    if(!drag) ay+=vy;
+    // ease to a stop while a node is hovered, ease back up when it is released
+    var target=(hover||drag)?0:vy; spin+=(target-spin)*(target?0.03:0.12);
+    if(!drag) ay+=spin;
     ctx.clearRect(0,0,W,H);
     nodes.forEach(function(n){ n.q=proj(rot(n.p),k); });
     var hl=hover&&hover.hub?hover:null;
