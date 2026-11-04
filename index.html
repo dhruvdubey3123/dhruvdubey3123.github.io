@@ -382,6 +382,13 @@ h2{font-size:clamp(26px,3.8vw,36px); font-weight:700}
 .sys-right{display:flex; align-items:center; gap:12px}
 .caret{font-family:var(--mono); color:var(--muted); font-size:12px; transition:transform .2s}
 .sys.open .caret{transform:rotate(90deg)}
+.sys-plain{display:block; margin-top:10px; font-size:14.5px; line-height:1.55; color:var(--ink); max-width:72ch}
+.sys-ex{margin-top:14px; border-left:3px solid var(--accent); background:var(--surface-2); border-radius:0 8px 8px 0; padding:10px 14px; font-size:14px; color:var(--ink); max-width:72ch}
+.sys-ex b{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); display:block; margin-bottom:4px; font-weight:600}
+.sys-io{display:grid; grid-template-columns:auto minmax(0,1fr); gap:6px 14px; margin-top:14px; font-size:13.5px; max-width:72ch}
+.sys-io dt{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); padding-top:2px}
+.sys-io dd{margin:0; color:var(--ink)}
+
 .sys-body{display:none; padding:4px 20px 22px; border-top:1px solid var(--line)}
 .sys.open .sys-body{display:block}
 .sys-body p{color:var(--muted); font-size:14.5px; margin-top:14px; max-width:70ch}
@@ -756,10 +763,12 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 
     <article class="sys">
       <button class="sys-head" type="button" aria-expanded="false">
-        <span><span class="sys-title">Pipeline Incident Triage Graph</span><span class="sys-sub">LangGraph · MCP · FastAPI · Docker · Kubernetes · GitHub Actions</span></span>
+        <span><span class="sys-title">Pipeline Incident Triage Graph</span><span class="sys-sub">LangGraph · MCP · FastAPI · Docker · Kubernetes · GitHub Actions</span><span class="sys-plain">When a company report shows wrong numbers, this agent works backwards through the data pipeline to find the job that actually broke, drafts the fix, and waits for a person to approve it.</span></span>
         <span class="sys-right"><span class="status live">Live repo</span><span class="caret">&#9654;</span></span>
       </button>
       <div class="sys-body">
+        <div class="sys-ex"><b>For example</b>Monday's revenue dashboard looks wrong. Instead of an engineer opening every upstream job one by one, the agent checks each job feeding the dashboard, skips the healthy ones, finds the stored procedure where a column was renamed, and proposes the fix with a link to a similar past case. Nothing changes until someone clicks approve.</div>
+        <dl class="sys-io"><dt>In</dt><dd>a broken report or failed job, plus the pipeline's dependency graph and logs</dd><dt>Out</dt><dd>the root cause, a failure category, similar past incidents, a drafted fix and a confidence level, held at a human approval gate</dd></dl>
         <p>The open-source rebuild of the Allegis agent, written from scratch. A tracer walks the DAG upstream from the symptom; analyst, precedent, classifier and orchestrator agents build a fix; a separate reviewer blocks unsafe ones; LangGraph interrupts before the gate so nothing changes without a person. The demo above runs the same tracing logic.</p>
         <table class="kv"><tbody>
           <tr><td>Eval sets</td><td>2 × 100 synthetic incidents, committed</td></tr>
@@ -774,10 +783,12 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 
     <article class="sys">
       <button class="sys-head" type="button" aria-expanded="false">
-        <span><span class="sys-title">Agent Harness Runtime</span><span class="sys-sub">Python · FastAPI · SQLite run log · MCP · Docker · Kubernetes</span></span>
+        <span><span class="sys-title">Agent Harness Runtime</span><span class="sys-sub">Python · FastAPI · SQLite run log · MCP · Docker · Kubernetes</span><span class="sys-plain">The safety layer around any AI agent. It writes down every action before and after it happens, limits which tools each agent may touch, and after a crash it continues where it stopped instead of repeating work.</span></span>
         <span class="sys-right"><span class="status live">Live repo</span><span class="caret">&#9654;</span></span>
       </button>
       <div class="sys-body">
+        <div class="sys-ex"><b>For example</b>An agent is fixing a pipeline at 2 a.m.: patch a procedure, rerun the payroll load, comment on the ticket, email on-call. The server restarts halfway through. Starting over would run the payroll load twice and send two emails. The harness reads its log, skips what already finished, and asks a person about the one step it cannot be sure of.</div>
+        <dl class="sys-io"><dt>In</dt><dd>an agent definition (instructions plus the tools it is allowed), a task, and a model</dd><dt>Out</dt><dd>a finished run with every step recorded, the real effects of its tools applied exactly once, and a status: done, failed, or needs review</dd></dl>
         <p>The graph decides what happens next. The harness decides what an agent can do at all: the loop, the context budget, the sandbox, the run log. Every tool call is logged as started, dispatched, then done, so a crashed run resumes without repeating a side effect, and stops for a person when it genuinely cannot tell.</p>
         <table class="kv"><tbody>
           <tr><td>Crash benchmark</td><td>200 runs, same crashes, two recovery strategies</td></tr>
@@ -792,10 +803,30 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 
     <article class="sys">
       <button class="sys-head" type="button" aria-expanded="false">
-        <span><span class="sys-title">Krishi Mitra</span><span class="sys-sub">LLaMA 3.2 3B fine-tune · llama.cpp GGUF · RAG · SearXNG · FastAPI · React · TypeScript · Supabase</span></span>
+        <span><span class="sys-title">Risk-Based Login Authentication</span><span class="sys-sub">TensorFlow / Keras autoencoders · K-means · DBSCAN · Flask · SQLAlchemy</span><span class="sys-plain">Decides for every login whether to let it straight through, ask for a one-time code, or block it, by learning how each person normally logs in: where, when, and how they type and move the mouse.</span></span>
+        <span class="sys-right"><span class="status live">Fortytwo Labs</span><span class="caret">&#9654;</span></span>
+      </button>
+      <div class="sys-body">
+        <div class="sys-ex"><b>For example</b>You always sign in from College Park in the morning at your usual typing speed, so those logins go straight through. A login from London fifty minutes later, or one that types like a bot, gets blocked even with the right password.</div>
+        <dl class="sys-io"><dt>In</dt><dd>a login attempt: location, IP, device, timezone, typing and mouse speed, time</dd><dt>Out</dt><dd>allow, MFA or block, with the risk score and which signals changed</dd></dl>
+        <p>Built at Fortytwo Labs with autoencoders, then compared against K-means and DBSCAN clustering. One global model first, then a separate model per user, retrained as their habits drift. The live demo above shows the scoring.</p>
+        <table class="kv"><tbody>
+          <tr><td>At Fortytwo Labs</td><td>33% fewer manual security reviews</td></tr>
+          <tr><td>Per-user model, simulated user</td><td>0 of 34 normal logins challenged · 3 of 4 attacks blocked</td></tr>
+          <tr><td>Approaches</td><td>global autoencoder · per-user autoencoder · K-means + DBSCAN</td></tr>
+        </tbody></table>
+        <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/RBA-peruser-Autoencoder">RBA-peruser-Autoencoder</a><a class="tag" href="https://github.com/dhruvdubey3123/RBA-generaluser-Autoencoder">RBA-generaluser-Autoencoder</a><a class="tag" href="https://github.com/dhruvdubey3123/RBA-peruser-kmeans-DBSCAN">RBA-peruser-kmeans-DBSCAN</a></div>
+      </div>
+    </article>
+
+    <article class="sys">
+      <button class="sys-head" type="button" aria-expanded="false">
+        <span><span class="sys-title">Krishi Mitra</span><span class="sys-sub">LLaMA 3.2 3B fine-tune · llama.cpp GGUF · RAG · SearXNG · FastAPI · React · TypeScript · Supabase</span><span class="sys-plain">A chatbot that answers farmers' questions about government schemes, crops, soil and weather in Hindi, Marathi or English, using answers pulled from trusted sources rather than guesses.</span></span>
         <span class="sys-right"><span class="status live">Shipped · 300 farmers</span><span class="caret">&#9654;</span></span>
       </button>
       <div class="sys-body">
+        <div class="sys-ex"><b>For example</b>A farmer asks in Marathi which subsidy covers drip irrigation. The assistant searches trusted sites for the current scheme, answers in Marathi, and shows where the answer came from. It runs on a modest laptop, no cloud GPU needed.</div>
+        <dl class="sys-io"><dt>In</dt><dd>a question, typed in Hindi, Marathi or English</dd><dt>Out</dt><dd>an answer in the same language, grounded in retrieved sources</dd></dl>
         <p>Fine-tuned on government schemes, crops, soil, irrigation, weather and financial support data, then grounded at answer time with retrieval from trusted sources via SearXNG. Quantized and run locally so it works on low-compute machines. Built with three teammates under Dr. Shraddha Phansalkar.</p>
         <table class="kv"><tbody>
           <tr><td>ROUGE-1 / ROUGE-L</td><td>≈ 0.75 / ≈ 0.68</td></tr>
@@ -808,10 +839,12 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 
     <article class="sys">
       <button class="sys-head" type="button" aria-expanded="false">
-        <span><span class="sys-title">Autonomous Data Science Crew</span><span class="sys-sub">CrewAI · MLflow AutoML · Python</span></span>
+        <span><span class="sys-title">Autonomous Data Science Crew</span><span class="sys-sub">CrewAI · MLflow AutoML · Python</span><span class="sys-plain">A team of six AI agents that each handle one stage of a data science project, so a raw dataset goes in and a trained model with a written report comes out.</span></span>
         <span class="sys-right"><span class="status live">Shipped</span><span class="caret">&#9654;</span></span>
       </button>
       <div class="sys-body">
+        <div class="sys-ex"><b>For example</b>Hand it a customer churn spreadsheet. One agent profiles the data, one reasons about features, one picks and tunes a model with AutoML, one evaluates it, and one writes up what it found and why.</div>
+        <dl class="sys-io"><dt>In</dt><dd>a dataset and the column to predict</dd><dt>Out</dt><dd>a trained, tracked model plus a plain-language report</dd></dl>
         <p>Most ML projects look different on the surface and identical underneath. So instead of tuning another model I redesigned the workflow: six role-driven agents, one stage each, from data understanding and feature reasoning through model selection, evaluation and reporting.</p>
         <table class="kv"><tbody>
           <tr><td>Agents</td><td>6, one responsibility each</td></tr>
@@ -823,10 +856,12 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 
     <article class="sys">
       <button class="sys-head" type="button" aria-expanded="false">
-        <span><span class="sys-title">Smart Plant Health Monitor</span><span class="sys-sub">YOLOv5 · ResNet · LSTM · FastAPI · Docker · Streamlit</span></span>
+        <span><span class="sys-title">Smart Plant Health Monitor</span><span class="sys-sub">YOLOv5 · ResNet · LSTM · FastAPI · Docker · Streamlit</span><span class="sys-plain">Point a camera at a plant: it finds each leaf, says whether it is healthy or diseased, and forecasts what care the plant will need next.</span></span>
         <span class="sys-right"><span class="status live">Shipped</span><span class="caret">&#9654;</span></span>
       </button>
       <div class="sys-body">
+        <div class="sys-ex"><b>For example</b>A photo of a tomato plant comes back with two leaves flagged for disease and a forecast of when it will next need water.</div>
+        <dl class="sys-io"><dt>In</dt><dd>a plant photo and recent sensor readings</dd><dt>Out</dt><dd>leaf locations, a health label per leaf, and a care forecast</dd></dl>
         <p>Find the leaf, judge its health, forecast what it needs next. Detection, classification and time-series prediction in one system, served behind an API instead of left in a notebook.</p>
         <table class="kv"><tbody>
           <tr><td>Health classification accuracy</td><td>90%</td></tr>
@@ -890,7 +925,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
     {id:'nsai', t:'Reproducibility audit', d:'5,497 records screened, 85 codebases reproduced on Zaratan HPC. Under review at IEEE TNNLS.', go:'#story', s:['SLURM / HPC','PyTorch','Reproducibility','Docker','Evals']},
     {id:'crew', t:'Data Science Crew', d:'Six CrewAI agents running the ML lifecycle end to end. +35% workflow efficiency.', go:'#systems', card:'Autonomous Data Science Crew', s:['CrewAI','MLflow','Multi-agent']},
     {id:'plant', t:'Plant Health Monitor', d:'YOLOv5, ResNet and LSTM in one served system. 90% health classification accuracy.', go:'#systems', card:'Smart Plant Health Monitor', s:['YOLOv5','ResNet','LSTM','FastAPI','Docker']},
-    {id:'ftl', t:'Anomaly detection', d:'Autoencoders and DBSCAN on login data at Fortytwo Labs. 33% fewer manual security reviews.', go:'#risk', s:['Autoencoders','DBSCAN','TensorFlow','Drools']}
+    {id:'ftl', t:'Anomaly detection', d:'Autoencoders and DBSCAN on login data at Fortytwo Labs. 33% fewer manual security reviews.', go:'#systems', card:'Risk-Based Login Authentication', s:['Autoencoders','DBSCAN','TensorFlow','Drools']}
   ];
   var cv=document.getElementById('orbitc'), ctx=cv.getContext('2d'), wrap=document.getElementById('orbit'), tip=document.getElementById('otip');
   var REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
