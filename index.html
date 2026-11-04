@@ -99,6 +99,52 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .ticker .cur{display:inline-block; width:7px; height:13px; background:var(--ink); vertical-align:-2px; margin-left:2px; animation:blink 1s steps(1) infinite}
 @keyframes live{70%{box-shadow:0 0 0 7px transparent} 100%{box-shadow:0 0 0 0 transparent}}
 @keyframes blink{50%{opacity:0}}
+/* live login-risk autoencoder */
+.risk{display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:18px; align-items:stretch}
+.risk > *{min-width:0}
+.rpanel{border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:16px 18px; box-shadow:var(--shadow)}
+.rlogin{display:flex; justify-content:space-between; gap:10px; align-items:baseline; flex-wrap:wrap}
+.rlogin .who{font-family:var(--display); font-weight:700; font-size:16px}
+.rlogin .meta{font-family:var(--mono); font-size:11.5px; color:var(--muted)}
+.rkind{font-family:var(--mono); font-size:11px; padding:2px 8px; border-radius:999px; background:var(--surface-2); color:var(--muted)}
+.rbars{margin-top:14px; display:grid; gap:7px}
+.rbar{display:grid; grid-template-columns:92px minmax(0,1fr) 40px; gap:10px; align-items:center; font-family:var(--mono); font-size:11px; color:var(--muted)}
+.rtrack{position:relative; height:12px; border-radius:3px; background:var(--surface-2); overflow:hidden}
+.rtrack .in{position:absolute; left:0; top:0; bottom:0; background:var(--accent); opacity:.85; transition:width .45s ease}
+.rtrack .rc{position:absolute; top:-2px; bottom:-2px; width:2px; background:var(--ink); transition:left .45s ease}
+.rbar .er{text-align:right}
+.rbar.hot .er{color:var(--signal); font-weight:600}
+.rbar.hot .in{background:var(--signal)}
+.rlegend{margin-top:10px; font-family:var(--mono); font-size:10.5px; color:var(--muted); display:flex; gap:14px; flex-wrap:wrap}
+.rlegend i{display:inline-block; width:10px; height:8px; border-radius:2px; background:var(--accent); vertical-align:middle; margin-right:5px}
+.rlegend i.l{width:2px; height:11px; background:var(--ink)}
+.rnet{position:relative; min-height:300px}
+.rnet canvas{position:absolute; inset:0; width:100%; height:100%; display:block}
+.rnet .cap{position:absolute; left:14px; right:14px; bottom:10px; display:flex; justify-content:space-between; font-family:var(--mono); font-size:10.5px; color:var(--muted); pointer-events:none}
+.rscore{margin-top:18px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:center}
+.rmeter{position:relative; height:16px; border-radius:4px; background:linear-gradient(90deg, var(--accent-soft) 0 40%, var(--amber-soft) 40% 64%, var(--signal-soft) 64% 100%)}
+.rmeter .needle{position:absolute; top:-5px; bottom:-5px; width:3px; border-radius:2px; background:var(--ink); transition:left .5s cubic-bezier(.2,.8,.2,1)}
+.rmeter .tk{position:absolute; top:20px; padding-left:4px; border-left:1px solid var(--muted); line-height:1.1; font-family:var(--mono); font-size:10px; color:var(--muted)}
+.rdec{font-family:var(--mono); font-size:13px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:8px 14px; border-radius:6px; min-width:92px; text-align:center; border:1px solid var(--line)}
+.rdec.allow{background:var(--accent-soft); color:var(--accent); border-color:transparent}
+.rdec.mfa{background:var(--amber-soft); color:var(--amber); border-color:transparent}
+.rdec.block{background:var(--signal-soft); color:var(--signal); border-color:transparent}
+.rwhy{margin-top:26px; font-size:13.5px; color:var(--muted); min-height:2.8em}
+.rwhy b{color:var(--ink); font-weight:600}
+.rctl{margin-top:18px; display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+.rctl button{font-family:var(--mono); font-size:12px; padding:7px 12px; border-radius:999px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer}
+.rctl button:hover{border-color:var(--accent)}
+.rctl button.atk:hover{border-color:var(--signal); color:var(--signal)}
+.rctl .sp{flex:1}
+.rstream{margin-top:16px; display:flex; gap:5px; flex-wrap:wrap; align-items:center; min-height:18px}
+.rstream .d{width:12px; height:12px; border-radius:3px; background:var(--surface-2); transition:transform .3s}
+.rstream .d.allow{background:var(--accent)} .rstream .d.mfa{background:var(--amber)} .rstream .d.block{background:var(--signal)}
+.rstream .d.new{transform:scale(1.35)}
+.rstream .lab{font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-right:6px}
+.rnote{margin-top:14px; font-size:12.5px; color:var(--muted); max-width:80ch}
+@media (max-width:880px){ .risk{grid-template-columns:1fr} .rnet{min-height:240px} }
+@media (max-width:480px){ .rbar{grid-template-columns:96px minmax(0,1fr) 30px; gap:8px; font-size:10.5px} .rscore{grid-template-columns:1fr} .rdec{justify-self:start} }
+
 @media (max-width:880px){ .hero-grid{grid-template-columns:1fr} .orbit{max-height:440px} }
 @media (max-width:640px){ .topnav{display:none} .themebtn{margin-left:auto} }
 
@@ -313,6 +359,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <a href="#equation">equation</a>
     <a href="#story">story</a>
     <a href="#triage">triage demo</a>
+    <a href="#risk">risk demo</a>
     <a href="#systems">systems</a>
     <a href="#contact">contact</a>
   </nav>
@@ -527,8 +574,53 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   </div>
 </div></section>
 
+<!-- ========== LIVE RISK ENGINE ========== -->
+<section id="risk"><div class="wrap">
+  <div class="sechead">
+    <div class="lbl">Where I started: anomaly detection</div>
+    <h2>A login, scored while you watch</h2>
+    <p class="muted" style="max-width:64ch">Before agents, I built risk-based authentication at Fortytwo Labs. An autoencoder learns what one person's normal logins look like and rebuilds each new login through a 4-number bottleneck. Normal behaviour comes back almost unchanged. An attacker's does not, and the rebuild error becomes the risk score. Try an attack.</p>
+  </div>
+
+  <div class="risk" id="riskBox">
+    <div class="rpanel">
+      <div class="rlogin">
+        <div><div class="who" id="rWho">user 101</div><div class="meta" id="rMeta">waiting for first login</div></div>
+        <span class="rkind" id="rKind">normal</span>
+      </div>
+      <div class="rbars" id="rBars"></div>
+      <div class="rlegend"><span><i></i>login, scaled 0 to 1</span><span><i class="l"></i>autoencoder's rebuild</span><span>right column: error per feature</span></div>
+    </div>
+    <div class="rpanel rnet" id="rNet">
+      <canvas id="rCan" aria-label="An autoencoder with layers of 7, 16, 8, 4, 8, 16 and 7 neurons. Each login flows left to right; output neurons turn orange where the rebuild misses."></canvas>
+      <div class="cap"><span>7 features in</span><span>bottleneck 4</span><span>7 rebuilt</span></div>
+    </div>
+  </div>
+
+  <div class="rpanel" style="margin-top:18px">
+    <div class="rscore">
+      <div>
+        <div class="lbl" style="margin-bottom:10px">Risk = rebuild error + rule points</div>
+        <div class="rmeter" id="rMeter"><div class="needle" id="rNeedle" style="left:0%"></div><span class="tk" style="left:0%">0</span><span class="tk" style="left:40%">MFA</span><span class="tk" style="left:64%">block</span></div>
+      </div>
+      <div class="rdec" id="rDec">idle</div>
+    </div>
+    <p class="rwhy" id="rWhy">Logins arrive every couple of seconds. Hover the demo to pause the stream.</p>
+    <div class="rctl">
+      <button type="button" data-k="normal">Normal login</button>
+      <button type="button" class="atk" data-k="device">New device + IP</button>
+      <button type="button" class="atk" data-k="travel">Impossible travel</button>
+      <button type="button" class="atk" data-k="bot">Bot-speed typing</button>
+      <span class="sp"></span>
+      <button type="button" id="rPause">pause stream</button>
+    </div>
+    <div class="rstream" id="rStream"><span class="lab">last 24</span></div>
+    <p class="rnote">Simulated logins, illustrative model. The architecture (7, 16, 8, 4, 8, 16, 7), the seven features, the rule points and the decision thresholds are the ones in my <a href="https://github.com/dhruvdubey3123/RBA-generaluser-Autoencoder">RBA autoencoder repo</a>. The rebuild here is a small in-browser stand-in for the trained Keras model, so the exact scores are not that model's output.</p>
+  </div>
+</div></section>
+
 <!-- ========== SYSTEMS ========== -->
-<section id="systems"><div class="wrap">
+<section id="systems" class="alt"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Builds</div>
     <h2>Systems</h2>
@@ -629,7 +721,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 </div></section>
 
 <!-- ========== CONTACT ========== -->
-<section id="contact" class="alt"><div class="wrap">
+<section id="contact"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Get in touch</div>
     <h2>Contact</h2>
@@ -672,7 +764,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
     {id:'nsai', t:'Reproducibility audit', d:'5,497 records screened, 85 codebases reproduced on Zaratan HPC. Under review at IEEE TNNLS.', go:'#story', s:['SLURM / HPC','PyTorch','Reproducibility','Docker','Evals']},
     {id:'crew', t:'Data Science Crew', d:'Six CrewAI agents running the ML lifecycle end to end. +35% workflow efficiency.', go:'#systems', card:'Autonomous Data Science Crew', s:['CrewAI','MLflow','Multi-agent']},
     {id:'plant', t:'Plant Health Monitor', d:'YOLOv5, ResNet and LSTM in one served system. 90% health classification accuracy.', go:'#systems', card:'Smart Plant Health Monitor', s:['YOLOv5','ResNet','LSTM','FastAPI','Docker']},
-    {id:'ftl', t:'Anomaly detection', d:'Autoencoders and DBSCAN on login data at Fortytwo Labs. 33% fewer manual security reviews.', go:'#story', s:['Autoencoders','DBSCAN','TensorFlow','Drools']}
+    {id:'ftl', t:'Anomaly detection', d:'Autoencoders and DBSCAN on login data at Fortytwo Labs. 33% fewer manual security reviews.', go:'#risk', s:['Autoencoders','DBSCAN','TensorFlow','Drools']}
   ];
   var cv=document.getElementById('orbitc'), ctx=cv.getContext('2d'), wrap=document.getElementById('orbit'), tip=document.getElementById('otip');
   var REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1091,6 +1183,156 @@ document.querySelectorAll('.copy').forEach(function(b){
     try{ navigator.clipboard.writeText(v).then(function(){ b.textContent='copied'; setTimeout(function(){ b.textContent='copy'; },1400); }, sel); }catch(e){ sel(); }
   });
 });
+
+/* ---------- live login-risk autoencoder ---------- */
+(function(){
+  var box=document.getElementById('risk'); if(!box) return;
+  var REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var FEAT=['latitude','longitude','typing speed','mouse speed','geo-velocity','login hour','IP frequency'];
+  // user 101's normal profile, already scaled 0..1 (the repo MinMax-scales every feature)
+  var NORM=[.62,.30,.34,.38,.02,.38,.86];
+  var JIT=[.012,.012,.05,.06,.015,.06,.05];
+  var CITY={home:['New York',40.71,-74.0,'Windows','192.168.1.10'],tokyo:['Tokyo',35.69,139.69,'Linux','103.5.140.12'],nj:['Jersey City',40.73,-74.07,'Windows','192.168.1.10']};
+  var bars=document.getElementById('rBars'), rows=[];
+  FEAT.forEach(function(f){ var r=document.createElement('div'); r.className='rbar';
+    r.innerHTML='<span>'+f+'</span><div class="rtrack"><div class="in" style="width:0%"></div><div class="rc" style="left:0%"></div></div><span class="er">.00</span>';
+    bars.appendChild(r); rows.push(r); });
+  var who=document.getElementById('rWho'), meta=document.getElementById('rMeta'), kindEl=document.getElementById('rKind'),
+      needle=document.getElementById('rNeedle'), dec=document.getElementById('rDec'), why=document.getElementById('rWhy'),
+      stream=document.getElementById('rStream'), pauseBtn=document.getElementById('rPause');
+
+  function clamp(v){ return Math.max(0,Math.min(1,v)); }
+  function rnd(a){ return (Math.random()*2-1)*a; }
+  function pad(n){ return (n<10?'0':'')+n; }
+  var clock=new Date(); clock.setHours(9,10,0,0);
+  var last={city:'home', device:'Windows', ip:'192.168.1.10', tz:'America/New_York'};
+
+  function make(kind){
+    var x=NORM.map(function(m,i){ return clamp(m+rnd(JIT[i])); });
+    var c=CITY.home, device='Windows', ip='192.168.1.10', tz='America/New_York', geo=0, mins=40+Math.round(Math.random()*400);
+    if(kind==='device'){ device='Android'; ip='172.58.14.9'; x[6]=.04; x[2]=clamp(x[2]-.08); }
+    if(kind==='travel'){ c=CITY.tokyo; device='Linux'; ip=c[4]; tz='Asia/Tokyo'; mins=38; x[0]=.47; x[1]=.94; x[4]=1; x[6]=.01; x[5]=.12; geo=10800/(38/60); }
+    if(kind==='bot'){ x[2]=.99; x[3]=.97; x[5]=.13; }
+    // user 101 signs in on weekday mornings; attacks arrive at odd hours
+    clock=new Date(clock.getTime()+(kind==='travel'?mins*60000:86400000));
+    if(kind==='bot'){ clock.setHours(3, Math.floor(Math.random()*60)); }
+    else if(kind!=='travel'){ clock.setHours(8+Math.floor(Math.random()*2), Math.floor(Math.random()*60)); }
+    x[5]= kind==='travel' ? x[5] : clamp((clock.getHours()+clock.getMinutes()/60)/23+rnd(.008));
+    // rule points against the previous allowed login (same weights as the repo)
+    var pts=0, fired=[];
+    if(ip!==last.ip){ pts+=2; fired.push('IP +2'); }
+    if(device!==last.device){ pts+=3; fired.push('device +3'); }
+    if(tz!==last.tz){ pts+=3; fired.push('timezone +3'); }
+    if(kind==='travel'){ pts+=5; fired.push('location +5'); }
+    return {kind:kind, x:x, city:c[0], device:device, ip:ip, tz:tz, pts:pts, fired:fired, geo:geo, t:clock};
+  }
+  // stand-in for the trained network: it can only rebuild what it learned, so it pulls every input toward the normal manifold
+  function rebuild(x){ return x.map(function(v,i){ return clamp(NORM[i]+(v-NORM[i])*.22); }); }
+  function score(L){
+    var r=rebuild(L.x), per=L.x.map(function(v,i){ return Math.abs(v-r[i]); });
+    var err=per.reduce(function(a,b){return a+b;},0)/per.length*2.2; // mean abs error, as in app.py, on this toy scale
+    var d, reason;
+    if(L.geo>1000){ d='block'; reason='<b>Impossible travel.</b> '+Math.round(L.geo).toLocaleString()+' km/h since the last login, above the 1,000 km/h hard limit. Blocked before the model even votes.'; }
+    else if(!L.fired.length){ d= err<.20?'allow': err<.32?'mfa':'block';
+      reason= d==='allow' ? '<b>Looks like user 101.</b> Same city, device and rhythm, so the autoencoder rebuilds it almost perfectly.' :
+              d==='mfa' ? '<b>Slightly off.</b> Nothing changed, but the behaviour drifts from the usual pattern. Ask for MFA.' :
+              '<b>Behaviour does not match.</b> Same device and place, but typing and mouse speed are nothing like this person. The bottleneck cannot rebuild it.'; }
+    else { var tot=err+L.pts; d= tot<3?'allow': tot<8?'mfa':'block';
+      reason='<b>'+L.fired.join(', ')+'</b> on top of a rebuild error of '+err.toFixed(2)+'. Total '+tot.toFixed(2)+(d==='mfa'?', inside the MFA band (3 to 8).':d==='block'?', past the block line of 8.':'.'); }
+    var total=L.fired.length?err+L.pts:err;
+    // meter: 0..0.20 -> 0..40%, 0.20..0.32 -> 40..64%, beyond -> 64..100% (rule totals map 3 and 8 onto the same marks)
+    var pos;
+    if(L.geo>1000) pos=98;
+    else if(!L.fired.length) pos= err<.20? err/.20*40 : err<.32? 40+(err-.20)/.12*24 : Math.min(98,64+(err-.32)/.4*34);
+    else pos= total<3? total/3*40 : total<8? 40+(total-3)/5*24 : Math.min(98,64+(total-8)/6*34);
+    return {r:r, per:per, err:err, total:total, d:d, reason:reason, pos:pos};
+  }
+
+  /* network canvas */
+  var can=document.getElementById('rCan'), ctx=can.getContext('2d'), wrapEl=document.getElementById('rNet');
+  var LAYERS=[7,16,8,4,8,16,7], nodes=[], W=0, H=0, DPR=1;
+  function layout(){
+    var b=wrapEl.getBoundingClientRect(); DPR=Math.min(2,window.devicePixelRatio||1);
+    W=b.width; H=b.height; can.width=W*DPR; can.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
+    nodes=LAYERS.map(function(n,li){ var x=22+(W-44)*li/(LAYERS.length-1), top=20, bot=H-38, out=[];
+      for(var k=0;k<n;k++){ out.push({x:x, y: n===1?(top+bot)/2 : top+(bot-top)*(k+.5)/n, a:0}); } return out; });
+  }
+  var col={}; function readCols(){ var cs=getComputedStyle(document.documentElement); ['--accent','--signal','--ink','--muted','--line','--amber'].forEach(function(k){ col[k]=cs.getPropertyValue(k).trim(); }); }
+  var wave=-1, waveT=0, outErr=[0,0,0,0,0,0,0], acts=null;
+  function draw(now){
+    readCols(); ctx.clearRect(0,0,W,H);
+    var prog = wave<0?-1:(now-waveT)/(REDUCE?1:1100);
+    if(prog>1.6) wave=-1;
+    for(var li=0;li<nodes.length-1;li++){
+      var A=nodes[li], B=nodes[li+1], lp = prog<0?0:Math.max(0,Math.min(1,prog*(LAYERS.length-1)-li));
+      for(var i=0;i<A.length;i++) for(var j=0;j<B.length;j++){
+        var w=acts?acts[li][i]*acts[li+1][j]:0;
+        ctx.strokeStyle=col['--line']; ctx.globalAlpha=.55; ctx.lineWidth=.6;
+        ctx.beginPath(); ctx.moveTo(A[i].x,A[i].y); ctx.lineTo(B[j].x,B[j].y); ctx.stroke();
+        if(lp>0&&lp<1&&w>.18){ var px=A[i].x+(B[j].x-A[i].x)*lp, py=A[i].y+(B[j].y-A[i].y)*lp;
+          ctx.globalAlpha=Math.min(1,w*1.3); ctx.fillStyle=col['--accent']; ctx.beginPath(); ctx.arc(px,py,1.6,0,6.3); ctx.fill(); }
+      }
+    }
+    ctx.globalAlpha=1;
+    nodes.forEach(function(L,li){
+      var lit = prog<0 ? (acts?1:0) : Math.max(0,Math.min(1,prog*(LAYERS.length-1)-li+1));
+      L.forEach(function(n,k){
+        var a=acts?acts[li][k]*lit:0, r= li===3?6:4.2;
+        var isOut=li===LAYERS.length-1, hot=isOut&&outErr[k]>.12&&lit>.5;
+        ctx.beginPath(); ctx.arc(n.x,n.y,r+(hot?2:0),0,6.3);
+        ctx.fillStyle= hot?col['--signal']:col['--accent']; ctx.globalAlpha=.18+.82*a; ctx.fill();
+        ctx.globalAlpha=1; ctx.lineWidth=1; ctx.strokeStyle= hot?col['--signal']:col['--muted']; ctx.stroke();
+      });
+    });
+  }
+  function activations(x){
+    // deterministic pseudo-activations so each login lights a distinct pattern
+    var h=x.slice(), out=[x.slice()];
+    for(var li=1;li<LAYERS.length;li++){ var n=LAYERS[li], v=[];
+      for(var k=0;k<n;k++){ var s=0; for(var i=0;i<h.length;i++){ s+=h[i]*Math.sin((li*31+k*17+i*7)*.9); } v.push(clamp(.5+.5*Math.tanh(s*1.4))); }
+      out.push(v); h=v; }
+    return out;
+  }
+
+  /* apply a login to the UI */
+  var history=[];
+  function show(L){
+    var S=score(L);
+    who.textContent='user 101';
+    meta.textContent=pad(L.t.getHours())+':'+pad(L.t.getMinutes())+' · '+L.city+' · '+L.device+' · '+L.ip;
+    kindEl.textContent={normal:'normal',device:'attack: new device',travel:'attack: travel',bot:'attack: bot'}[L.kind];
+    rows.forEach(function(r,i){ r.querySelector('.in').style.width=(L.x[i]*100).toFixed(1)+'%';
+      r.querySelector('.rc').style.left='calc('+(S.r[i]*100).toFixed(1)+'% - 1px)';
+      r.querySelector('.er').textContent=S.per[i].toFixed(2).replace(/^0/,''); r.classList.toggle('hot',S.per[i]>.12); });
+    outErr=S.per; acts=activations(L.x); acts[LAYERS.length-1]=S.r; wave=1; waveT=performance.now();
+    needle.style.left='calc('+S.pos.toFixed(1)+'% - 1px)';
+    dec.className='rdec '+S.d; dec.textContent=S.d==='mfa'?'MFA':S.d;
+    why.innerHTML=S.reason;
+    if(S.d==='allow'){ last={city:L.city, device:L.device, ip:L.ip, tz:L.tz}; }
+    history.push(S.d); if(history.length>24) history.shift();
+    [].slice.call(stream.querySelectorAll('.d')).forEach(function(e){ e.remove(); });
+    history.forEach(function(d,i){ var e=document.createElement('span'); e.className='d '+d+(i===history.length-1?' new':''); e.title=d; stream.appendChild(e); });
+  }
+
+  var paused=false, hovering=false, timer=null, n=0;
+  function next(){
+    n++; var r=Math.random(), k= n<3?'normal' : r<.78?'normal' : r<.86?'device' : r<.93?'bot' : 'travel';
+    show(make(k));
+  }
+  function schedule(){ clearTimeout(timer); timer=setTimeout(function(){ if(!paused&&!hovering&&visible) next(); schedule(); }, 2300); }
+  [].forEach.call(document.querySelectorAll('#risk .rctl button[data-k]'),function(b){ b.addEventListener('click',function(){ show(make(b.dataset.k)); schedule(); }); });
+  pauseBtn.addEventListener('click',function(){ paused=!paused; pauseBtn.textContent=paused?'resume stream':'pause stream'; });
+  var area=document.getElementById('riskBox');
+  area.addEventListener('mouseenter',function(){ hovering=true; }); area.addEventListener('mouseleave',function(){ hovering=false; });
+  var visible=false;
+  if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ visible=es[0].isIntersecting; },{threshold:.15}).observe(box); } else visible=true;
+  layout(); addEventListener('resize',layout);
+  if(window.ResizeObserver) new ResizeObserver(layout).observe(wrapEl);
+  function loop(now){ if(visible||wave>=0) draw(now); requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
+  show(make('normal')); if(REDUCE){ paused=true; pauseBtn.textContent='resume stream'; }
+  schedule();
+})();
 </script>
 
 </body>
