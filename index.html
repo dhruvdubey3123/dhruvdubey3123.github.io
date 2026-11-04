@@ -205,6 +205,10 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .hx-real .hd h3{font-size:19px}
 .hx-real .hd code{font-family:var(--mono); font-size:12px}
 .hx-int{border-color:color-mix(in srgb, var(--accent) 45%, var(--line))}
+.hx-evo{border-color:color-mix(in srgb, var(--accent) 45%, var(--line)); background:linear-gradient(180deg, color-mix(in srgb, var(--accent) 5%, var(--surface)), var(--surface))}
+.hx-evo .hd h3{font-size:17.5px; line-height:1.3}
+.hx-evo .score{font-size:clamp(30px,4vw,40px)}
+.hx-evo em{font-style:normal; color:var(--ink); font-weight:600}
 .hx-real .hd p{font-size:13px; color:var(--muted); margin-top:6px; line-height:1.5}
 .hx-real .score{font-family:var(--display); font-weight:800; font-size:clamp(34px,4.5vw,46px); color:var(--accent); letter-spacing:-.03em; line-height:1; margin-top:10px}
 .hx-real .score small{font-family:var(--mono); font-size:11.5px; color:var(--muted); font-weight:500; letter-spacing:0; margin-left:6px}
@@ -877,7 +881,12 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <div class="hx-chk"><div><span>Restart from scratch: fixes with a duplicate</span><b style="color:var(--signal)">61 / 75</b></div><div><span>Harness resume: every action exactly once</span><b>75 / 75</b></div><div><span>Paused for one human check</span><b style="color:var(--amber)">30 / 75</b></div><div><span>Incidents routed correctly to gate or escalation</span><b>100 / 100</b></div></div>
     <div class="hx-lines"><div class="k">real kill -9 demo · sp_fill_rate job runs</div><div class="ln">resume: 1 run, 1 ticket comment, 1 audit line</div><div class="k" style="margin-top:10px">same crash · restart from the top</div><div class="ln d">restart: 2 runs of the same job ← duplicate</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/agent-harness-runtime#running-the-triage-agent-inside-the-harness" style="color:var(--accent)">code and benchmark →</a></div></div>
   </div>
-  <p class="hx-vision">The crash benchmark numbers come from <a href="https://github.com/dhruvdubey3123/agent-harness-runtime">agent-harness-runtime</a> and the triage numbers from its <code>triage_bridge</code>, wired to <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>. Both benchmarks and the kill demo rerun in CI on every push. The warehouse in them is a SQLite stand-in.</p>
+  <div class="hx-real hx-evo">
+    <div class="hd"><div class="lbl">Newest: the harness tuning itself</div><h3>It searched for a safer policy. The gate said no four times.</h3><p>Those 30 pauses were a number I picked by hand. A loop now proposes a change to the recovery policy, measures it on the same 75 crashed fixes, and keeps it only if more runs finish alone <em>and</em> nothing is duplicated or dropped.</p><div class="score">30 → 0<small>human interruptions</small></div></div>
+    <div class="hx-chk"><div><span>Shipped: every risky step asks a person</span><b style="color:var(--amber)">45 / 75</b></div><div><span>Verify <code>rerun_job</code> against the warehouse</span><b>57 / 75</b></div><div><span>Also <code>comment_ticket</code></span><b>67 / 75</b></div><div><span>Also <code>append_audit</code> · kept</span><b>75 / 75</b></div></div>
+    <div class="hx-lines"><div class="k">thrown out, despite a perfect score</div><div class="ln d">assume it ran: 75 / 75, and 5 actions never happened</div><div class="ln d">just run it again: 75 / 75, and 5 happened twice</div><div class="k" style="margin-top:10px">the objective alone would have taken both</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/agent-harness-runtime#tuning-itself-against-its-own-benchmark" style="color:var(--accent)">the loop and its guardrails →</a></div></div>
+  </div>
+  <p class="hx-vision">The crash benchmark numbers come from <a href="https://github.com/dhruvdubey3123/agent-harness-runtime">agent-harness-runtime</a>, the triage numbers from its <code>triage_bridge</code> wired to <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>, and the tuning numbers from its <code>evolve</code>. All of it reruns in CI on every push, including four hand-written counterexamples that stop the loop buying autonomy with a dropped action. The warehouse in them is a SQLite stand-in.</p>
 </div></section>
 
 <!-- ========== LIVE RISK ENGINE ========== -->
@@ -971,7 +980,9 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Stopped for review</td><td>resume 57/200, the honest cost</td></tr>
           <tr><td>Real model</td><td>Qwen3 8B via Ollama · 4/4 checks</td></tr>
           <tr><td>Triage inside the harness</td><td>75 crashed fixes: 0 duplicated (restart: 61)</td></tr>
-          <tr><td>Tests</td><td>28 passing, both benchmarks gated in CI</td></tr>
+          <tr><td>Tuned itself</td><td>human interruptions 30 → 0, still 0 duplicated</td></tr>
+          <tr><td>Rejected by its own gate</td><td>4 of 10 candidates, 2 despite a perfect score</td></tr>
+          <tr><td>Tests</td><td>43 passing, every benchmark gated in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
       </div>
@@ -1097,7 +1108,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
     {id:'krishi', t:'Krishi Mitra', d:'Fine-tuned LLaMA 3.2 3B with RAG, answering farmers in Hindi, Marathi and English. Piloted with 300 farmers.', go:'#krishi', s:['RAG','LLaMA fine-tune','llama.cpp','Embeddings','FastAPI','React','Supabase']},
     {id:'allegis', t:'Allegis triage agent', d:'Multi-agent root-cause system on Snowflake Cortex. Diagnosis went from weeks to days.', go:'#triage', s:['Cortex Agents','Cortex Search','Cortex Analyst','Semantic views','Multi-agent','Power BI','Matillion']},
     {id:'tgraph', t:'Pipeline Triage Graph', d:'Open-source rebuild: LangGraph, MCP server, human gate, eval suite gating CI.', go:'#systems', card:'Pipeline Incident Triage Graph', s:['LangGraph','MCP','Evals','Kubernetes','GitHub Actions','Docker','FastAPI','Human-in-the-loop']},
-    {id:'harness', t:'Agent Harness Runtime', d:'Crash-safe agent runs. In its benchmark, resume duplicated 0 of 200 side effects; restart duplicated 145.', go:'#harness', s:['Sandboxing','Run log','MCP','Retries','Context budget','Docker','Skills']},
+    {id:'harness', t:'Agent Harness Runtime', d:'Crash-safe agent runs: resume duplicated 0 of 200 side effects where restart duplicated 145. It now tunes its own recovery policy behind a gate that rejects unsafe wins.', go:'#harness', s:['Sandboxing','Run log','MCP','Retries','Context budget','Docker','Skills','Self-tuning']},
     {id:'nsai', t:'Reproducibility audit', d:'5,497 records screened, 85 codebases reproduced on Zaratan HPC. Under review at IEEE TNNLS.', go:'#story', s:['SLURM / HPC','PyTorch','Reproducibility','Docker','Evals']},
     {id:'crew', t:'Data Science Crew', d:'Six CrewAI agents running the ML lifecycle end to end. +35% workflow efficiency.', go:'#systems', card:'Autonomous Data Science Crew', s:['CrewAI','MLflow','Multi-agent']},
     {id:'plant', t:'Plant Health Monitor', d:'YOLOv5, ResNet and LSTM in one served system. 90% health classification accuracy.', go:'#systems', card:'Smart Plant Health Monitor', s:['YOLOv5','ResNet','LSTM','FastAPI','Docker']},
