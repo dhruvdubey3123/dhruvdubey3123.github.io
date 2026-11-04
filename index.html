@@ -17,7 +17,7 @@
 <title>Dhruv Dubey</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
 
 <style>
 /* Layout: one narrative column (story chapters) that widens for two working exhibits:
@@ -99,6 +99,74 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .ticker .cur{display:inline-block; width:7px; height:13px; background:var(--ink); vertical-align:-2px; margin-left:2px; animation:blink 1s steps(1) infinite}
 @keyframes live{70%{box-shadow:0 0 0 7px transparent} 100%{box-shadow:0 0 0 0 transparent}}
 @keyframes blink{50%{opacity:0}}
+/* krishi mitra: ask in your language */
+.km{display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr); gap:22px; align-items:start}
+.km > *{min-width:0}
+.km-ctl{display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px}
+.km-lang{display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:3px; background:var(--surface)}
+.km-lang button{font-family:var(--body),'Noto Sans Devanagari',sans-serif; font-size:13px; padding:6px 14px; border-radius:999px; border:0; background:none; color:var(--muted); cursor:pointer}
+.km-lang button.on{background:var(--accent); color:var(--bg); font-weight:600}
+.km-qs{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px}
+.km-qs button{font-family:var(--body),'Noto Sans Devanagari',sans-serif; font-size:13px; text-align:left; padding:8px 13px; border-radius:10px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer; max-width:100%}
+.km-qs button:hover{border-color:var(--accent)}
+.km-qs button.on{border-color:var(--accent); background:var(--accent-soft)}
+.km-phone{border:1px solid var(--line); border-radius:28px; background:var(--surface); box-shadow:var(--shadow); padding:12px; max-width:400px; margin-inline:auto; width:100%}
+.km-screen{border-radius:20px; background:var(--bg); overflow:hidden; display:flex; flex-direction:column; min-height:470px}
+.km-bar{display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid var(--line); background:var(--surface-2)}
+.km-av{width:34px; height:34px; border-radius:50%; background:radial-gradient(circle at 35% 30%, var(--accent), color-mix(in srgb, var(--accent) 45%, var(--amber))); display:grid; place-items:center; color:var(--bg); font-weight:700; font-size:14px; font-family:var(--display)}
+.km-bar .nm{font-family:var(--display); font-weight:700; font-size:14.5px; line-height:1.2}
+.km-bar .st{font-family:var(--mono); font-size:10.5px; color:var(--accent)}
+.km-chat{flex:1; padding:14px; display:flex; flex-direction:column; gap:10px; font-family:var(--body),'Noto Sans Devanagari',sans-serif}
+.km-msg{max-width:88%; padding:10px 13px; border-radius:14px; font-size:14.5px; line-height:1.6; animation:hxin .3s ease}
+.km-msg.q{align-self:flex-end; background:var(--accent); color:var(--bg); border-bottom-right-radius:4px}
+.km-msg.a{align-self:flex-start; background:var(--surface); border:1px solid var(--line); border-bottom-left-radius:4px; min-height:44px}
+.km-msg.a .caret{display:inline-block; width:7px; height:15px; background:var(--accent); vertical-align:-2px; margin-left:2px; animation:hxpulse .8s infinite}
+.km-cite{display:inline-grid; place-items:center; min-width:17px; height:17px; padding:0 4px; margin:0 1px; border-radius:5px; background:var(--accent-soft); color:var(--accent); font-family:var(--mono); font-size:10.5px; font-weight:600; vertical-align:1px; cursor:pointer}
+.km-cite:hover,.km-cite.hl{background:var(--accent); color:var(--bg)}
+.km-typing{align-self:flex-start; display:flex; gap:4px; padding:12px 14px; border-radius:14px; background:var(--surface); border:1px solid var(--line)}
+.km-typing i{width:6px; height:6px; border-radius:50%; background:var(--muted); animation:kmdot 1s infinite}
+.km-typing i:nth-child(2){animation-delay:.15s} .km-typing i:nth-child(3){animation-delay:.3s}
+@keyframes kmdot{50%{transform:translateY(-4px); opacity:.4}}
+.km-foot{padding:10px 14px; border-top:1px solid var(--line); font-family:var(--mono); font-size:10.5px; color:var(--muted); display:flex; justify-content:space-between; gap:8px}
+.km-pipe{border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); padding:18px; position:relative}
+.km-stage{position:relative; padding:12px 14px 12px 46px; border-radius:10px; transition:background .3s, opacity .3s; opacity:.38}
+.km-stage + .km-stage{margin-top:4px}
+.km-stage::before{content:attr(data-n); position:absolute; left:10px; top:12px; width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-family:var(--mono); font-size:11px; font-weight:600; background:var(--surface-2); color:var(--muted); transition:background .3s, color .3s}
+.km-stage::after{content:""; position:absolute; left:21px; top:38px; bottom:-8px; width:2px; background:var(--line)}
+.km-stage:last-child::after{display:none}
+.km-stage.on{opacity:1; background:color-mix(in srgb, var(--accent-soft) 45%, transparent)}
+.km-stage.on::before{background:var(--accent); color:var(--bg); box-shadow:0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent)}
+.km-stage.done{opacity:1}
+.km-stage.done::before{background:var(--accent-soft); color:var(--accent)}
+.km-stage.done::after{background:var(--accent)}
+.km-stage h4{margin:0; font-family:var(--display); font-size:14.5px; font-weight:700}
+.km-stage .d{font-size:12.5px; color:var(--muted); margin-top:2px}
+.km-stage .v{font-family:var(--mono); font-size:12px; color:var(--accent); margin-top:6px; min-height:1em}
+.km-srcs{display:grid; gap:7px; margin-top:9px}
+.km-src{display:grid; grid-template-columns:minmax(0,1fr) 92px; gap:10px; align-items:center; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--bg); font-size:12.5px; opacity:0; transform:translateX(-8px); transition:opacity .35s, transform .35s, border-color .25s, background .25s}
+.km-src.in{opacity:1; transform:none}
+.km-src .u{font-family:var(--mono); font-size:11.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.km-src .s{color:var(--muted); font-size:11.5px; margin-top:2px; line-height:1.4}
+.km-src .s mark{background:var(--amber-soft); color:var(--ink); border-radius:3px; padding:0 2px}
+.km-src .tr{font-family:var(--mono); font-size:10px; color:var(--muted); text-align:right}
+.km-src .tb{height:5px; border-radius:3px; background:var(--surface-2); margin-top:4px; overflow:hidden}
+.km-src .tb i{display:block; height:100%; width:0; background:var(--accent); transition:width .6s ease}
+.km-src.drop{border-style:dashed}
+.km-src.drop .tb i{background:var(--signal)}
+.km-src.drop.cut{opacity:.45; text-decoration:line-through; text-decoration-color:var(--signal)}
+.km-src.drop.cut .tr{color:var(--signal); text-decoration:none}
+.km-src.hl{border-color:var(--accent); background:var(--accent-soft)}
+.km-src .id{display:inline-grid; place-items:center; width:17px; height:17px; border-radius:5px; background:var(--accent-soft); color:var(--accent); font-family:var(--mono); font-size:10.5px; font-weight:600; margin-right:6px}
+.km-chip{display:inline-flex; gap:8px; flex-wrap:wrap; margin-top:8px}
+.km-chip span{font-family:var(--mono); font-size:10.5px; padding:3px 8px; border-radius:999px; background:var(--surface-2); color:var(--muted)}
+.km-stats{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:22px}
+.km-stats div{border:1px solid var(--line); border-radius:12px; padding:13px 15px; background:var(--surface)}
+.km-stats b{display:block; font-family:var(--display); font-weight:800; font-size:clamp(22px,3vw,30px); letter-spacing:-.02em; color:var(--accent); line-height:1.05}
+.km-stats span{font-size:12px; color:var(--muted)}
+.km-note{margin-top:14px; font-size:12.5px; color:var(--muted); max-width:82ch}
+@media (max-width:880px){ .km{grid-template-columns:1fr} .km-stats{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media (max-width:480px){ .km-src{grid-template-columns:minmax(0,1fr) 70px} .km-screen{min-height:420px} .km-stage{padding-left:42px} }
+
 /* harness: crash it yourself */
 .hx{border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); overflow:hidden; position:relative}
 .hx-top{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); background:var(--surface-2)}
@@ -442,6 +510,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   <nav class="topnav">
     <a href="#equation">equation</a>
     <a href="#story">story</a>
+    <a href="#krishi">krishi</a>
     <a href="#triage">triage demo</a>
     <a href="#harness">harness</a>
     <a href="#risk">risk demo</a>
@@ -583,8 +652,50 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   </div>
 </div></section>
 
+<!-- ========== KRISHI MITRA ========== -->
+<section id="krishi" class="alt"><div class="wrap">
+  <div class="sechead">
+    <div class="lbl">Where it started: Krishi Mitra</div>
+    <h2>Ask it in your own language</h2>
+    <p class="muted" style="max-width:66ch">The answers farmers need already exist on government sites, written in bureaucratic English and spread across a dozen portals. Krishi Mitra takes a question in Hindi, Marathi or English, pulls passages only from trusted sources, and has a fine-tuned 3B model answer in the same language with citations, on hardware a village office already owns. Pick a language and a question.</p>
+  </div>
+
+  <div class="km-ctl">
+    <div class="km-lang" id="kmLang" role="group" aria-label="Language">
+      <button type="button" data-l="hi">हिन्दी</button><button type="button" data-l="mr">मराठी</button><button type="button" data-l="en">English</button>
+    </div>
+  </div>
+  <div class="km-qs" id="kmQs"></div>
+
+  <div class="km">
+    <div class="km-phone">
+      <div class="km-screen">
+        <div class="km-bar"><div class="km-av">कृ</div><div><div class="nm">Krishi Mitra</div><div class="st" id="kmSt">online · runs offline</div></div></div>
+        <div class="km-chat" id="kmChat"></div>
+        <div class="km-foot"><span>LLaMA 3.2 3B · fine-tuned</span><span>4-bit GGUF · CPU</span></div>
+      </div>
+    </div>
+
+    <div class="km-pipe" id="kmPipe">
+      <div class="km-stage" data-n="1"><h4>Understand the question</h4><div class="d">Detect the language and turn the question into search queries.</div><div class="v" id="kmV1"></div></div>
+      <div class="km-stage" data-n="2"><h4>Search, then keep only trusted sources</h4><div class="d">SearXNG meta-search; every result is scored for source reliability before anything reaches the model.</div><div class="km-srcs" id="kmSrcs"></div></div>
+      <div class="km-stage" data-n="3"><h4>Ground the answer</h4><div class="d">The passages that answer the question are handed to the model as context.</div><div class="v" id="kmV3"></div></div>
+      <div class="km-stage" data-n="4"><h4>Answer in the same language</h4><div class="d">Fine-tuned LLaMA 3.2 3B, quantized to 4 bits with llama.cpp so it runs on an ordinary laptop CPU.</div><div class="km-chip"><span>3B params</span><span>Q4 GGUF</span><span>no GPU</span><span>no cloud</span></div></div>
+      <div class="km-stage" data-n="5"><h4>Show where it came from</h4><div class="d">Every claim carries a citation to a source above. Hover a number to see it.</div><div class="v" id="kmV5"></div></div>
+    </div>
+  </div>
+
+  <div class="km-stats">
+    <div><b>300</b><span>farmers in the pilot</span></div>
+    <div><b>≈ 0.75</b><span>ROUGE-1 against reference answers</span></div>
+    <div><b>≈ 0.83</b><span>SBERT semantic similarity</span></div>
+    <div><b>3</b><span>languages: Hindi, Marathi, English</span></div>
+  </div>
+  <p class="km-note">A replay, not the live system: the questions and answers here were written from the official sources shown, to illustrate the pipeline. In Krishi Mitra the search runs live and the fine-tuned model writes the answer. The four numbers come from our pilot and published evaluation.</p>
+</div></section>
+
 <!-- ========== TRIAGE ========== -->
-<section id="triage" class="alt"><div class="wrap">
+<section id="triage"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Interactive · reconstruction of the Allegis system</div>
     <h2>Break the pipeline. Watch the agent find it.</h2>
@@ -660,7 +771,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 </div></section>
 
 <!-- ========== HARNESS: CRASH IT YOURSELF ========== -->
-<section id="harness"><div class="wrap">
+<section id="harness" class="alt"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Triage, run inside the harness</div>
     <h2>Crash it yourself</h2>
@@ -708,7 +819,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 </div></section>
 
 <!-- ========== LIVE RISK ENGINE ========== -->
-<section id="risk" class="alt"><div class="wrap">
+<section id="risk"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Where I started: anomaly detection</div>
     <h2>A login, scored while you watch</h2>
@@ -753,7 +864,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 </div></section>
 
 <!-- ========== SYSTEMS ========== -->
-<section id="systems"><div class="wrap">
+<section id="systems" class="alt"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Builds</div>
     <h2>Systems</h2>
@@ -882,7 +993,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 </div></section>
 
 <!-- ========== CONTACT ========== -->
-<section id="contact" class="alt"><div class="wrap">
+<section id="contact"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Get in touch</div>
     <h2>Contact</h2>
@@ -918,7 +1029,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
 /* ---------- hero: the graph of everything built ---------- */
 (function(){
   var HUBS=[
-    {id:'krishi', t:'Krishi Mitra', d:'Fine-tuned LLaMA 3.2 3B with RAG, answering farmers in Hindi, Marathi and English. Piloted with 300 farmers.', go:'#systems', card:'Krishi Mitra', s:['RAG','LLaMA fine-tune','llama.cpp','Embeddings','FastAPI','React','Supabase']},
+    {id:'krishi', t:'Krishi Mitra', d:'Fine-tuned LLaMA 3.2 3B with RAG, answering farmers in Hindi, Marathi and English. Piloted with 300 farmers.', go:'#krishi', s:['RAG','LLaMA fine-tune','llama.cpp','Embeddings','FastAPI','React','Supabase']},
     {id:'allegis', t:'Allegis triage agent', d:'Multi-agent root-cause system on Snowflake Cortex. Diagnosis went from weeks to days.', go:'#triage', s:['Cortex Agents','Cortex Search','Cortex Analyst','Semantic views','Multi-agent','Power BI','Matillion']},
     {id:'tgraph', t:'Pipeline Triage Graph', d:'Open-source rebuild: LangGraph, MCP server, human gate, eval suite gating CI.', go:'#systems', card:'Pipeline Incident Triage Graph', s:['LangGraph','MCP','Evals','Kubernetes','GitHub Actions','Docker','FastAPI','Human-in-the-loop']},
     {id:'harness', t:'Agent Harness Runtime', d:'Crash-safe agent runs. In its benchmark, resume duplicated 0 of 200 side effects; restart duplicated 145.', go:'#harness', s:['Sandboxing','Run log','MCP','Retries','Context budget','Docker','Skills']},
@@ -1637,6 +1748,68 @@ document.querySelectorAll('.copy').forEach(function(b){
   reset();
   // start once when the section first scrolls into view
   if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ if(es[0].isIntersecting){ io.disconnect(); if(!running&&!rowsEl.children.length) begin(); } },{threshold:.35}); io.observe(root); }
+})();
+
+/* ---------- krishi mitra: ask in your language ---------- */
+(function(){
+  var sec=document.getElementById('krishi'); if(!sec) return;
+  var D={"qs": [{"q": {"en": "Who gets PM-KISAN money, and how much?", "hi": "पीएम-किसान का पैसा किसे मिलता है और कितना?", "mr": "पीएम-किसानचे पैसे कोणाला मिळतात आणि किती?"}, "a": {"en": "PM-KISAN pays landholding farmer families ₹6,000 a year, in three installments of ₹2,000 straight into their bank account [1]. You need land records in your name, an Aadhaar-linked bank account and completed e-KYC [1][2]. Income-tax payers and institutional landholders are not eligible [1].", "hi": "पीएम-किसान में ज़मीन वाले किसान परिवारों को साल में ₹6,000 मिलते हैं, जो ₹2,000 की तीन किस्तों में सीधे बैंक खाते में आते हैं [1]। इसके लिए ज़मीन के रिकॉर्ड आपके नाम पर, आधार से जुड़ा बैंक खाता और पूरा e-KYC ज़रूरी है [1][2]। आयकर देने वाले और संस्थागत भूमिधारक इसके पात्र नहीं हैं [1]।", "mr": "पीएम-किसान योजनेत जमीनधारक शेतकरी कुटुंबांना वर्षाला ₹6,000 मिळतात, ते ₹2,000 च्या तीन हप्त्यांत थेट बँक खात्यात जमा होतात [1]. त्यासाठी जमिनीचे रेकॉर्ड तुमच्या नावावर, आधारशी जोडलेले बँक खाते आणि पूर्ण ई-केवायसी आवश्यक आहे [1][2]. आयकर भरणारे आणि संस्थात्मक जमीनधारक पात्र नाहीत [1]."}, "queries": "PM-KISAN eligibility · installment amount · e-KYC", "src": [["pmkisan.gov.in", "official scheme portal", 1.0, "₹6,000 per year in <mark>three equal installments</mark> of ₹2,000 via DBT"], ["myscheme.gov.in", "government scheme finder", 0.95, "Eligibility: <mark>land records</mark>, Aadhaar-seeded account, e-KYC mandatory"], ["random-blog.example", "unverified blog", 0.2, "PM Kisan ki 15,000 wali naya kist aa gayi"]]}, {"q": {"en": "Is there a subsidy for drip irrigation?", "hi": "क्या ड्रिप सिंचाई पर सब्सिडी मिलती है?", "mr": "ठिबक सिंचनासाठी अनुदान मिळते का?"}, "a": {"en": "Yes. Under PMKSY 'Per Drop More Crop', the government shares the cost of drip and sprinkler systems: about 55% for small and marginal farmers and 45% for others [1]. Many states add a top-up on this [2]. In Maharashtra you apply on the MahaDBT portal with your land and bank details [2].", "hi": "हाँ। पीएमकेएसवाई 'पर ड्रॉप मोर क्रॉप' के तहत ड्रिप और स्प्रिंकलर की लागत में सरकार मदद करती है: छोटे और सीमांत किसानों को लगभग 55% और अन्य किसानों को 45% [1]। कई राज्य इसके ऊपर अतिरिक्त सहायता देते हैं [2]। महाराष्ट्र में आवेदन महाडीबीटी पोर्टल पर ज़मीन और बैंक विवरण के साथ होता है [2]।", "mr": "होय. पीएमकेएसवाय 'पर ड्रॉप मोअर क्रॉप' अंतर्गत ठिबक आणि तुषार सिंचनाच्या खर्चात सरकार मदत करते: लहान व अल्पभूधारक शेतकऱ्यांना सुमारे 55% आणि इतरांना 45% [1]. अनेक राज्ये यावर अतिरिक्त अनुदान देतात [2]. महाराष्ट्रात अर्ज महाडीबीटी पोर्टलवर जमीन आणि बँक तपशीलांसह करता येतो [2]."}, "queries": "drip irrigation subsidy · Per Drop More Crop · how to apply", "src": [["pmksy.gov.in", "Per Drop More Crop guidelines", 1.0, "Assistance of <mark>55% for small and marginal</mark> farmers and 45% for others"], ["mahadbt.maharashtra.gov.in", "Maharashtra farmer DBT portal", 0.95, "Apply online for <mark>micro-irrigation</mark> with 7/12 extract and bank details"], ["anonymous-forum.example", "anonymous forum post", 0.15, "drip pe 90% subsidy milega sab ko, jaldi apply karo"]]}, {"q": {"en": "Rain is late this year. Should I sow soybean now?", "hi": "इस साल बारिश देर से है। क्या अभी सोयाबीन बोऊँ?", "mr": "यंदा पाऊस उशिरा आहे. आत्ता सोयाबीन पेरू का?"}, "a": {"en": "Don't sow on the first shower. Agriculture advisories say to wait until about 75 to 100 mm of rain has soaked the soil before sowing soybean [1]. Check this week's district forecast from IMD before you decide [2]. If the monsoon is very late, ask your local Krishi Vigyan Kendra about shorter-duration varieties [1].", "hi": "पहली बारिश पर बुवाई न करें। कृषि सलाह के अनुसार सोयाबीन तब बोएँ जब लगभग 75 से 100 मिमी बारिश से मिट्टी अच्छी तरह भीग जाए [1]। फ़ैसला करने से पहले इस हफ़्ते का ज़िले का आईएमडी पूर्वानुमान देखें [2]। अगर मानसून बहुत देर से है, तो कम अवधि वाली किस्मों के बारे में अपने कृषि विज्ञान केंद्र से पूछें [1]।", "mr": "पहिल्या सरीवर पेरणी करू नका. कृषी सल्ल्यानुसार सुमारे 75 ते 100 मिमी पावसाने जमीन चांगली ओली झाल्यावरच सोयाबीनची पेरणी करा [1]. निर्णय घेण्यापूर्वी या आठवड्याचा जिल्ह्याचा आयएमडी अंदाज पहा [2]. मान्सून खूप उशिरा असेल तर कमी कालावधीच्या वाणांबद्दल जवळच्या कृषी विज्ञान केंद्राला विचारा [1]."}, "queries": "soybean sowing rainfall · district forecast · late monsoon", "src": [["icar.org.in", "ICAR crop advisory", 1.0, "Sow soybean only after <mark>75 to 100 mm</mark> of rainfall has been received"], ["mausam.imd.gov.in", "IMD district forecast", 1.0, "District-level <mark>5-day forecast</mark> and agromet advisory"], ["viral-video.example", "unverified video caption", 0.1, "sow now, rain guaranteed next week!!"]]}], "ui": {"en": {"lang": "English detected", "pass": "trusted", "cut": "dropped", "ctx": "2 passages · 1 source dropped", "cite": "2 sources cited", "think": "searching trusted sources"}, "hi": {"lang": "हिन्दी detected", "pass": "trusted", "cut": "dropped", "ctx": "2 passages · 1 source dropped", "cite": "2 sources cited", "think": "searching trusted sources"}, "mr": {"lang": "मराठी detected", "pass": "trusted", "cut": "dropped", "ctx": "2 passages · 1 source dropped", "cite": "2 sources cited", "think": "searching trusted sources"}}};
+  var REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var lang='hi', qi=0, token=0, started=false;
+  var qsEl=document.getElementById('kmQs'), chat=document.getElementById('kmChat'), srcs=document.getElementById('kmSrcs'),
+      stages=[].slice.call(sec.querySelectorAll('.km-stage')), st=document.getElementById('kmSt');
+  function T(ms){ return REDUCE?Math.min(ms,60):ms; }
+  function wait(ms,tk){ return new Promise(function(r){ setTimeout(function(){ r(tk===token); }, T(ms)); }); }
+  function esc(s){ return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+  function renderQs(){ qsEl.innerHTML=''; D.qs.forEach(function(q,i){ var b=document.createElement('button'); b.type='button'; b.textContent=q.q[lang]; if(i===qi) b.className='on';
+    b.addEventListener('click',function(){ qi=i; play(); }); qsEl.appendChild(b); }); }
+  [].forEach.call(document.querySelectorAll('#kmLang button'),function(b){ b.classList.toggle('on',b.dataset.l===lang);
+    b.addEventListener('click',function(){ lang=b.dataset.l; [].forEach.call(document.querySelectorAll('#kmLang button'),function(x){ x.classList.toggle('on',x===b); }); play(); }); });
+  function stage(n,cls){ stages.forEach(function(s,i){ s.classList.remove('on'); if(i<n) s.classList.add('done'); else s.classList.remove('done'); }); if(n<stages.length&&cls!=='end') stages[n].classList.add('on'); }
+  function hl(id,on){ [].forEach.call(srcs.querySelectorAll('.km-src'),function(s){ s.classList.toggle('hl', on && s.dataset.id===id); });
+    [].forEach.call(chat.querySelectorAll('.km-cite'),function(c){ c.classList.toggle('hl', on && c.dataset.id===id); }); }
+  function citeHTML(text){ return esc(text).replace(/\[(\d)\]/g,function(_,n){ return '<span class="km-cite" data-id="'+n+'">'+n+'</span>'; }); }
+
+  async function play(){
+    var tk=++token, Q=D.qs[qi], U=D.ui[lang];
+    renderQs(); chat.innerHTML=''; srcs.innerHTML=''; ['kmV1','kmV3','kmV5'].forEach(function(id){ document.getElementById(id).textContent=''; });
+    stage(0); st.textContent='online · runs offline';
+    var q=document.createElement('div'); q.className='km-msg q'; q.textContent=Q.q[lang]; chat.appendChild(q);
+    var typing=document.createElement('div'); typing.className='km-typing'; typing.innerHTML='<i></i><i></i><i></i>'; chat.appendChild(typing);
+    if(!await wait(500,tk)) return;
+    document.getElementById('kmV1').textContent=U.lang+' → '+Q.queries;
+    st.textContent=U.think+'…';
+    if(!await wait(900,tk)) return;
+    stage(1);
+    var cards=Q.src.map(function(s,i){ var trusted=s[2]>=0.5, el=document.createElement('div');
+      el.className='km-src'+(trusted?'':' drop'); el.dataset.id=trusted?String(i+1):'x';
+      el.innerHTML='<div><div class="u">'+(trusted?'<span class="id">'+(i+1)+'</span>':'')+esc(s[0])+'</div><div class="s">'+(trusted?s[3]:esc(s[3]))+'</div></div><div><div class="tr">'+s[1]+'</div><div class="tb"><i></i></div><div class="tr">'+(trusted?U.pass:U.cut)+' · '+s[2].toFixed(2)+'</div></div>';
+      el.addEventListener('mouseenter',function(){ if(trusted) hl(el.dataset.id,true); }); el.addEventListener('mouseleave',function(){ hl('',false); });
+      srcs.appendChild(el); return [el,s[2],trusted]; });
+    for(var i=0;i<cards.length;i++){ if(!await wait(320,tk)) return; cards[i][0].classList.add('in'); cards[i][0].querySelector('.tb i').style.width=(cards[i][1]*100)+'%'; }
+    if(!await wait(700,tk)) return;
+    cards.forEach(function(c){ if(!c[2]) c[0].classList.add('cut'); });
+    if(!await wait(700,tk)) return;
+    stage(2); document.getElementById('kmV3').textContent=U.ctx;
+    if(!await wait(900,tk)) return;
+    stage(3); st.textContent='typing…';
+    typing.remove();
+    var a=document.createElement('div'); a.className='km-msg a'; chat.appendChild(a);
+    var text=Q.a[lang], words=text.split(/(\s+)/), shown='';
+    for(var w=0; w<words.length; w++){
+      shown+=words[w]; a.innerHTML=citeHTML(shown)+'<span class="caret"></span>';
+      if(words[w].trim() && !await wait(55,tk)) return;
+    }
+    a.innerHTML=citeHTML(text);
+    [].forEach.call(a.querySelectorAll('.km-cite'),function(c){ c.addEventListener('mouseenter',function(){ hl(c.dataset.id,true); }); c.addEventListener('mouseleave',function(){ hl('',false); }); });
+    stage(4); document.getElementById('kmV5').textContent=U.cite;
+    st.textContent='online · runs offline';
+    if(!await wait(600,tk)) return;
+    stage(5,'end');
+  }
+  renderQs();
+  if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ if(es[0].isIntersecting&&!started){ started=true; io.disconnect(); play(); } },{threshold:.3}); io.observe(sec); }
+  else { started=true; play(); }
 })();
 </script>
 
