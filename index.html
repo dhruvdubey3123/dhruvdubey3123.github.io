@@ -167,6 +167,23 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 @media (max-width:880px){ .km{grid-template-columns:1fr} .km-stats{grid-template-columns:repeat(2,minmax(0,1fr))} }
 @media (max-width:480px){ .km-src{grid-template-columns:minmax(0,1fr) 70px} .km-screen{min-height:420px} .km-stage{padding-left:42px} }
 
+.hx-real{margin-top:18px; border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); padding:18px 20px; display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,1fr); gap:18px; align-items:start}
+.hx-real > *{min-width:0}
+.hx-real .hd .lbl{margin-bottom:8px}
+.hx-real .hd h3{font-size:19px}
+.hx-real .hd p{font-size:13px; color:var(--muted); margin-top:6px; line-height:1.5}
+.hx-real .score{font-family:var(--display); font-weight:800; font-size:clamp(34px,4.5vw,46px); color:var(--accent); letter-spacing:-.03em; line-height:1; margin-top:10px}
+.hx-real .score small{font-family:var(--mono); font-size:11.5px; color:var(--muted); font-weight:500; letter-spacing:0; margin-left:6px}
+.hx-chk{display:grid; gap:6px}
+.hx-chk div{display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:7px 10px; border-radius:7px; background:var(--bg)}
+.hx-chk b{font-family:var(--mono); font-size:11px; color:var(--accent)}
+.hx-lines .k{font-family:var(--mono); font-size:11px; color:var(--muted); margin:4px 0}
+.hx-lines .ln{font-family:var(--mono); font-size:11.5px; padding:6px 9px; border-radius:6px; background:var(--accent-soft); color:var(--accent); margin-top:4px; overflow-wrap:anywhere}
+.hx-lines .ln.d{background:var(--signal-soft); color:var(--signal)}
+.hx-wrong{grid-column:1/-1; border-left:3px solid var(--amber); background:var(--amber-soft); border-radius:0 8px 8px 0; padding:10px 14px; font-size:13.5px; color:var(--ink)}
+.hx-wrong code{font-family:var(--mono); font-size:12px; color:var(--signal); overflow-wrap:anywhere}
+@media (max-width:880px){ .hx-real{grid-template-columns:1fr} }
+
 /* harness: crash it yourself */
 .hx{border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); overflow:hidden; position:relative}
 .hx-top{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); background:var(--surface-2)}
@@ -815,7 +832,13 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <div class="hx-stat good"><div class="v">0<small> / 200</small></div><p>duplicated with harness resume, on the same seeds and the same crashes</p></div>
     <div class="hx-stat mid"><div class="v">57<small> / 200</small></div><p>stopped to ask a person about one step instead of guessing</p></div>
   </div>
-  <p class="hx-vision">The three numbers come from the crash benchmark in <a href="https://github.com/dhruvdubey3123/agent-harness-runtime">agent-harness-runtime</a>, rerun in CI on every push. The run above is an illustration of where the two projects meet: <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a> and the harness are separate repos today, and running triage inside the harness is the next step I would build.</p>
+  <div class="hx-real">
+    <div class="hd"><div class="lbl">Tested with a real open-weight model</div><h3>Qwen3 8B on a laptop CPU</h3><p>Served by Ollama, no API key, no GPU. The same four checks, run against the real model.</p><div class="score">4 / 4<small>checks passed · 201 s</small></div></div>
+    <div class="hx-chk"><div><span>Clean run, each tool once</span><b>PASS</b></div><div><span>Killed after a safe write, resumed</span><b>PASS</b></div><div><span>Killed after the audit append</span><b>PASS</b></div><div><span>Read-only agent asked to write</span><b>PASS</b></div></div>
+    <div class="hx-lines"><div class="k">audit.log after that crash · resume</div><div class="ln">Fix plan written for AGS-4471</div><div class="k" style="margin-top:10px">same crash · restart from zero</div><div class="ln d">Fix plan written for AGS-4471</div><div class="ln d">Fix plan written for AGS-4471 ← duplicate</div></div>
+    <div class="hx-wrong"><b>The model's fix was wrong.</b> It found the cause, a renamed column, then proposed <code>ALTER TABLE CRM.DAILY_REVENUE DROP COLUMN CUST_ID;</code> The harness makes sure an agent acts once, in its sandbox, on the record. It cannot make a bad idea good, which is exactly why the triage agent waits for a person before applying a fix.</div>
+  </div>
+  <p class="hx-vision">The three numbers above come from the crash benchmark in <a href="https://github.com/dhruvdubey3123/agent-harness-runtime">agent-harness-runtime</a>, rerun in CI on every push. The run above is an illustration of where the two projects meet: <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a> and the harness are separate repos today, and running triage inside the harness is the next step I would build.</p>
 </div></section>
 
 <!-- ========== LIVE RISK ENGINE ========== -->
@@ -906,7 +929,8 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Duplicated side effects</td><td>restart 145/200 · resume 0/200</td></tr>
           <tr><td>Correct with no human</td><td>restart 55/200 · resume 143/200</td></tr>
           <tr><td>Stopped for review</td><td>resume 57/200, the honest cost</td></tr>
-          <tr><td>Tests</td><td>18 passing, benchmark gated in CI</td></tr>
+          <tr><td>Real model</td><td>Qwen3 8B via Ollama · 4/4 checks</td></tr>
+          <tr><td>Tests</td><td>21 passing, benchmark gated in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
       </div>
