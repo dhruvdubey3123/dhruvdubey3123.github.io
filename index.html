@@ -203,12 +203,14 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .hx-real > *{min-width:0}
 .hx-real .hd .lbl{margin-bottom:8px}
 .hx-real .hd h3{font-size:19px}
+.hx-real .hd code{font-family:var(--mono); font-size:12px}
+.hx-int{border-color:color-mix(in srgb, var(--accent) 45%, var(--line))}
 .hx-real .hd p{font-size:13px; color:var(--muted); margin-top:6px; line-height:1.5}
 .hx-real .score{font-family:var(--display); font-weight:800; font-size:clamp(34px,4.5vw,46px); color:var(--accent); letter-spacing:-.03em; line-height:1; margin-top:10px}
 .hx-real .score small{font-family:var(--mono); font-size:11.5px; color:var(--muted); font-weight:500; letter-spacing:0; margin-left:6px}
 .hx-chk{display:grid; gap:6px}
 .hx-chk div{display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:7px 10px; border-radius:7px; background:var(--bg)}
-.hx-chk b{font-family:var(--mono); font-size:11px; color:var(--accent)}
+.hx-chk b{font-family:var(--mono); font-size:11px; color:var(--accent); white-space:nowrap}
 .hx-lines .k{font-family:var(--mono); font-size:11px; color:var(--muted); margin:4px 0}
 .hx-lines .ln{font-family:var(--mono); font-size:11.5px; padding:6px 9px; border-radius:6px; background:var(--accent-soft); color:var(--accent); margin-top:4px; overflow-wrap:anywhere}
 .hx-lines .ln.d{background:var(--signal-soft); color:var(--signal)}
@@ -870,7 +872,12 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <div class="hx-lines"><div class="k">audit.log after that crash · resume</div><div class="ln">Fix plan written for AGS-4471</div><div class="k" style="margin-top:10px">same crash · restart from zero</div><div class="ln d">Fix plan written for AGS-4471</div><div class="ln d">Fix plan written for AGS-4471 ← duplicate</div></div>
     <div class="hx-wrong"><b>The model's fix was wrong.</b> It found the cause, a renamed column, then proposed <code>ALTER TABLE CRM.DAILY_REVENUE DROP COLUMN CUST_ID;</code> The harness makes sure an agent acts once, in its sandbox, on the record. It cannot make a bad idea good, which is exactly why the triage agent waits for a person before applying a fix.</div>
   </div>
-  <p class="hx-vision">The three numbers above come from the crash benchmark in <a href="https://github.com/dhruvdubey3123/agent-harness-runtime">agent-harness-runtime</a>, rerun in CI on every push. The run above is an illustration of where the two projects meet: <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a> and the harness are separate repos today, and running triage inside the harness is the next step I would build.</p>
+  <div class="hx-real hx-int">
+    <div class="hd"><div class="lbl">Now built: triage inside the harness</div><h3>The real thing, not the illustration</h3><p>The triage agent's approved fixes are applied through the harness. Both keep state in SQLite, so a <code>kill -9</code> mid-fix is recovered by a fresh process. Measured on the triage eval set: 75 approved fixes, each crashed at a random step.</p><div class="score">0 / 75<small>fixes duplicated an action</small></div></div>
+    <div class="hx-chk"><div><span>Restart from scratch: fixes with a duplicate</span><b style="color:var(--signal)">61 / 75</b></div><div><span>Harness resume: every action exactly once</span><b>75 / 75</b></div><div><span>Paused for one human check</span><b style="color:var(--amber)">30 / 75</b></div><div><span>Incidents routed correctly to gate or escalation</span><b>100 / 100</b></div></div>
+    <div class="hx-lines"><div class="k">real kill -9 demo · sp_fill_rate job runs</div><div class="ln">resume: 1 run, 1 ticket comment, 1 audit line</div><div class="k" style="margin-top:10px">same crash · restart from the top</div><div class="ln d">restart: 2 runs of the same job ← duplicate</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/agent-harness-runtime#running-the-triage-agent-inside-the-harness" style="color:var(--accent)">code and benchmark →</a></div></div>
+  </div>
+  <p class="hx-vision">The crash benchmark numbers come from <a href="https://github.com/dhruvdubey3123/agent-harness-runtime">agent-harness-runtime</a> and the triage numbers from its <code>triage_bridge</code>, wired to <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>. Both benchmarks and the kill demo rerun in CI on every push. The warehouse in them is a SQLite stand-in.</p>
 </div></section>
 
 <!-- ========== LIVE RISK ENGINE ========== -->
@@ -941,6 +948,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Clean set</td><td>all metrics 1.00 (a spec test, not an accuracy claim)</td></tr>
           <tr><td>Noisy set, root cause</td><td>1.00</td></tr>
           <tr><td>Noisy set, category / escalation recall</td><td>0.81 / 0.81: misleading logs fool the rules</td></tr>
+          <tr><td>Applied through the harness</td><td>crash mid-fix: 0/75 duplicated actions</td></tr>
           <tr><td>Tests</td><td>17 passing, eval gated in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/pipeline-triage-graph">github.com/dhruvdubey3123/pipeline-triage-graph</a></div>
@@ -962,7 +970,8 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Correct with no human</td><td>restart 55/200 · resume 143/200</td></tr>
           <tr><td>Stopped for review</td><td>resume 57/200, the honest cost</td></tr>
           <tr><td>Real model</td><td>Qwen3 8B via Ollama · 4/4 checks</td></tr>
-          <tr><td>Tests</td><td>21 passing, benchmark gated in CI</td></tr>
+          <tr><td>Triage inside the harness</td><td>75 crashed fixes: 0 duplicated (restart: 61)</td></tr>
+          <tr><td>Tests</td><td>28 passing, both benchmarks gated in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
       </div>
