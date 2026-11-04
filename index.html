@@ -99,6 +99,38 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .ticker .cur{display:inline-block; width:7px; height:13px; background:var(--ink); vertical-align:-2px; margin-left:2px; animation:blink 1s steps(1) infinite}
 @keyframes live{70%{box-shadow:0 0 0 7px transparent} 100%{box-shadow:0 0 0 0 transparent}}
 @keyframes blink{50%{opacity:0}}
+/* triage, visual layer */
+.dagwrap{background-image:radial-gradient(color-mix(in srgb, var(--muted) 22%, transparent) 1px, transparent 1.4px); background-size:18px 18px; position:relative}
+.n rect{filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.08))}
+.n .ic{fill:var(--surface-2); stroke:var(--line); stroke-width:1}
+.n .icl{fill:var(--muted); font-family:'IBM Plex Mono',monospace; font-size:8.5px; font-weight:600}
+.n.ok .ic,.n.fixed .ic{fill:var(--accent); stroke:var(--accent)} .n.ok .icl,.n.fixed .icl{fill:var(--bg)}
+.n.fail .ic,.n.broken .ic,.n.cause .ic,.n.symptom .ic{fill:var(--signal); stroke:var(--signal)} .n.fail .icl,.n.broken .icl,.n.cause .icl,.n.symptom .icl{fill:#fff}
+.n.warn .ic{fill:var(--amber); stroke:var(--amber)} .n.warn .icl{fill:#fff}
+.n.visit rect{stroke-dasharray:7 5; animation:dash .6s linear infinite; stroke-width:2.4}
+.n.fail rect{animation:tgpulse 1.6s ease-in-out infinite}
+@keyframes tgpulse{50%{filter:drop-shadow(0 0 7px color-mix(in srgb, var(--signal) 70%, transparent))}}
+.n.fixed rect{animation:tgflash .9s ease-out 1}
+@keyframes tgflash{0%{filter:drop-shadow(0 0 0 transparent)} 35%{filter:drop-shadow(0 0 10px var(--accent))} 100%{filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.08))}}
+.flow .pt{fill:var(--accent); opacity:.85}
+.flow.bad .pt{fill:var(--signal); opacity:.55}
+.flow.off .pt{opacity:0}
+.e.bad{stroke:color-mix(in srgb, var(--signal) 55%, var(--line)); stroke-dasharray:3 4}
+.e.fixed{animation:tgflash .9s ease-out 1}
+.orb{opacity:0; transition:transform .38s cubic-bezier(.3,.8,.3,1), opacity .25s; pointer-events:none}
+.orb.on{opacity:1}
+.orb .core{fill:var(--accent)}
+.orb .halo{fill:var(--accent); opacity:.25; animation:orbp 1s ease-in-out infinite; transform-box:fill-box; transform-origin:center}
+@keyframes orbp{50%{transform:scale(1.6); opacity:.08}}
+.ring{fill:none; stroke:var(--signal); stroke-width:2; transform-box:fill-box; transform-origin:center; animation:ringp 1.8s ease-out infinite}
+.ring.r2{animation-delay:.9s}
+@keyframes ringp{0%{transform:scale(1); opacity:.9} 100%{transform:scale(1.9); opacity:0}}
+.agtrack{height:3px; background:var(--line); margin:0 16px 12px; border-radius:2px; overflow:hidden}
+.agtrack i{display:block; height:100%; width:0; background:linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, var(--amber))); transition:width .45s ease}
+.agents{border-bottom:0; padding-bottom:10px}
+.c-body{border-top:1px solid var(--line)}
+@media (prefers-reduced-motion: reduce){ .flow .pt,.orb .halo,.ring,.n.fail rect,.n.visit rect{animation:none} }
+
 /* krishi mitra: ask in your language */
 .km{display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr); gap:22px; align-items:start}
 .km > *{min-width:0}
@@ -750,7 +782,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <div class="c-body">
       <div class="dagwrap">
         <div class="dag-cap">AGS360 → Matillion → Snowflake → Power BI · click a box to break it</div>
-        <svg id="dag" viewBox="0 0 780 360" aria-label="Pipeline dependency graph. Each box can be selected to inject a failure."></svg>
+        <svg id="dag" viewBox="-4 0 792 360" aria-label="Pipeline dependency graph. Each box can be selected to inject a failure."></svg>
       </div>
       <div class="logpane">
         <div class="log" id="log" aria-live="polite"></div>
@@ -1224,7 +1256,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
   };
   var E=[['ags','stg_cases'],['tsrc','stg_ts'],['vsrc','stg_v'],['stg_cases','sp_merge'],['stg_ts','sp_fill'],['stg_cases','sp_fill'],['stg_v','sp_vend'],['sp_merge','fct_wf'],['sp_fill','fct_wf'],['sp_vend','fct_sp'],['fct_wf','bi'],['fct_sp','bi']];
   var PROTECTED={ags:1,tsrc:1,vsrc:1,fct_wf:1,fct_sp:1,bi:1};
-  var W=124,H=34, SYMPTOM='bi';
+  var W=136,H=34, SYMPTOM='bi';
   var parents={}, children={}; Object.keys(N).forEach(function(k){parents[k]=[];children[k]=[];});
   E.forEach(function(e){children[e[0]].push(e[1]); parents[e[1]].push(e[0]);});
   function downstream(id){ var out=[],q=[id],seen={}; seen[id]=1; while(q.length){ var c=q.shift(); children[c].forEach(function(ch){ if(!seen[ch]){seen[ch]=1; out.push(ch); q.push(ch);} }); } return out; }
@@ -1300,20 +1332,32 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
   function el(t,a){ var e=document.createElementNS(NS,t); for(var k in a) e.setAttribute(k,a[k]); return e; }
   function cx(id){ return L[N[id].l].x; }
   L.forEach(function(l){ var t=el('text',{x:l.x,y:22,'text-anchor':'middle','class':'layer'}); t.textContent=l.t; svg.appendChild(t); });
-  var edgeEls={};
+  var defs=el('defs',{}); defs.innerHTML='<filter id="tgGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'; svg.appendChild(defs);
+  var REDUCE_T=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var edgeEls={}, flowEls={};
   E.forEach(function(p){ var a=N[p[0]],b=N[p[1]],x1=cx(p[0])+W/2,x2=cx(p[1])-W/2,mx=(x1+x2)/2;
-    var path=el('path',{d:'M'+x1+','+a.y+' C'+mx+','+a.y+' '+mx+','+b.y+' '+x2+','+b.y,'class':'e'}); svg.appendChild(path); edgeEls[p[0]+'>'+p[1]]=path; });
+    var pid='tge_'+p[0]+'_'+p[1], path=el('path',{id:pid,d:'M'+x1+','+a.y+' C'+mx+','+a.y+' '+mx+','+b.y+' '+x2+','+b.y,'class':'e'}); svg.appendChild(path); edgeEls[p[0]+'>'+p[1]]=path;
+    var fg=el('g',{'class':'flow'}); if(!REDUCE_T){ [0,1].forEach(function(k){ var c=el('circle',{r:2.3,'class':'pt'}); var am=el('animateMotion',{dur:'2.6s',repeatCount:'indefinite',begin:(k*1.3+Math.random()*.6).toFixed(2)+'s'}); var mp=el('mpath',{}); mp.setAttributeNS('http://www.w3.org/1999/xlink','href','#'+pid); mp.setAttribute('href','#'+pid); am.appendChild(mp); c.appendChild(am); fg.appendChild(c); }); } svg.appendChild(fg); flowEls[p[0]+'>'+p[1]]=fg; });
   var nodeEls={};
   Object.keys(N).forEach(function(id){
     var n=N[id], breakable=n.k!=='report';
     var g=el('g',{'class':'n'+(breakable?' pick':''), tabindex: breakable?'0':'-1', role: breakable?'button':'img', 'aria-label': n.t+(breakable?', select to break':'')});
     g.appendChild(el('rect',{x:cx(id)-W/2,y:n.y-H/2,width:W,height:H,rx:6}));
-    var t=el('text',{x:cx(id),y:n.y+1,'text-anchor':'middle','dominant-baseline':'middle'}); t.textContent=n.t; g.appendChild(t);
+    g.appendChild(el('circle',{cx:cx(id)-W/2+13,cy:n.y,r:8,'class':'ic'}));
+    var il=el('text',{x:cx(id)-W/2+13,y:n.y+.5,'text-anchor':'middle','dominant-baseline':'middle','class':'icl'}); il.textContent={source:'S',load:'L',proc:'P',table:'T',report:'R'}[n.k]; g.appendChild(il);
+    var t=el('text',{x:cx(id)+10,y:n.y+1,'text-anchor':'middle','dominant-baseline':'middle'}); t.textContent=n.t; g.appendChild(t);
     var s=el('text',{x:cx(id),y:n.y+H/2+12,'text-anchor':'middle','class':'st'}); g.appendChild(s);
     svg.appendChild(g); nodeEls[id]=g;
     if(breakable){ g.addEventListener('click',function(){ pick(id); }); g.addEventListener('keydown',function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); pick(id); } }); }
   });
   document.getElementById('ntotal').textContent=Object.keys(N).length;
+  var ringG=el('g',{}); svg.appendChild(ringG);
+  var orb=el('g',{'class':'orb'}); orb.appendChild(el('circle',{r:11,'class':'halo'})); orb.appendChild(el('circle',{r:5,'class':'core',filter:'url(#tgGlow)'})); svg.appendChild(orb);
+  function orbTo(id){ var x=cx(id)+W/2-6, y=N[id].y-H/2+2; orb.style.transform='translate('+x+'px,'+y+'px)'; orb.classList.add('on'); }
+  function orbOff(){ orb.classList.remove('on'); }
+  function ringAt(id){ ringG.innerHTML=''; if(!id) return; [1,2].forEach(function(k){ ringG.appendChild(el('rect',{x:cx(id)-W/2,y:N[id].y-H/2,width:W,height:H,rx:8,'class':'ring'+(k===2?' r2':'')})); }); }
+  function flows(mode){ Object.keys(flowEls).forEach(function(k){ var src=k.split('>')[0], bad=mode!=='good'&&S[src]&&S[src].status!=='ok'; flowEls[k].setAttribute('class','flow'+(bad?' bad':'')); if(bad) edgeEls[k].setAttribute('class','e bad'); }); }
+  var AGORDER=['intake','tracer','analyst','search','orch','review','human'], agtrack=document.createElement('div'); agtrack.className='agtrack'; agtrack.innerHTML='<i></i>'; document.getElementById('agents').after(agtrack);
 
   var logEl=document.getElementById('log'), runbtn=document.getElementById('runbtn'), resetbtn=document.getElementById('resetbtn'),
       gate=document.getElementById('gate'), gfix=document.getElementById('gfix'), hopsEl=document.getElementById('hops'),
@@ -1326,11 +1370,12 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
     Object.keys(edgeEls).forEach(function(k){ edgeEls[k].setAttribute('class','e'); });
     Object.keys(S).forEach(function(id){ var s=S[id].status; if(s!=='stale') setNode(id,'broken', s==='changed'?'changed':'broken'); });
     if(chosen) setNode(chosen,'broken sel', S[chosen]?(S[chosen].status==='changed'?'changed':'broken'):'');
+    flows(); ringAt(null); orbOff();
   }
   function line(tag,html,cls){ var d=document.createElement('div'); d.className='ln'; d.innerHTML='<span class="tag '+(cls||'')+'">'+tag+'</span><span class="msg">'+html+'</span>'; logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight; }
   function idle(msg){ logEl.innerHTML='<div class="empty">'+msg+'</div>'; }
-  function setAgent(a){ document.querySelectorAll('.ag').forEach(function(x){ if(x.dataset.a===a) x.classList.add('on'); else if(x.classList.contains('on')){ x.classList.remove('on'); x.classList.add('done'); } }); }
-  function clearAgents(){ document.querySelectorAll('.ag').forEach(function(x){ x.classList.remove('on','done'); }); }
+  function setAgent(a){ var ix=AGORDER.indexOf(a); if(ix>=0) agtrack.firstChild.style.width=((ix+1)/AGORDER.length*100)+'%'; document.querySelectorAll('.ag').forEach(function(x){ if(x.dataset.a===a) x.classList.add('on'); else if(x.classList.contains('on')){ x.classList.remove('on'); x.classList.add('done'); } }); }
+  function clearAgents(){ agtrack.firstChild.style.width='0'; document.querySelectorAll('.ag').forEach(function(x){ x.classList.remove('on','done'); }); }
   function code(id){ return '<code>'+N[id].t+'</code>'; }
 
   function pick(id){
@@ -1358,15 +1403,15 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
 
   async function run(){
     if(running||!chosen) return; running=true; runbtn.disabled=true; resetbtn.disabled=true; logEl.innerHTML=''; clearAgents(); gate.hidden=true;
-    Object.keys(N).forEach(function(id){ setNode(id,'',''); });
+    Object.keys(N).forEach(function(id){ setNode(id,'',''); }); flows(); ringAt(null);
     setAgent('intake'); line('intake','Case opened in AGS360, landed in Snowflake via Matillion.'); await sleep(550);
     line('intake','Symptom on '+code(SYMPTOM)+': '+symptomText.toLowerCase()+'.'); setNode(SYMPTOM,'symptom','symptom'); await sleep(550);
 
-    setAgent('tracer'); line('tracer','Walking upstream from the report, opening only boxes that look unhealthy.');
+    setAgent('tracer'); line('tracer','Walking upstream from the report, opening only boxes that look unhealthy.'); orbTo(SYMPTOM);
     var T=trace(S,SYMPTOM), opened=0;
     for(var i=0;i<T.hops.length;i++){
       var h=T.hops[i]; if(h.id===SYMPTOM){ opened++; hopsEl.textContent=opened; continue; }
-      setNode(h.id,'visit','checking'); await sleep(420); opened++; hopsEl.textContent=opened;
+      orbTo(h.id); setNode(h.id,'visit','checking'); await sleep(420); opened++; hopsEl.textContent=opened;
       var cls=h.status==='ok'?'ok':h.status==='stale'?'warn':h.status==='changed'?'cause':'fail';
       setNode(h.id,cls,h.status==='ok'?'healthy':h.status==='stale'?'stale':h.status==='changed'?'changed':h.status);
       children[h.id].forEach(function(c){ var e=edgeEls[h.id+'>'+c]; if(e&&h.status!=='ok') e.setAttribute('class','e walk'); });
@@ -1374,8 +1419,8 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
       await sleep(260);
     }
     var target=T.target, cause=T.cause;
-    if(target){ line('tracer','Root cause: '+code(target)+(cause?', caused upstream by '+code(cause):'')+(T.ambiguous?'. More than one box failed independently: '+T.ranked.map(code).join(', '):'')+'.','x'); setNode(target,'fail','root cause'); }
-    else line('tracer','No unhealthy upstream box found.');
+    if(target){ line('tracer','Root cause: '+code(target)+(cause?', caused upstream by '+code(cause):'')+(T.ambiguous?'. More than one box failed independently: '+T.ranked.map(code).join(', '):'')+'.','x'); orbOff(); setNode(target,'fail','root cause'); ringAt(target); }
+    else { orbOff(); line('tracer','No unhealthy upstream box found.'); }
 
     setAgent('analyst'); line('analyst','Querying the semantic view behind '+code(SYMPTOM)+' to confirm the data matches the symptom.'); await sleep(700);
     line('analyst','Confirmed: affected rows trace back through '+(target?code(target):'an unknown box')+'.'); await sleep(350);
@@ -1414,6 +1459,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
       for(var j=0;j<order.length;j++){ setNode(order[j],'fixed',j===0?'fixed':'refreshed');
         E.forEach(function(p){ if(order.indexOf(p[0])>=0&&order.indexOf(p[1])>=0) edgeEls[p[0]+'>'+p[1]].setAttribute('class','e fixed'); });
         await sleep(330); }
+      ringAt(null); Object.keys(flowEls).forEach(function(k){ flowEls[k].setAttribute('class','flow'); });
       line('orch','Report healthy again. Analyst notified in the Power BI chat.');
     } else {
       var owner=target?N[target].owner:'on-call';
