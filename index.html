@@ -99,6 +99,83 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .ticker .cur{display:inline-block; width:7px; height:13px; background:var(--ink); vertical-align:-2px; margin-left:2px; animation:blink 1s steps(1) infinite}
 @keyframes live{70%{box-shadow:0 0 0 7px transparent} 100%{box-shadow:0 0 0 0 transparent}}
 @keyframes blink{50%{opacity:0}}
+/* harness: crash it yourself */
+.hx{border:1px solid var(--line); border-radius:14px; background:var(--surface); box-shadow:var(--shadow); overflow:hidden; position:relative}
+.hx-top{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center; padding:14px 18px; border-bottom:1px solid var(--line); background:var(--surface-2)}
+.hx-id{font-family:var(--mono); font-size:12px; color:var(--muted)}
+.hx-id b{color:var(--ink); font-weight:600}
+.hx-pill{font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:4px 10px; border-radius:999px; background:var(--bg); color:var(--muted); border:1px solid var(--line)}
+.hx-pill.running{color:var(--accent); border-color:var(--accent)}
+.hx-pill.running::before{content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent); margin-right:7px; vertical-align:1px; animation:hxpulse 1s infinite}
+.hx-pill.crashed{color:var(--signal); border-color:var(--signal); background:var(--signal-soft)}
+.hx-pill.done{color:var(--accent); background:var(--accent-soft); border-color:transparent}
+@keyframes hxpulse{50%{opacity:.25}}
+.hx-top .sp{flex:1}
+.hx-kill{font-family:var(--mono); font-size:13px; font-weight:700; letter-spacing:.04em; padding:10px 18px; border-radius:8px; border:0; background:var(--signal); color:#fff; cursor:pointer; box-shadow:0 0 0 0 color-mix(in srgb, var(--signal) 60%, transparent); animation:hxring 1.8s infinite}
+.hx-kill:disabled{opacity:.35; cursor:not-allowed; animation:none}
+@keyframes hxring{0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--signal) 55%, transparent)} 70%{box-shadow:0 0 0 12px transparent} 100%{box-shadow:0 0 0 0 transparent}}
+.hx-btn{font-family:var(--mono); font-size:12px; padding:8px 12px; border-radius:6px; border:1px solid var(--line); background:var(--surface); color:var(--ink); cursor:pointer}
+.hx-btn:hover{border-color:var(--accent)}
+.hx-body{display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr)}
+.hx-body > *{min-width:0}
+.hx-track{padding:18px; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; position:relative}
+.hx-step{position:relative; border:1px solid var(--line); border-radius:10px; padding:10px 11px 11px; background:var(--bg); transition:border-color .25s, background .25s, opacity .25s, transform .25s}
+.hx-step .n{font-family:var(--mono); font-size:10px; color:var(--muted)}
+.hx-step .t{font-family:var(--mono); font-size:12.5px; font-weight:600; margin-top:2px; overflow-wrap:anywhere}
+.hx-step .who{font-size:11.5px; color:var(--muted); margin-top:3px; line-height:1.35}
+.hx-step .tag{display:inline-block; margin-top:7px; font-family:var(--mono); font-size:9.5px; letter-spacing:.05em; text-transform:uppercase; padding:2px 6px; border-radius:4px; background:var(--surface-2); color:var(--muted)}
+.hx-step .tag.fx{background:var(--signal-soft); color:var(--signal)}
+.hx-step .tag.idem{background:var(--accent-soft); color:var(--accent)}
+.hx-step .tag.hum{background:var(--amber-soft); color:var(--amber)}
+.hx-step .st{position:absolute; top:9px; right:10px; font-family:var(--mono); font-size:9.5px; letter-spacing:.04em; color:var(--muted)}
+.hx-step .bar{position:absolute; left:0; bottom:0; height:3px; width:0; background:var(--accent); border-radius:0 0 0 10px; transition:width .3s}
+.hx-step.started{border-color:var(--amber)} .hx-step.started .st{color:var(--amber)} .hx-step.started .bar{width:35%; background:var(--amber)}
+.hx-step.dispatched{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)} .hx-step.dispatched .st{color:var(--accent)} .hx-step.dispatched .bar{width:75%}
+.hx-step.done{background:color-mix(in srgb, var(--accent-soft) 55%, var(--bg))} .hx-step.done .st{color:var(--accent)} .hx-step.done .bar{width:100%}
+.hx-step.dead{border-color:var(--signal); box-shadow:0 0 0 3px var(--signal-soft)} .hx-step.dead .st{color:var(--signal)}
+.hx-step.ghost{opacity:.4}
+.hx-log{border-left:1px solid var(--line); display:flex; flex-direction:column; min-height:0}
+.hx-log h4{margin:0; padding:12px 16px 8px; font-family:var(--mono); font-size:11px; font-weight:500; letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+.hx-rows{flex:1; overflow:auto; padding:0 16px 14px; font-family:var(--mono); font-size:11.5px; max-height:330px}
+.hx-row{display:grid; grid-template-columns:22px minmax(0,1fr) auto; gap:8px; padding:5px 0; border-bottom:1px dashed var(--line); animation:hxin .3s ease}
+.hx-row .s{font-weight:600} .hx-row .s.started{color:var(--amber)} .hx-row .s.dispatched,.hx-row .s.done{color:var(--accent)} .hx-row .s.killed,.hx-row .s.review{color:var(--signal)}
+.hx-row.sys{color:var(--signal)}
+@keyframes hxin{from{opacity:0; transform:translateY(-4px)}}
+.hx-crash{position:absolute; inset:0; pointer-events:none; opacity:0; background:repeating-linear-gradient(0deg, color-mix(in srgb, var(--signal) 9%, transparent) 0 2px, transparent 2px 5px); transition:opacity .2s}
+.hx.killed .hx-crash{opacity:1; animation:hxglitch .45s steps(3) 1}
+@keyframes hxglitch{0%{transform:translateX(-6px)} 33%{transform:translateX(5px)} 66%{transform:translateX(-3px)} 100%{transform:none}}
+.hx-msg{padding:12px 18px; border-top:1px solid var(--line); font-size:13.5px; color:var(--muted); min-height:46px}
+.hx-msg b{color:var(--ink)}
+.hx-cmp{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:18px}
+.hx-lane{border:1px solid var(--line); border-radius:12px; background:var(--surface); padding:16px 18px; box-shadow:var(--shadow); opacity:.45; transition:opacity .4s}
+.hx-lane.on{opacity:1}
+.hx-lane h3{font-size:17px; display:flex; justify-content:space-between; align-items:baseline; gap:10px}
+.hx-lane h3 span{font-family:var(--mono); font-size:11px; font-weight:500; color:var(--muted)}
+.hx-mini{display:flex; gap:4px; margin-top:12px}
+.hx-mini i{flex:1; height:10px; border-radius:3px; background:var(--surface-2); transition:background .25s}
+.hx-mini i.replay{background:color-mix(in srgb, var(--accent) 35%, var(--surface-2))}
+.hx-mini i.run{background:var(--accent)}
+.hx-mini i.dup{background:var(--signal)}
+.hx-mini i.stop{background:var(--amber)}
+.hx-fx{margin-top:14px; display:grid; gap:7px}
+.hx-fx div{display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:6px 10px; border-radius:6px; background:var(--bg)}
+.hx-fx div b{font-family:var(--mono); font-size:12.5px}
+.hx-fx div.bad{background:var(--signal-soft)} .hx-fx div.bad b{color:var(--signal)}
+.hx-fx div.ok b{color:var(--accent)}
+.hx-fx div.wait{background:var(--amber-soft)} .hx-fx div.wait b{color:var(--amber)}
+.hx-lane .verdict{margin-top:12px; font-size:13px; color:var(--muted); min-height:3.2em}
+.hx-lane .verdict b{color:var(--ink)}
+.hx-confirm{margin-top:10px}
+.hx-stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:18px}
+.hx-stat{border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:var(--surface)}
+.hx-stat .v{font-family:var(--display); font-weight:800; font-size:clamp(28px,4vw,40px); letter-spacing:-.02em; line-height:1}
+.hx-stat .v small{font-size:.5em; color:var(--muted); font-weight:600}
+.hx-stat.bad .v{color:var(--signal)} .hx-stat.good .v{color:var(--accent)} .hx-stat.mid .v{color:var(--amber)}
+.hx-stat p{font-size:12.5px; color:var(--muted); margin-top:8px; line-height:1.45}
+.hx-vision{margin-top:16px; font-size:12.5px; color:var(--muted); max-width:82ch}
+@media (max-width:880px){ .hx-body{grid-template-columns:1fr} .hx-log{border-left:0; border-top:1px solid var(--line)} .hx-rows{max-height:200px} .hx-cmp{grid-template-columns:1fr} }
+@media (max-width:560px){ .hx-track{grid-template-columns:repeat(2,minmax(0,1fr)); padding:14px} .hx-stats{grid-template-columns:1fr} .hx-top .sp{display:none} }
+
 /* live login-risk autoencoder */
 .risk{display:grid; grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr); gap:18px; align-items:stretch}
 .risk > *{min-width:0}
@@ -359,6 +436,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <a href="#equation">equation</a>
     <a href="#story">story</a>
     <a href="#triage">triage demo</a>
+    <a href="#harness">harness</a>
     <a href="#risk">risk demo</a>
     <a href="#systems">systems</a>
     <a href="#contact">contact</a>
@@ -574,8 +652,56 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   </div>
 </div></section>
 
+<!-- ========== HARNESS: CRASH IT YOURSELF ========== -->
+<section id="harness"><div class="wrap">
+  <div class="sechead">
+    <div class="lbl">Triage, run inside the harness</div>
+    <h2>Crash it yourself</h2>
+    <p class="muted" style="max-width:66ch">The triage agent above finds the broken procedure and proposes a fix. Applying that fix is the dangerous part: it reruns a pipeline, comments on the ticket and writes an audit line. If the process dies halfway, starting over repeats all of it. The harness logs every step before and after it runs, so a crash is resumed, not repeated. Start the run, then kill it whenever you like.</p>
+  </div>
+
+  <div class="hx" id="hx">
+    <div class="hx-top">
+      <span class="hx-id">run <b id="hxId">r-0001</b> · agent <b>triage</b> · sandbox <b>7 tools</b></span>
+      <span class="hx-pill" id="hxPill">idle</span>
+      <span class="sp"></span>
+      <button class="hx-btn" id="hxStart" type="button">Start run</button>
+      <button class="hx-kill" id="hxKill" type="button" disabled>Kill process</button>
+    </div>
+    <div class="hx-body">
+      <div class="hx-track" id="hxTrack"></div>
+      <div class="hx-log"><h4>run log · sqlite</h4><div class="hx-rows" id="hxRows"></div></div>
+    </div>
+    <div class="hx-msg" id="hxMsg">Each step is written to the log as <b>started</b>, then <b>dispatched</b> just before the tool fires, then <b>done</b> with its result.</div>
+    <div class="hx-crash"></div>
+  </div>
+
+  <div class="hx-cmp" id="hxCmp">
+    <div class="hx-lane" id="lnRestart">
+      <h3>Restart from scratch <span>what most agents do</span></h3>
+      <div class="hx-mini" id="mnRestart"></div>
+      <div class="hx-fx" id="fxRestart"></div>
+      <p class="verdict" id="vdRestart">Kill the run to see what happens.</p>
+    </div>
+    <div class="hx-lane" id="lnResume">
+      <h3>Harness resume <span>replay from the log</span></h3>
+      <div class="hx-mini" id="mnResume"></div>
+      <div class="hx-fx" id="fxResume"></div>
+      <p class="verdict" id="vdResume">Kill the run to see what happens.</p>
+      <button class="gbtn ok hx-confirm" id="hxConfirm" type="button" hidden>I checked: the comment posted. Continue</button>
+    </div>
+  </div>
+
+  <div class="hx-stats">
+    <div class="hx-stat bad"><div class="v">145<small> / 200</small></div><p>crashed runs that duplicated a side effect after restarting from scratch</p></div>
+    <div class="hx-stat good"><div class="v">0<small> / 200</small></div><p>duplicated with harness resume, on the same seeds and the same crashes</p></div>
+    <div class="hx-stat mid"><div class="v">57<small> / 200</small></div><p>stopped to ask a person about one step instead of guessing</p></div>
+  </div>
+  <p class="hx-vision">The three numbers come from the crash benchmark in <a href="https://github.com/dhruvdubey3123/agent-harness-runtime">agent-harness-runtime</a>, rerun in CI on every push. The run above is an illustration of where the two projects meet: <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a> and the harness are separate repos today, and running triage inside the harness is the next step I would build.</p>
+</div></section>
+
 <!-- ========== LIVE RISK ENGINE ========== -->
-<section id="risk"><div class="wrap">
+<section id="risk" class="alt"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Where I started: anomaly detection</div>
     <h2>A login, scored while you watch</h2>
@@ -620,7 +746,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 </div></section>
 
 <!-- ========== SYSTEMS ========== -->
-<section id="systems" class="alt"><div class="wrap">
+<section id="systems"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Builds</div>
     <h2>Systems</h2>
@@ -721,7 +847,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 </div></section>
 
 <!-- ========== CONTACT ========== -->
-<section id="contact"><div class="wrap">
+<section id="contact" class="alt"><div class="wrap">
   <div class="sechead">
     <div class="lbl">Get in touch</div>
     <h2>Contact</h2>
@@ -760,7 +886,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
     {id:'krishi', t:'Krishi Mitra', d:'Fine-tuned LLaMA 3.2 3B with RAG, answering farmers in Hindi, Marathi and English. Piloted with 300 farmers.', go:'#systems', card:'Krishi Mitra', s:['RAG','LLaMA fine-tune','llama.cpp','Embeddings','FastAPI','React','Supabase']},
     {id:'allegis', t:'Allegis triage agent', d:'Multi-agent root-cause system on Snowflake Cortex. Diagnosis went from weeks to days.', go:'#triage', s:['Cortex Agents','Cortex Search','Cortex Analyst','Semantic views','Multi-agent','Power BI','Matillion']},
     {id:'tgraph', t:'Pipeline Triage Graph', d:'Open-source rebuild: LangGraph, MCP server, human gate, eval suite gating CI.', go:'#systems', card:'Pipeline Incident Triage Graph', s:['LangGraph','MCP','Evals','Kubernetes','GitHub Actions','Docker','FastAPI','Human-in-the-loop']},
-    {id:'harness', t:'Agent Harness Runtime', d:'Crash-safe agent runs. In its benchmark, resume duplicated 0 of 200 side effects; restart duplicated 145.', go:'#systems', card:'Agent Harness Runtime', s:['Sandboxing','Run log','MCP','Retries','Context budget','Docker','Skills']},
+    {id:'harness', t:'Agent Harness Runtime', d:'Crash-safe agent runs. In its benchmark, resume duplicated 0 of 200 side effects; restart duplicated 145.', go:'#harness', s:['Sandboxing','Run log','MCP','Retries','Context budget','Docker','Skills']},
     {id:'nsai', t:'Reproducibility audit', d:'5,497 records screened, 85 codebases reproduced on Zaratan HPC. Under review at IEEE TNNLS.', go:'#story', s:['SLURM / HPC','PyTorch','Reproducibility','Docker','Evals']},
     {id:'crew', t:'Data Science Crew', d:'Six CrewAI agents running the ML lifecycle end to end. +35% workflow efficiency.', go:'#systems', card:'Autonomous Data Science Crew', s:['CrewAI','MLflow','Multi-agent']},
     {id:'plant', t:'Plant Health Monitor', d:'YOLOv5, ResNet and LSTM in one served system. 90% health classification accuracy.', go:'#systems', card:'Smart Plant Health Monitor', s:['YOLOv5','ResNet','LSTM','FastAPI','Docker']},
@@ -1332,6 +1458,150 @@ document.querySelectorAll('.copy').forEach(function(b){
   requestAnimationFrame(loop);
   show(make('normal')); if(REDUCE){ paused=true; pauseBtn.textContent='resume stream'; }
   schedule();
+})();
+
+/* ---------- harness: crash it yourself ---------- */
+(function(){
+  var root=document.getElementById('hx'); if(!root) return;
+  var REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // kind: read | model | human | idem (safe to repeat) | fx (side effect, not safe to repeat)
+  var STEPS=[
+    {t:'read_case', who:'AGS360 case from Snowflake', k:'read'},
+    {t:'trace_dag', who:'walk upstream to the root cause', k:'read'},
+    {t:'find_precedents', who:'similar past incidents', k:'read'},
+    {t:'draft_fix', who:'model proposes the patch', k:'model'},
+    {t:'human_gate', who:'a person approves the fix', k:'human', fx:'approvals asked'},
+    {t:'patch_procedure', who:'CREATE OR REPLACE the procedure', k:'idem', fx:'procedure patched'},
+    {t:'rerun_pipeline', who:'trigger the downstream load', k:'fx', fx:'pipeline reruns'},
+    {t:'comment_ticket', who:'post the fix on the case', k:'fx', fx:'ticket comments'},
+    {t:'append_audit', who:'one line in the audit log', k:'fx', fx:'audit lines'}
+  ];
+  var TAG={read:['read',''], model:['model',''], human:['human','hum'], idem:['write · idempotent','idem'], fx:['side effect','fx']};
+  var track=document.getElementById('hxTrack'), rowsEl=document.getElementById('hxRows'), msg=document.getElementById('hxMsg'),
+      pill=document.getElementById('hxPill'), kill=document.getElementById('hxKill'), start=document.getElementById('hxStart'),
+      runId=document.getElementById('hxId'), confirmBtn=document.getElementById('hxConfirm');
+  var cards=STEPS.map(function(s,i){ var d=document.createElement('div'); d.className='hx-step';
+    d.innerHTML='<div class="n">step '+(i+1)+'</div><div class="t">'+s.t+'</div><div class="who">'+s.who+'</div><span class="tag '+TAG[s.k][1]+'">'+TAG[s.k][0]+'</span><span class="st"></span><span class="bar"></span>';
+    track.appendChild(d); return d; });
+  function mini(id){ var m=document.getElementById(id); m.innerHTML=''; return STEPS.map(function(){ var i=document.createElement('i'); m.appendChild(i); return i; }); }
+  var mR=mini('mnRestart'), mS=mini('mnResume');
+  var FX=STEPS.map(function(s,i){return i;}).filter(function(i){return STEPS[i].fx;});
+
+  var state=[], cur=-1, phase=null, timer=null, running=false, runN=1;
+  function setCard(i,st,label){ var c=cards[i]; c.classList.remove('started','dispatched','done','dead','ghost'); if(st) c.classList.add(st); c.querySelector('.st').textContent=label||st||''; }
+  function row(i,st,note,cls){ var r=document.createElement('div'); r.className='hx-row'+(cls?' '+cls:'');
+    r.innerHTML='<span>'+(i<0?'·':i+1)+'</span><span>'+(i<0?note:STEPS[i].t+(note?' <span style="color:var(--muted)">'+note+'</span>':''))+'</span><span class="s '+st+'">'+st+'</span>';
+    rowsEl.appendChild(r); rowsEl.scrollTop=rowsEl.scrollHeight; }
+  function setPill(c,t){ pill.className='hx-pill '+c; pill.textContent=t; }
+  function T(ms){ return REDUCE?Math.min(ms,180):ms; }
+
+  function reset(){
+    clearTimeout(timer); running=false; cur=-1; phase=null; state=STEPS.map(function(){return null;});
+    cards.forEach(function(c,i){ setCard(i,null,''); }); rowsEl.innerHTML=''; root.classList.remove('killed');
+    [].forEach.call(document.querySelectorAll('.hx-lane'),function(l){ l.classList.remove('on'); });
+    mR.concat(mS).forEach(function(i){ i.className=''; });
+    document.getElementById('fxRestart').innerHTML=''; document.getElementById('fxResume').innerHTML='';
+    document.getElementById('vdRestart').textContent='Kill the run to see what happens.';
+    document.getElementById('vdResume').textContent='Kill the run to see what happens.';
+    confirmBtn.hidden=true;
+  }
+  function begin(){
+    reset(); runId.textContent='r-'+String(runN++).padStart(4,'0'); running=true; kill.disabled=false; start.textContent='Restart run';
+    setPill('running','running'); msg.innerHTML='Running. Hit <b>Kill process</b> at any moment; the most interesting crash is during a step tagged <b>side effect</b>.';
+    step(0);
+  }
+  function step(i){
+    if(!running) return;
+    if(i>=STEPS.length){ running=false; kill.disabled=true; setPill('done','done');
+      msg.innerHTML='<b>Finished cleanly</b>: one rerun, one comment, one audit line. Press <b>Restart run</b> and kill it this time.'; return; }
+    cur=i; phase='started'; state[i]='started'; setCard(i,'started'); row(i,'started');
+    timer=setTimeout(function(){
+      if(!running) return;
+      if(STEPS[i].k==='human'){ phase='dispatched'; state[i]='dispatched'; setCard(i,'dispatched','waiting'); row(i,'dispatched','asking a person');
+        timer=setTimeout(function(){ if(!running) return; phase='done'; state[i]='done'; setCard(i,'done','approved'); row(i,'done','approved by on-call'); timer=setTimeout(function(){ step(i+1); },T(260)); },T(1200));
+        return; }
+      phase='dispatched'; state[i]='dispatched'; setCard(i,'dispatched'); row(i,'dispatched');
+      timer=setTimeout(function(){ if(!running) return; phase='done'; state[i]='done'; setCard(i,'done'); row(i,'done'); timer=setTimeout(function(){ step(i+1); },T(220)); }, T(STEPS[i].k==='fx'||STEPS[i].k==='idem'?900:600));
+    }, T(STEPS[i].k==='fx'||STEPS[i].k==='idem'?750:450));
+  }
+
+  function fxList(el, counts, mark){
+    el.innerHTML=''; FX.forEach(function(i){ var n=counts[i], d=document.createElement('div'), m=mark(i,n);
+      d.className=m[0]; d.innerHTML='<span>'+STEPS[i].fx+'</span><b>'+m[1]+'</b>'; el.appendChild(d); }); }
+
+  function crash(){
+    if(!running) return;
+    running=false; clearTimeout(timer); kill.disabled=true; root.classList.add('killed');
+    var k=cur, ph=phase==='done'?'done':phase; if(ph==='done'){ k=cur+1; ph=null; }
+    if(k<STEPS.length&&ph){ setCard(k,'dead','killed'); }
+    for(var j=(ph?k+1:k);j<STEPS.length;j++) setCard(j,'ghost','');
+    row(-1,'killed','process killed (SIGKILL)','sys'); setPill('crashed','crashed');
+    // Before the crash: effects already in the world. A dispatched call is assumed to have landed (the worst case).
+    var before=STEPS.map(function(s,i){ return (state[i]==='done'||(i===k&&ph==='dispatched'))?1:0; });
+    var where = k>=STEPS.length ? 'after the last step' : ph ? STEPS[k].t+' while <b>'+ph+'</b>' : 'between steps, before '+STEPS[k].t;
+    msg.innerHTML='Killed during <b>'+where+'</b>. '+(ph==='dispatched'&&STEPS[k].k!=='read'&&STEPS[k].k!=='model'?'The call had already gone out, and nothing knows whether it landed.':'Now recover it two ways.');
+    setTimeout(function(){ recover(k,ph,before); }, T(700));
+  }
+
+  function recover(k,ph,before){
+    var lr=document.getElementById('lnRestart'), ls=document.getElementById('lnResume');
+    // RESTART: run every step again from the top
+    lr.classList.add('on');
+    var rc=before.slice();
+    STEPS.forEach(function(s,i){ setTimeout(function(){
+      if(s.fx){ rc[i]+=1; } mR[i].className = (s.fx&&rc[i]>1)?'dup':'run';
+      fxList(document.getElementById('fxRestart'), rc, function(x,n){ var dup=n>1&&STEPS[x].k==='fx', again=n>1&&STEPS[x].k==='human', idem=n>1&&STEPS[x].k==='idem';
+        return dup?['bad',n+'× duplicate']: again?['bad','asked '+n+'×'] : idem?['ok','applied '+n+'×, same result'] : ['ok',String(n)]; });
+    }, T(160*i)); });
+    setTimeout(function(){
+      var dups=FX.filter(function(i){ return STEPS[i].k==='fx'&&rc[i]>1; }).length, asked=rc[4]>1;
+      document.getElementById('vdRestart').innerHTML = dups ? '<b>'+dups+' side effect'+(dups>1?'s':'')+' happened twice.</b> '+(asked?'The on-call engineer was also asked to approve the same fix again.':'') :
+        (asked?'<b>No duplicate side effects this time</b>, but the on-call engineer was asked to approve the same fix twice.':'<b>Got lucky:</b> the crash came before anything with a side effect ran.');
+    }, T(160*STEPS.length+80));
+
+    // RESUME: replay done steps from the log, then decide about the interrupted one
+    setTimeout(function(){
+      ls.classList.add('on');
+      var sc=before.slice(), stopAt=-1;
+      for(var i=0;i<STEPS.length;i++){
+        if(i<k || (i===k&&ph==='done')){ mS[i].className='replay'; continue; }
+        if(i===k&&ph==='dispatched'){
+          if(STEPS[i].k==='fx'){ mS[i].className='stop'; stopAt=i; break; }
+          if(STEPS[i].k==='idem'){ mS[i].className='run'; continue; }      // overwrite again: same end state
+          if(STEPS[i].k==='human'){ mS[i].className='stop'; stopAt=i; break; } // still waiting on the person
+          mS[i].className='run'; continue;
+        }
+        mS[i].className='run'; if(STEPS[i].fx) sc[i]=Math.max(sc[i],1);
+      }
+      function paint(){ fxList(document.getElementById('fxResume'), sc, function(x,n){
+        if(x===stopAt) return ['wait', STEPS[x].k==='human'?'still waiting':'needs review'];
+        if(stopAt>=0&&x>stopAt) return ['', 'paused'];
+        return ['ok', STEPS[x].k==='idem'&&x===k&&ph==='dispatched' ? 're-applied, same result' : String(n)]; }); }
+      paint();
+      var rows=[]; for(var j=0;j<Math.min(k,STEPS.length);j++) rows.push(j);
+      row(-1,'done','resume: '+rows.length+' step'+(rows.length===1?'':'s')+' replayed from the log, tools not called','');
+      var vd=document.getElementById('vdResume');
+      if(stopAt>=0&&STEPS[stopAt].k==='fx'){
+        row(stopAt,'review','was dispatched, not idempotent');
+        vd.innerHTML='<b>Stopped instead of guessing.</b> '+STEPS[stopAt].t+' was in flight and is not safe to repeat. One question for a person, then it carries on.';
+        confirmBtn.hidden=false; confirmBtn.textContent='I checked: it went through. Continue';
+        confirmBtn.onclick=function(){ confirmBtn.hidden=true; stopAt=-1; for(var x=k+1;x<STEPS.length;x++){ mS[x].className='run'; if(STEPS[x].fx) sc[x]=Math.max(sc[x],1); }
+          mS[k].className='replay'; paint(); row(k,'done','confirmed by a person, marked done');
+          vd.innerHTML='<b>Every side effect happened exactly once.</b> Finished from step '+(k+2>STEPS.length?STEPS.length:k+2)+' with nothing repeated.'; setPill('done','resumed'); };
+      } else if(stopAt>=0){
+        vd.innerHTML='<b>Picked up at the approval.</b> The question to the on-call engineer is still open, so the run waits for the answer instead of asking twice.';
+      } else {
+        vd.innerHTML='<b>Every side effect happened exactly once.</b> '+(k<STEPS.length&&ph==='dispatched'&&STEPS[k].k==='idem'?'The patch was in flight, but it is idempotent, so it was simply applied again.':'Finished steps were replayed from the log; the rest ran normally.');
+        setPill('done','resumed');
+      }
+    }, T(160*STEPS.length+500));
+  }
+
+  start.addEventListener('click',begin);
+  kill.addEventListener('click',crash);
+  reset();
+  // start once when the section first scrolls into view
+  if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ if(es[0].isIntersecting){ io.disconnect(); if(!running&&!rowsEl.children.length) begin(); } },{threshold:.35}); io.observe(root); }
 })();
 </script>
 
