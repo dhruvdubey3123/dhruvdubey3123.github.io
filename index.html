@@ -1019,7 +1019,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Rules: category, noisy logs</td><td>0.81: misleading logs fool the rules</td></tr>
           <tr><td>LLM walking the graph</td><td>68% of root causes (41/60); 0 of 7 misses reached approval</td></tr>
           <tr><td>LLM orchestration</td><td>200 of 200 decisions unchanged by an erratic coordinator</td></tr>
-          <tr><td>Tests</td><td>48 passing</td></tr>
+          <tr><td>Tests</td><td>48 passing, eval gated in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/pipeline-triage-graph">github.com/dhruvdubey3123/pipeline-triage-graph</a></div>
       </div>
@@ -1037,9 +1037,9 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
         <table class="kv"><tbody>
           <tr><td>Crash benchmark</td><td>200 runs, duplicated side effects: restart 145, Keel 0</td></tr>
           <tr><td>Triage fixes</td><td>75 crashed mid-fix, duplicated: restart 61, Keel 0</td></tr>
-          <tr><td>Real Qwen3 8B fixer</td><td>unapproved rerun refused, skipped step sent back</td></tr>
+          <tr><td>Real Qwen3 8B fixer</td><td>unapproved rerun refused, skipped step sent back; patch content comes from the approval, never the model</td></tr>
           <tr><td>Self-tuning</td><td>interruptions 30 → 0; gate rejected 4 of 10 candidates</td></tr>
-          <tr><td>Tests</td><td>78 passing, every benchmark in CI</td></tr>
+          <tr><td>Tests</td><td>88 passing, every benchmark in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
       </div>
