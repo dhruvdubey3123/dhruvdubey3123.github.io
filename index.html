@@ -943,7 +943,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   </div>
 
   <div class="hx-real hx-evo">
-    <div class="hd"><div class="lbl">Both agents on real models</div><h3>One agent can think, the other can act.</h3><p>The diagnoser is the triage project's LLM investigator: five read-only tools, so its worst case is a wrong answer, never a wrong action. A person approves its plan. The fixer then writes to the warehouse inside Keel, which refuses anything else and logs why. On 40 labelled incidents, half held out, on a laptop RTX 4060, the model found the root cause 28 times; the rule-based tracer found all 40, which is why it cross-checks the model and a person approves.</p><div class="score">28 / 40<small>root causes found</small></div></div>
+    <div class="hd"><div class="lbl">Both agents on real models</div><h3>One agent can think, the other can act.</h3><p>The diagnoser is the triage project's LLM investigator: five read-only tools, so its worst case is a wrong answer, never a wrong action. A person approves its plan. The fixer then writes to the warehouse inside Keel, which refuses anything else and logs why. On 40 labelled incidents, half held out, on a laptop RTX 4060, the model found the root cause 28 times; the rule-based tracer found all 40. So the tracer cross-checks every diagnosis: on 20 more held-out incidents it stopped all 7 of the model's wrong answers before approval.</p><div class="score">28 / 40<small>root causes found</small></div></div>
     <div class="hx-lines"><div class="k">real run, the incident text asked for more</div><div class="ln d">rerun load_cases: refused, not in the approved plan</div><div class="ln">approved fix applied once, through a kill mid-run</div><div class="k" style="margin-top:10px">what the real model taught the runtime</div><div class="ln">it changed a right answer to a wrong one, so the first valid answer now ends the run</div><div class="ln">it skipped an approved step, so finishing early is now sent back</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/agent-harness-runtime#two-agents-one-person-one-log" style="color:var(--accent)">both agents and the numbers</a></div></div>
   </div>
   <div class="hx-real hx-evo">
@@ -1022,10 +1022,11 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Clean set</td><td>all metrics 1.00 (a spec test, not an accuracy claim)</td></tr>
           <tr><td>Noisy set, root cause</td><td>1.00</td></tr>
           <tr><td>Noisy set, category / escalation recall</td><td>0.81 / 0.81: misleading logs fool the rules</td></tr>
-          <tr><td>LLM investigator</td><td>Qwen3 8B with 5 read-only tools: 28/40 root causes, tracer 40/40 as cross-check</td></tr>
-          <tr><td>Disagreement</td><td>investigator and tracer differ: escalated to a person, never sent for approval</td></tr>
+          <tr><td>LLM investigator</td><td>Qwen3 8B, 5 read-only tools: 13/20 root causes on held-out incidents (tracer 20/20)</td></tr>
+          <tr><td>Wrong model diagnoses reaching approval</td><td>0 of 7: the tracer disagreed and sent each one to a person</td></tr>
+          <tr><td>Category</td><td>kept with the rules after the model named 4 unrecognised failures as familiar ones</td></tr>
           <tr><td>Applied through Keel</td><td>crash mid-fix: 0/75 duplicated actions</td></tr>
-          <tr><td>Tests</td><td>27 passing, eval gated in CI</td></tr>
+          <tr><td>Tests</td><td>28 passing, eval gated in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/pipeline-triage-graph">github.com/dhruvdubey3123/pipeline-triage-graph</a></div>
       </div>
@@ -1050,7 +1051,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Triage fixes through Keel</td><td>75 crashed fixes: 0 duplicated (restart: 61)</td></tr>
           <tr><td>Tuned itself</td><td>human interruptions 30 → 0, still 0 duplicated</td></tr>
           <tr><td>Rejected by its own gate</td><td>4 of 10 candidates, 2 despite a perfect score</td></tr>
-          <tr><td>Tests</td><td>75 passing, every benchmark gated in CI</td></tr>
+          <tr><td>Tests</td><td>77 passing, every benchmark gated in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
       </div>
