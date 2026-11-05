@@ -939,7 +939,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   <div class="hx-stats">
     <div class="hx-stat bad"><div class="v">61<small> / 75</small></div><p>approved fixes that repeated an action when restarted from scratch after a crash</p></div>
     <div class="hx-stat good"><div class="v">0<small> / 75</small></div><p>with Keel resuming from its log on the same crashes: every action exactly once</p></div>
-    <div class="hx-stat mid"><div class="v">30 → 0</div><p>times a person had to step in, after Keel tuned its own recovery rules; its gate rejected 4 of 10 candidates</p></div>
+    <div class="hx-stat mid"><div class="v">30 → 0</div><p>times a person had to step in, after Keel tuned its own recovery rules. Its gate rejected 4 of 10 candidate rules, and 2 of the 4 a model proposed</p></div>
   </div>
 
   <div class="hx-real hx-evo">
@@ -1039,7 +1039,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Crash benchmark</td><td>200 runs, duplicated side effects: restart 145, Keel 0</td></tr>
           <tr><td>Triage fixes</td><td>75 crashed mid-fix, duplicated: restart 61, Keel 0</td></tr>
           <tr><td>Real Qwen3 8B fixer</td><td>unapproved rerun refused, skipped step sent back; patch content comes from the approval, never the model</td></tr>
-          <tr><td>Self-tuning</td><td>interruptions 30 → 0; gate rejected 4 of 10 candidates</td></tr>
+          <tr><td>Self-tuning</td><td>interruptions 30 → 0; gate rejected 4 of 10 rule-proposed changes, and 2 of 4 proposed by GPT-OSS 120B</td></tr>
           <tr><td>Tests</td><td>96 passing, every benchmark in CI</td></tr>
           <tr><td>Next</td><td>apply model-drafted patches a person approved; Postgres run log shared by several workers</td></tr>
         </tbody></table>
