@@ -764,7 +764,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
       <div><div class="when">Now</div><div class="place">Building in public</div></div>
       <div>
         <h3>Making the pattern reusable</h3>
-        <p>Two open-source builds that generalise what Allegis taught me. A <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph" style="color:var(--accent)"><b>LangGraph incident triage graph</b></a> with an MCP server and an eval suite that gates CI. Its noisy test set showed rule-based classification gets fooled about one time in five, which is exactly why the human gate stays. It now also has an LLM investigator that walks the graph itself, cross-checked by the rules. And <a href="https://github.com/dhruvdubey3123/agent-harness-runtime" style="color:var(--accent)"><b>Keel</b></a>, the runtime where an approved fix actually happens: the agent applying it can do nothing unapproved, nothing twice and nothing skipped, even through a crash.</p>
+        <p>Two open-source builds that generalise what Allegis taught me. A <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph" style="color:var(--accent)"><b>LangGraph incident triage graph</b></a> with an MCP server and an eval suite that gates CI. Its noisy test set showed rule-based classification gets fooled about one time in five, which is exactly why the human gate stays. As at Allegis, the traversal stays deterministic and an LLM writes the briefing for the person deciding, checked against the trace; an LLM that walks the graph itself is measured as the alternative. And <a href="https://github.com/dhruvdubey3123/agent-harness-runtime" style="color:var(--accent)"><b>Keel</b></a>, the runtime where an approved fix actually happens: the agent applying it can do nothing unapproved, nothing twice and nothing skipped, even through a crash.</p>
       </div>
     </article>
 
@@ -820,7 +820,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <h2>Break the pipeline. Watch the agent find it.</h2>
     <div class="origin">
       <p><b>Where this comes from.</b> At Allegis Global Solutions I built the original version of this agent on Snowflake Cortex, so analysts could find the stored procedure that broke a pipeline in days instead of weeks. That code belongs to AGS and stays there.</p>
-      <p>Afterwards I wanted to rebuild the idea on my own, in the open, and measure it properly. The result is <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>. The demo below is wired to that project: its tracer runs the same upstream-walk algorithm as <code>triage/dag.py</code>, and its reviewer applies the same rules. The repo can also hand the walk to an LLM: an investigator agent with read-only tools that finds the broken procedure itself, with the tracer checking its answer.</p>
+      <p>Afterwards I wanted to rebuild the idea on my own, in the open, and measure it properly. The result is <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>. The demo below is wired to that project: its tracer runs the same upstream-walk algorithm as <code>triage/dag.py</code>, and its reviewer applies the same rules. As at Allegis, the traversal itself stays deterministic, and an LLM, Qwen3 8B running locally, writes the briefing the person reads, checked against the trace before it is shown. The repo also measures the alternative Allegis avoided: an LLM investigator that walks the graph itself. It found the root cause 13 times in 20 against the tracer's 20, which is why it only ever acts as a cross-checked second opinion.</p>
     </div>
     <p class="muted" style="max-width:70ch">Click any box to break it and choose how it fails, or start from a common break, then run triage. Table and job names are invented.</p>
   </div>
@@ -1016,17 +1016,18 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
       <div class="sys-body">
         <div class="sys-ex"><b>For example</b>Monday's revenue dashboard looks wrong. Instead of an engineer opening every upstream job one by one, the agent checks each job feeding the dashboard, skips the healthy ones, finds the stored procedure where a column was renamed, and proposes the fix with a link to a similar past case. Nothing changes until someone clicks approve.</div>
         <dl class="sys-io"><dt>In</dt><dd>a broken report or failed job, plus the pipeline's dependency graph and logs</dd><dt>Out</dt><dd>the root cause, a failure category, similar past incidents, a drafted fix and a confidence level, held at a human approval gate</dd></dl>
-        <p>The open-source rebuild of the Allegis agent, written from scratch. A tracer walks the DAG upstream from the symptom; analyst, precedent, classifier and orchestrator agents build a fix; a separate reviewer blocks unsafe ones; LangGraph interrupts before the gate so nothing changes without a person. With a model configured, an LLM investigator walks the graph first and the tracer cross-checks it. The demo above runs the same tracing logic.</p>
+        <p>The open-source rebuild of the Allegis agent, written from scratch. A tracer walks the DAG upstream from the symptom; analyst, precedent, classifier and orchestrator agents build a fix; a separate reviewer blocks unsafe ones; LangGraph interrupts before the gate so nothing changes without a person. As in the Allegis original, the traversal is deterministic and the LLM communicates: a communicator step has Qwen3 8B brief the approver from the findings, checked so it cannot name a job the trace never touched, drop the root cause or rename the failure. An LLM investigator that walks the graph itself is the measured alternative, always cross-checked by the tracer. The demo above runs the same tracing logic.</p>
         <table class="kv"><tbody>
           <tr><td>Eval sets</td><td>2 × 100 synthetic incidents, committed</td></tr>
           <tr><td>Clean set</td><td>all metrics 1.00 (a spec test, not an accuracy claim)</td></tr>
           <tr><td>Noisy set, root cause</td><td>1.00</td></tr>
           <tr><td>Noisy set, category / escalation recall</td><td>0.81 / 0.81: misleading logs fool the rules</td></tr>
-          <tr><td>LLM investigator</td><td>Qwen3 8B, 5 read-only tools: 13/20 root causes on held-out incidents (tracer 20/20)</td></tr>
+          <tr><td>LLM communicator</td><td>Qwen3 8B briefs the approver from the trace; unfaithful briefings fall back to a template</td></tr>
+          <tr><td>LLM investigator (alternative)</td><td>Qwen3 8B, 5 read-only tools: 13/20 root causes on held-out incidents (tracer 20/20)</td></tr>
           <tr><td>Wrong model diagnoses reaching approval</td><td>0 of 7: the tracer disagreed and sent each one to a person</td></tr>
           <tr><td>Category</td><td>kept with the rules after the model named 4 unrecognised failures as familiar ones</td></tr>
           <tr><td>Applied through Keel</td><td>crash mid-fix: 0/75 duplicated actions</td></tr>
-          <tr><td>Tests</td><td>28 passing, eval gated in CI</td></tr>
+          <tr><td>Tests</td><td>38 passing, eval gated in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/pipeline-triage-graph">github.com/dhruvdubey3123/pipeline-triage-graph</a></div>
       </div>
@@ -1051,7 +1052,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Triage fixes through Keel</td><td>75 crashed fixes: 0 duplicated (restart: 61)</td></tr>
           <tr><td>Tuned itself</td><td>human interruptions 30 → 0, still 0 duplicated</td></tr>
           <tr><td>Rejected by its own gate</td><td>4 of 10 candidates, 2 despite a perfect score</td></tr>
-          <tr><td>Tests</td><td>77 passing, every benchmark gated in CI</td></tr>
+          <tr><td>Tests</td><td>78 passing, every benchmark gated in CI</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
       </div>
@@ -1176,7 +1177,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
   var HUBS=[
     {id:'krishi', t:'Krishi Mitra', d:'Fine-tuned LLaMA 3.2 3B with RAG, answering farmers in Hindi, Marathi and English. Piloted with 300 farmers.', go:'#krishi', s:['RAG','LLaMA fine-tune','llama.cpp','Embeddings','FastAPI','React','Supabase']},
     {id:'allegis', t:'Allegis triage agent', d:'Multi-agent root-cause system on Snowflake Cortex. Diagnosis went from weeks to days.', go:'#triage', s:['Cortex Agents','Cortex Search','Cortex Analyst','Semantic views','Multi-agent','Power BI','Matillion']},
-    {id:'tgraph', t:'Pipeline Triage Graph', d:'Open-source rebuild: LangGraph, MCP server, human gate, eval suite gating CI.', go:'#systems', card:'Pipeline Incident Triage Graph', s:['LangGraph','MCP','Evals','Kubernetes','GitHub Actions','Docker','FastAPI','Human-in-the-loop']},
+    {id:'tgraph', t:'Pipeline Triage Graph', d:'Open-source rebuild of the Allegis agent: deterministic traversal, Qwen3 8B briefing the approver checked against the trace, an LLM investigator measured as the alternative, human gate, eval suite gating CI.', go:'#systems', card:'Pipeline Incident Triage Graph', s:['LangGraph','Qwen3 8B','MCP','Evals','Kubernetes','GitHub Actions','Docker','FastAPI','Human-in-the-loop']},
     {id:'harness', t:'Keel: Approval-Bound Agent Runtime', d:'Where an approved fix actually happens. Two Qwen3 8B agents, a read-only diagnoser and a fixer held to exactly the approved plan: nothing unapproved, nothing twice, nothing skipped, through crashes. Resume duplicated 0 of 75 fixes where restart duplicated 61, and it tunes its own recovery rules behind a safety gate.', go:'#harness', s:['Sandboxing','Run log','MCP','Retries','Context budget','Docker','Skills','Self-tuning','Two-agent','Qwen3 8B']},
     {id:'nsai', t:'Reproducibility audit', d:'5,497 records screened, 85 codebases reproduced on Zaratan HPC. Under review at IEEE TNNLS.', go:'#story', s:['SLURM / HPC','PyTorch','Reproducibility','Docker','Evals']},
     {id:'crew', t:'Data Science Crew', d:'Six CrewAI agents running the ML lifecycle end to end. +35% workflow efficiency.', go:'#systems', card:'Autonomous Data Science Crew', s:['CrewAI','MLflow','Multi-agent']},
