@@ -943,9 +943,9 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   </div>
 
   <div class="hx-real hx-evo">
-    <div class="hd"><div class="lbl">How accurate the AI is, in both projects</div><h3>Right about two thirds of the time, so never trusted alone.</h3><p>Qwen3 8B on a laptop RTX 4060, scored against labelled incidents, held-out ones included. The rules beat it on this data, so the rules decide; the model orchestrates, explains and acts inside guards, and every mistake it has made so far was caught before it mattered.</p><div class="score">0 / 7<small>wrong diagnoses reached approval</small></div></div>
-    <div class="hx-chk"><div><span>Root cause, 60 incidents: model vs rules</span><b>68% · 100%</b></div><div><span>Failure category: model vs rules</span><b>53 to 70% · 90 to 100%</b></div><div><span>Fixer applied each approved action once, through a kill</span><b>every run</b></div><div><span>Fixer tried an unapproved action, or skipped one</span><b style="color:var(--amber)">refused · sent back</b></div></div>
-    <div class="hx-lines"><div class="k">what the real model taught the code</div><div class="ln">it changed a right answer to a wrong one, so the first valid answer now stands</div><div class="ln">it named an unrecognised failure as a familiar one, so the category stays with the rules</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-qwen3-8b-on-incidents-41-to-60" style="color:var(--accent)">triage numbers</a> &nbsp; <a href="https://github.com/dhruvdubey3123/agent-harness-runtime#is-the-model-any-good-at-it" style="color:var(--accent)">Keel numbers</a></div></div>
+    <div class="hd"><div class="lbl">How accurate the AI is, in both projects</div><h3>Two in three with a small model, nine in ten with a big one. Neither decides.</h3><p>Scored against labelled incidents the models were never tuned on: Qwen3 8B on a laptop RTX 4060, and GPT-OSS 120B through a hosted free tier, same code and prompts. The rules get every root cause either way, so the rules decide. What makes a fallible model usable is that the tracer checks it: across both models every wrong diagnosis went to a person, and no right one was held back.</p><div class="score">0 / 9<small>wrong diagnoses reached approval</small></div></div>
+    <div class="hx-chk"><div><span>Root cause: 8B over 60 incidents, 120B over 20</span><b>68% · 90%</b></div><div><span>Failure category named correctly, same runs</span><b>53% · 100%</b></div><div><span>Briefings that passed the faithfulness check</span><b>20 / 20</b></div><div><span>Fixer applied each approved action once, through a kill</span><b>every run</b></div></div>
+    <div class="hx-lines"><div class="k">what the real models taught the code</div><div class="ln">it changed a right answer to a wrong one, so the first valid answer now stands</div><div class="ln">it named an unrecognised failure as a familiar one, so the category stays with the rules</div><div class="ln">the provider could not parse its tool call, so that is asked again rather than failing the run</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-two-models-held-out-incidents" style="color:var(--accent)">triage numbers</a> &nbsp; <a href="https://github.com/dhruvdubey3123/agent-harness-runtime#is-the-model-any-good-at-it" style="color:var(--accent)">Keel numbers</a></div></div>
   </div>
   <p class="hx-vision">Every number here reruns in CI on every push. The incidents are synthetic and the warehouse is a SQLite stand-in.</p>
 </div></section>
@@ -1019,7 +1019,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Rules: category, noisy logs</td><td>0.81: misleading logs fool the rules</td></tr>
           <tr><td>LLM walking the graph</td><td>68% of root causes (41/60); 0 of 7 misses reached approval</td></tr>
           <tr><td>LLM orchestration</td><td>200 of 200 decisions unchanged by an erratic coordinator</td></tr>
-          <tr><td>Tests</td><td>48 passing, eval gated in CI</td></tr>
+          <tr><td>Tests</td><td>49 passing, eval gated in CI</td></tr>
           <tr><td>Next</td><td>LLM-drafted SQL fixes scored against reference fixes; a real warehouse behind the existing probe and executor interfaces</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/pipeline-triage-graph">github.com/dhruvdubey3123/pipeline-triage-graph</a></div>
@@ -1040,7 +1040,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Triage fixes</td><td>75 crashed mid-fix, duplicated: restart 61, Keel 0</td></tr>
           <tr><td>Real Qwen3 8B fixer</td><td>unapproved rerun refused, skipped step sent back; patch content comes from the approval, never the model</td></tr>
           <tr><td>Self-tuning</td><td>interruptions 30 → 0; gate rejected 4 of 10 candidates</td></tr>
-          <tr><td>Tests</td><td>88 passing, every benchmark in CI</td></tr>
+          <tr><td>Tests</td><td>96 passing, every benchmark in CI</td></tr>
           <tr><td>Next</td><td>apply model-drafted patches a person approved; Postgres run log shared by several workers</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
