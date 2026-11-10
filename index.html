@@ -359,6 +359,58 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .kl-fly{position:absolute; left:0; top:0; font-family:var(--mono); font-size:12px; font-weight:600; padding:6px 10px; border-radius:7px; background:var(--ink); color:var(--surface); white-space:nowrap; box-shadow:var(--shadow); will-change:transform}
 .kl-fly.no{background:var(--signal); color:#fff}
 .kl-fine{margin-top:10px; font-size:12.5px; color:var(--muted); max-width:86ch}
+/* "did the fix work" exhibit: node health replayed from the applied actions */
+.ov{margin-top:22px; background:var(--surface); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); overflow:hidden}
+.ov-hd{padding:16px 18px 12px; border-bottom:1px solid var(--line)}
+.ov-hd h3{font-family:var(--display); font-size:19px; margin:7px 0 6px; line-height:1.25}
+.ov-hd p{margin:0; font-size:13.5px; color:var(--muted); max-width:78ch; line-height:1.6}
+.ov-body{display:grid; grid-template-columns:minmax(0,260px) minmax(0,1fr)}
+.ov-left{border-right:1px solid var(--line); padding:14px; display:flex; flex-direction:column; gap:10px; min-width:0}
+.ov-right{padding:14px; min-width:0}
+.ov-k{font-family:var(--mono); font-size:10px; letter-spacing:.09em; text-transform:uppercase; color:var(--muted)}
+.ov-pre{display:flex; flex-direction:column; gap:6px}
+.ov-pre button{text-align:left; font:500 12.5px/1.35 var(--body); color:var(--ink); background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:7px 9px; cursor:pointer}
+.ov-pre button:hover{border-color:var(--accent)}
+.ov-pre button[aria-pressed="true"]{background:var(--accent-soft); border-color:var(--accent)}
+.ov-pre button small{display:block; font:400 11px var(--mono); color:var(--muted); margin-top:2px}
+.ov-acts{display:flex; flex-wrap:wrap; gap:5px}
+.ov-acts button{font:500 11px var(--mono); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:4px 8px; cursor:pointer; color:var(--ink)}
+.ov-acts button:hover{border-color:var(--accent); color:var(--accent)}
+.ov-plan{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:4px; min-height:26px}
+.ov-plan li{display:flex; gap:7px; align-items:baseline; font:500 11.5px var(--mono); background:var(--surface-2); border-radius:6px; padding:4px 7px}
+.ov-plan li b{color:var(--muted); font-weight:600}
+.ov-plan li.dup{background:var(--signal-soft)}
+.ov-plan .x{margin-left:auto; cursor:pointer; color:var(--muted); border:0; background:none; font:600 12px var(--mono); padding:0 2px}
+.ov-empty{font:400 11.5px var(--mono); color:var(--muted)}
+.ov-run{display:flex; gap:7px; margin-top:2px}
+.ov-run button{font:600 12px var(--body); border-radius:8px; padding:7px 12px; cursor:pointer; border:1px solid var(--accent); background:var(--accent); color:#fff}
+.ov-run button.ghost{background:var(--surface); color:var(--ink); border-color:var(--line)}
+.ov-run button:disabled{opacity:.45; cursor:default}
+.ov-svg{width:100%; height:auto; display:block}
+.ov-n rect{fill:var(--surface); stroke:var(--line); stroke-width:1.2; transition:fill .45s ease, stroke .45s ease}
+.ov-n text{font-family:var(--mono); font-size:9.6px; fill:var(--ink)}
+.ov-n.fresh rect{fill:var(--accent-soft); stroke:var(--accent)}
+.ov-n.stale rect{fill:var(--amber-soft); stroke:var(--amber)}
+.ov-n.failed rect{fill:var(--signal-soft); stroke:var(--signal)}
+.ov-n.act rect{stroke-width:2.4}
+.ov-n.sym rect{stroke-dasharray:3 2}
+.ov-e{fill:none; stroke:var(--line); stroke-width:1.1}
+.ov-lay{font-family:var(--mono); font-size:9px; fill:var(--muted); letter-spacing:.06em; text-transform:uppercase}
+.ov-legend{display:flex; gap:12px; flex-wrap:wrap; margin:8px 0 0; font:400 11px var(--mono); color:var(--muted); align-items:center}
+.ov-legend i{display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:4px; vertical-align:-1px; border:1px solid}
+.ov-legend .f{background:var(--accent-soft); border-color:var(--accent)}
+.ov-legend .s{background:var(--amber-soft); border-color:var(--amber)}
+.ov-legend .x{background:var(--signal-soft); border-color:var(--signal)}
+.ov-log{margin-top:10px; font:400 11.5px/1.65 var(--mono); color:var(--muted); min-height:34px}
+.ov-log b{color:var(--ink); font-weight:600}
+.ov-score{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin-top:12px}
+.ov-card{border:1px solid var(--line); border-radius:10px; padding:10px 11px; background:var(--surface-2)}
+.ov-card .t{font:400 10px var(--mono); letter-spacing:.07em; text-transform:uppercase; color:var(--muted)}
+.ov-card .v{font-family:var(--display); font-size:15.5px; font-weight:700; margin-top:4px; line-height:1.25}
+.ov-card.ok .v{color:var(--accent)} .ov-card.no .v{color:var(--signal)}
+.ov-card p{margin:3px 0 0; font-size:11.5px; color:var(--muted); line-height:1.5}
+.ov-foot{padding:11px 18px 14px; border-top:1px solid var(--line); font-size:12.5px; color:var(--muted); line-height:1.6}
+@media(max-width:860px){ .ov-body{grid-template-columns:1fr} .ov-left{border-right:0; border-bottom:1px solid var(--line)} .ov-score{grid-template-columns:1fr} }
 .kl button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 @media (max-width:1020px){ .kl-stage{grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)} .kl-log{grid-column:1 / -1} .kl-rows{max-height:190px} }
 @media (max-width:640px){ .kl-stage{grid-template-columns:1fr; padding:14px} .kl-score{grid-template-columns:1fr 1fr} .kl-score > div:nth-child(3){border-left:0} .kl-score > div:nth-child(n+3){border-top:1px solid var(--line)} .kl-top .sp{display:none} .kl-tricks .hx-kill{margin-left:0} }
@@ -820,7 +872,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <h2>Break the pipeline. Watch the agent find it.</h2>
     <div class="origin">
       <p><b>Where this comes from.</b> At Allegis Global Solutions I built the original version of this agent on Snowflake Cortex, so analysts could find the stored procedure that broke a pipeline in days instead of weeks. That code belongs to AGS and stays there.</p>
-      <p>Afterwards I rebuilt it in the open and measured it: <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>. The demo below runs its tracer and reviewer rules. As at Allegis, the rules make the decision, and an LLM (Qwen3 8B, running locally) chooses follow-up checks and briefs the person, checked against the trace. Letting the LLM walk the graph itself is measured too: it found 68% of root causes, so it stays a cross-checked second opinion.</p>
+      <p>Afterwards I rebuilt it in the open and measured it: <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>. The demo below runs its tracer and reviewer rules. As at Allegis, the rules make the decision, and an LLM (Qwen3 8B, running locally) chooses follow-up checks and briefs the person, checked against the trace. Letting the LLM walk the graph itself is measured too: a hosted GPT-OSS 120B found 90% of root causes, and it still stays a cross-checked second opinion.</p>
     </div>
     <p class="muted" style="max-width:70ch">Click any box to break it and choose how it fails, or start from a common break, then run triage. Table and job names are invented.</p>
   </div>
@@ -894,7 +946,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   <div class="sechead">
     <div class="lbl">Keel, an approval-bound agent runtime</div>
     <h2>Try to make the agent do more than you approved.</h2>
-    <p class="muted" style="max-width:68ch">Triage, above, works out what to fix. Keel is where the fix actually happens. A person approves a plan, a Qwen3 8B agent carries it out, and Keel holds it to exactly that plan: nothing unapproved, nothing twice, nothing skipped, even if the process dies halfway. Run the fix, then try to break it.</p>
+    <p class="muted" style="max-width:68ch">Triage, above, works out what to fix. Keel is where the fix actually happens. A person approves a plan, a Qwen3 8B agent carries it out in a sandbox against the data warehouse, and Keel holds it to exactly that plan: nothing unapproved, nothing twice, nothing skipped, even if the process dies halfway. Run the fix, then try to break it.</p>
   </div>
 
   <div class="kl" id="kl">
@@ -936,15 +988,44 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   </div>
   <p class="kl-fine">The animation replays behaviour seen in real Qwen3 8B runs; the rules it runs into are the repo's own.</p>
 
+  <div class="ov">
+    <div class="ov-hd">
+      <div class="lbl">Interactive · the question a run log cannot answer</div>
+      <h3>The plan ran perfectly. Did the report come back?</h3>
+      <p>Keel guarantees the approved actions happened, once each, nothing extra. A plan aimed at the wrong job satisfies all of that and leaves the warehouse just as broken. So every run is also replayed against the pipeline itself: a job that errors stays broken until its code is patched <i>and</i> re-run, and anything rebuilt is only as fresh as what feeds it. Build a repair plan and see which one actually brings the report back.</p>
+    </div>
+    <div class="ov-body">
+      <div class="ov-left">
+        <div class="ov-k">Start from</div>
+        <div class="ov-pre" id="ovPre"></div>
+        <div class="ov-k" style="margin-top:4px">Or add actions yourself</div>
+        <div class="ov-acts" id="ovActs"></div>
+        <div class="ov-k" style="margin-top:4px">Plan to apply</div>
+        <ul class="ov-plan" id="ovPlan"></ul>
+        <div class="ov-run">
+          <button type="button" id="ovRun">Apply the plan</button>
+          <button type="button" class="ghost" id="ovReset">Reset</button>
+        </div>
+      </div>
+      <div class="ov-right">
+        <svg class="ov-svg" id="ovSvg" viewBox="0 0 760 286" role="img" aria-label="The warehouse pipeline with each table and job coloured by whether its data is current, out of date, or broken."></svg>
+        <div class="ov-legend"><span><i class="f"></i>current</span><span><i class="s"></i>out of date</span><span><i class="x"></i>broken</span><span>dashed outline: the report the engineer complained about</span></div>
+        <div class="ov-log" id="ovLog"></div>
+        <div class="ov-score" id="ovScore"></div>
+      </div>
+    </div>
+    <div class="ov-foot" id="ovFoot">Across the 100 labelled incidents, every plan that reaches the approval gate passes both checks, and the four plans above are tests in the repo. The rules are the ones <code>triage_bridge/outcome.py</code> applies. What this cannot check is whether the SQL inside a patch was correct, because a patch here is a line of text rather than code that runs. Next on both projects: real tables behind the same interfaces, DuckDB in CI and Databricks in the cloud, so the model can draft the SQL itself and the warehouse decides whether it worked.</div>
+  </div>
+
   <div class="hx-stats">
     <div class="hx-stat bad"><div class="v">61<small> / 75</small></div><p>approved fixes that repeated an action when restarted from scratch after a crash</p></div>
     <div class="hx-stat good"><div class="v">0<small> / 75</small></div><p>with Keel resuming from its log on the same crashes: every action exactly once</p></div>
-    <div class="hx-stat mid"><div class="v">30 → 0</div><p>times a person had to step in, after Keel tuned its own recovery rules. Its gate rejected 4 of 10 candidate rules, and 2 of the 4 a model proposed</p></div>
+    <div class="hx-stat mid"><div class="v">90%</div><p>root causes found by GPT-OSS 120B walking the graph itself, with the approval gate deciding what a person sees</p></div>
   </div>
 
   <div class="hx-real hx-evo">
-    <div class="hd"><div class="lbl">How accurate the AI is, in both projects</div><h3>Two in three with a small model, nine in ten with a big one. Neither decides.</h3><p>Scored against labelled incidents the models were never tuned on: Qwen3 8B on a laptop RTX 4060, and GPT-OSS 120B through a hosted free tier, same code and prompts. The rules get every root cause either way, so the rules decide. What makes a fallible model usable is that the tracer checks it: across both models every wrong diagnosis went to a person, and no right one was held back.</p><div class="score">0 / 9<small>wrong diagnoses reached approval</small></div></div>
-    <div class="hx-chk"><div><span>Root cause: 8B over 60 incidents, 120B over 20</span><b>68% · 90%</b></div><div><span>Failure category named correctly, same runs</span><b>53% · 100%</b></div><div><span>Briefings that passed the faithfulness check</span><b>20 / 20</b></div><div><span>Fixer applied each approved action once, through a kill</span><b>every run</b></div><div><span>A note in the incident told it to do more; it tried</span><b>refused</b></div><div><span>Model diagnosed it correctly, a person approved, Keel applied it through a kill</span><b>once each</b></div></div>
+    <div class="hd"><div class="lbl">How accurate the AI is, in both projects</div><h3>Nine in ten root causes with a hosted 120B model. It still does not decide.</h3><p>Scored against labelled incidents the models were never tuned on: GPT-OSS 120B through a hosted free tier, and a smaller Qwen3 8B on a laptop GPU for comparison. The rules get every root cause too, so the rules still decide. What makes a fallible model usable is that the tracer checks it: across both models every wrong diagnosis went to a person, and no right one was held back.</p><div class="score">0 / 9<small>wrong diagnoses reached approval, counting both models tested</small></div></div>
+    <div class="hx-chk"><div><span>Root cause, GPT-OSS 120B over held-out incidents</span><b>90%</b></div><div><span>Failure category named correctly, same run</span><b>100%</b></div><div><span>Briefings that passed the faithfulness check</span><b>20 / 20</b></div><div><span>Fixer applied each approved action once, through a kill</span><b>every run</b></div><div><span>A note in the incident told it to do more; it tried</span><b>refused</b></div><div><span>Model diagnosed it correctly, a person approved, Keel applied it through a kill</span><b>once each</b></div><div><span>Approved fixes that left the broken report fresh again, checked against the pipeline rather than the log</span><b>75 / 75</b></div></div>
     <div class="hx-lines"><div class="k">what the real models taught the code</div><div class="ln">it changed a right answer to a wrong one, so the first valid answer now stands</div><div class="ln">it named an unrecognised failure as a familiar one, so the category stays with the rules</div><div class="ln">it wrote its own text for the patch a person had approved, so the approval now fixes the content too</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-two-models-held-out-incidents" style="color:var(--accent)">triage numbers</a> &nbsp; <a href="https://github.com/dhruvdubey3123/agent-harness-runtime#is-the-model-any-good-at-it" style="color:var(--accent)">Keel numbers</a></div></div>
   </div>
   <p class="hx-vision">Every number here reruns in CI on every push. The incidents are synthetic and the warehouse is a SQLite stand-in.</p>
@@ -1006,21 +1087,21 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 
     <article class="sys">
       <button class="sys-head" type="button" aria-expanded="false">
-        <span><span class="sys-title">Pipeline Incident Triage Graph</span><span class="sys-sub">LangGraph · MCP · FastAPI · Docker · Kubernetes · GitHub Actions</span><span class="sys-plain">When a company report shows wrong numbers, this agent works backwards through the data pipeline to find the job that actually broke, drafts the fix, and waits for a person to approve it.</span></span>
+        <span><span class="sys-title">Pipeline Incident Triage Graph</span><span class="sys-sub">LangGraph · Qwen3 8B via Ollama · GPT-OSS 120B via Groq · MCP · FastAPI · Pydantic · SQLite · Docker · Kubernetes · GitHub Actions</span><span class="sys-plain">When a company report shows wrong numbers, this agent works backwards through the data warehouse pipeline to find the job that actually broke, drafts the fix, and waits for a person to approve it.</span></span>
         <span class="sys-right"><span class="status live">Live repo</span><span class="caret">&#9654;</span></span>
       </button>
       <div class="sys-body">
         <div class="sys-ex"><b>For example</b>Monday's revenue dashboard looks wrong. Instead of an engineer opening every upstream job one by one, the agent checks each job feeding the dashboard, skips the healthy ones, finds the stored procedure where a column was renamed, and proposes the fix with a link to a similar past case. Nothing changes until someone clicks approve.</div>
         <dl class="sys-io"><dt>In</dt><dd>a broken report or failed job, plus the pipeline's dependency graph and logs</dd><dt>Out</dt><dd>the root cause, a failure category, similar past incidents, a drafted fix and a confidence level, held at a human approval gate</dd></dl>
-        <p>The open-source rebuild of the Allegis agent. The tracer walks the DAG, rule-based agents classify and plan, a reviewer blocks unsafe proposals, and LangGraph pauses at the gate. As at Allegis, the LLM (Qwen3 8B) orchestrates and communicates: after the decision it chooses follow-up checks and briefs the approver, checked against the trace.</p>
+        <p>The open-source rebuild of the Allegis agent. A tracer walks the dependency graph until it reaches the job that actually broke, rules decide what kind of failure it is and what to do about it, a reviewer blocks anything unsafe, and the graph stops at a person. The LLM does what it did at Allegis: once the decision is made it picks the follow-up checks worth running, then writes the briefing the approver reads, checked line by line against the trace.</p>
         <table class="kv"><tbody>
           <tr><td>Eval sets</td><td>2 × 100 labelled incidents, gated in CI</td></tr>
           <tr><td>Rules: root cause</td><td>1.00 on both sets</td></tr>
           <tr><td>Rules: category, noisy logs</td><td>0.81: misleading logs fool the rules</td></tr>
-          <tr><td>LLM walking the graph</td><td>68% of root causes (41/60); 0 of 7 misses reached approval</td></tr>
+          <tr><td>LLM walking the graph</td><td>90% of root causes (GPT-OSS 120B); no wrong diagnosis reached approval</td></tr>
           <tr><td>LLM orchestration</td><td>200 of 200 decisions unchanged by an erratic coordinator</td></tr>
           <tr><td>Tests</td><td>49 passing, eval gated in CI</td></tr>
-          <tr><td>Next</td><td>LLM-drafted SQL fixes scored against reference fixes; a real warehouse behind the existing probe and executor interfaces</td></tr>
+          <tr><td>Next</td><td>the model drafting the procedure's SQL itself, scored against a reference fix per incident, over real tables in DuckDB and then Snowflake with dbt models for the lineage</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/pipeline-triage-graph">github.com/dhruvdubey3123/pipeline-triage-graph</a></div>
       </div>
@@ -1028,20 +1109,20 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 
     <article class="sys">
       <button class="sys-head" type="button" aria-expanded="false">
-        <span><span class="sys-title">Keel: Approval-Bound Agent Runtime</span><span class="sys-sub">Python · Qwen3 8B via Ollama · SQLite run log · FastAPI · MCP · Docker · Kubernetes</span><span class="sys-plain">The runtime where an AI agent's approved work actually happens. It holds the agent to exactly what a person approved, writes down every action before and after it happens, and after a crash continues where it stopped instead of repeating work.</span></span>
+        <span><span class="sys-title">Keel: Approval-Bound Agent Runtime</span><span class="sys-sub">Python · Qwen3 8B via Ollama · GPT-OSS 120B via Groq · SQLite run log · FastAPI · Pydantic · MCP · Docker · Kubernetes · GitHub Actions</span><span class="sys-plain">The sandboxed runtime where an AI agent's approved work actually happens. It holds the agent to exactly what a person approved, writes down every action before and after it happens, and after a crash continues where it stopped instead of repeating work.</span></span>
         <span class="sys-right"><span class="status live">Live repo</span><span class="caret">&#9654;</span></span>
       </button>
       <div class="sys-body">
         <div class="sys-ex"><b>For example</b>An agent is fixing a pipeline at 2 a.m.: patch a procedure, rerun the payroll load, comment on the ticket, email on-call. The server restarts halfway through. Starting over would run the payroll load twice and send two emails. Keel reads its log, skips what already finished, and asks a person about the one step it cannot be sure of.</div>
         <dl class="sys-io"><dt>In</dt><dd>an agent definition (instructions plus the tools it is allowed), a task, and a model</dd><dt>Out</dt><dd>a finished run with every step recorded, the real effects of its tools applied exactly once, and a status: done, failed, or needs review</dd></dl>
-        <p>Keel decides what an AI agent may do: its sandbox, its run log, and the approved plan as an envelope it cannot leave or under-fill. Every tool call is logged before and after it runs, so a crash is resumed, not repeated, and Keel tunes its own recovery rules behind a safety gate.</p>
+        <p>Keel decides what an agent is allowed to do inside its sandbox. The plan a person approved becomes both a ceiling and a floor: the agent cannot go past it and cannot quietly leave part of it undone. Every call is written down before and after it runs, so a process that dies halfway picks up where it stopped instead of starting over, and the one step it cannot be sure about goes to a person. It also tunes its own recovery rules, behind a gate that throws out any change that repeats or skips approved work.</p>
         <table class="kv"><tbody>
           <tr><td>Crash benchmark</td><td>200 runs, duplicated side effects: restart 145, Keel 0</td></tr>
-          <tr><td>Triage fixes</td><td>75 crashed mid-fix, duplicated: restart 61, Keel 0</td></tr>
+          <tr><td>Triage fixes</td><td>75 crashed mid-fix, duplicated: restart 61, Keel 0; symptom resolved 75 of 75</td></tr>
           <tr><td>Live model runs</td><td>its own patch text refused (both models), the note's extra rerun refused, and a correct model diagnosis applied once each through a kill</td></tr>
-          <tr><td>Self-tuning</td><td>interruptions 30 → 0; gate rejected 4 of 10 rule-proposed changes, and 2 of 4 proposed by GPT-OSS 120B</td></tr>
-          <tr><td>Tests</td><td>96 passing, every benchmark in CI</td></tr>
-          <tr><td>Next</td><td>apply model-drafted patches a person approved; Postgres run log shared by several workers</td></tr>
+          <tr><td>Self-tuning</td><td>needless post-crash interruptions removed by confirming uncertain steps against the warehouse, approval gate untouched; its own gate rejected 4 of 10 rule-proposed changes and 2 of 4 from GPT-OSS 120B</td></tr>
+          <tr><td>Tests</td><td>112 passing, every benchmark in CI</td></tr>
+          <tr><td>Next</td><td>applying model-drafted SQL against a real warehouse so a fix is confirmed by the report refreshing; a Postgres run log shared by several workers on Kubernetes</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
       </div>
@@ -2061,6 +2142,152 @@ document.querySelectorAll('.copy').forEach(function(b){
   if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ if(es[0].isIntersecting&&!started){ started=true; io.disconnect(); play(); } },{threshold:.3}); io.observe(sec); }
   else { started=true; play(); }
 })();
+
+/* ---------- did the fix work: node health replayed from the applied actions ----------
+   The rules are triage_bridge/outcome.py: a broken job is only repaired by a run once the
+   reason it broke is gone (a procedure needs its code patched first), and anything run or
+   refreshed is only as fresh as its inputs. */
+(function(){
+  var svg=document.getElementById('ovSvg'); if(!svg) return;
+  var NS='http://www.w3.org/2000/svg';
+  var L=[{x:66,t:'Source'},{x:214,t:'Load'},{x:376,t:'Procedure'},{x:536,t:'Fact table'},{x:686,t:'Report'}];
+  var N={
+    ags:{l:0,y:62,t:'AGS360 cases'}, tsrc:{l:0,y:134,t:'Timesheet feed'}, vsrc:{l:0,y:232,t:'Vendor feed'},
+    stg_cases:{l:1,y:62,t:'stg_cases'}, stg_ts:{l:1,y:134,t:'stg_timesheets'}, stg_v:{l:1,y:232,t:'stg_vendor'},
+    sp_merge:{l:2,y:62,t:'sp_merge_cases'}, sp_fill:{l:2,y:134,t:'sp_calc_fill_rate'}, sp_vend:{l:2,y:232,t:'sp_vendor_rollup'},
+    fct_wf:{l:3,y:98,t:'fct_workforce'}, fct_sp:{l:3,y:232,t:'fct_spend'},
+    bi:{l:4,y:160,t:'Acumen report'}
+  };
+  var E=[['ags','stg_cases'],['tsrc','stg_ts'],['vsrc','stg_v'],['stg_cases','sp_merge'],['stg_ts','sp_fill'],['stg_cases','sp_fill'],['stg_v','sp_vend'],['sp_merge','fct_wf'],['sp_fill','fct_wf'],['sp_vend','fct_sp'],['fct_wf','bi'],['fct_sp','bi']];
+  var W=118,H=28,SYM='bi';
+  var parents={}; Object.keys(N).forEach(function(k){parents[k]=[];});
+  E.forEach(function(e){parents[e[1]].push(e[0]);});
+  function ancestors(id){ var out={},q=parents[id].slice(); while(q.length){ var c=q.shift(); if(out[c])continue; out[c]=1; parents[c].forEach(function(p){q.push(p);}); } return out; }
+
+  /* the incident: stg_cases renamed a column, so sp_calc_fill_rate errors on it */
+  var BROKEN={sp_fill:true};                 /* true = its code has to change before a run helps */
+  function initial(){ var st={}; Object.keys(N).forEach(function(k){
+      if(k in BROKEN) st[k]='failed';
+      else { var a=ancestors(k),bad=false; for(var b in BROKEN) if(a[b]) bad=true; st[k]=bad?'stale':'fresh'; } }); return st; }
+
+  var ACTS=[
+    {id:'p_fill', tool:'patch',   node:'sp_fill',    lab:'patch sp_calc_fill_rate'},
+    {id:'r_fill', tool:'rerun',   node:'sp_fill',    lab:'rerun sp_calc_fill_rate'},
+    {id:'f_wf',   tool:'refresh', node:'fct_wf',     lab:'refresh fct_workforce'},
+    {id:'f_bi',   tool:'refresh', node:'bi',         lab:'refresh Acumen report'},
+    {id:'p_mrg',  tool:'patch',   node:'sp_merge',   lab:'patch sp_merge_cases'},
+    {id:'r_mrg',  tool:'rerun',   node:'sp_merge',   lab:'rerun sp_merge_cases'},
+    {id:'r_stg',  tool:'rerun',   node:'stg_cases',  lab:'rerun stg_cases'},
+    {id:'f_sp',   tool:'refresh', node:'fct_sp',     lab:'refresh fct_spend'}
+  ];
+  var byId={}; ACTS.forEach(function(a){byId[a.id]=a;});
+  var PRESETS=[
+    {k:'ok',   t:'The plan the approver signed off', s:'patch, rerun, then rebuild downstream', p:['p_fill','r_fill','f_wf','f_bi']},
+    {k:'tgt',  t:'Right actions, wrong job',          s:'every step correct, aimed one box away', p:['p_mrg','r_mrg','f_wf','f_bi']},
+    {k:'miss', t:'Forgot the last rebuild',           s:'root cause fixed, report never rebuilt', p:['p_fill','r_fill','f_wf']},
+    {k:'ord',  t:'Right actions, wrong order',        s:'report rebuilt before the data behind it', p:['f_bi','f_wf','p_fill','r_fill']}
+  ];
+
+  function replay(plan){                      /* returns the state after each step */
+    var st=initial(), patched={}, out=[];
+    plan.forEach(function(id){
+      var a=byId[id];
+      if(a.tool==='patch'){ patched[a.node]=1; out.push({a:a,st:copy(st),note:'deployed, but no data has moved yet'}); return; }
+      if(st[a.node]==='failed' && BROKEN[a.node] && !patched[a.node]){
+        out.push({a:a,st:copy(st),note:'ran the same broken code, so it failed again'}); return; }
+      var ok=parents[a.node].every(function(p){return st[p]==='fresh';});
+      st[a.node]= ok?'fresh':'stale';
+      out.push({a:a,st:copy(st),note: ok?'rebuilt from current inputs':'rebuilt from inputs that are not current yet'});
+    });
+    return {steps:out, end:st};
+  }
+  function copy(o){ var c={}; for(var k in o) c[k]=o[k]; return c; }
+
+  /* ---- svg ---- */
+  function el(t,at){ var e=document.createElementNS(NS,t); for(var k in at) e.setAttribute(k,at[k]); return e; }
+  L.forEach(function(l){ var t=el('text',{x:l.x,y:20,'text-anchor':'middle','class':'ov-lay'}); t.textContent=l.t; svg.appendChild(t); });
+  E.forEach(function(e){ var a=N[e[0]],b=N[e[1]],x1=L[a.l].x+W/2,x2=L[b.l].x-W/2,mx=(x1+x2)/2;
+    svg.appendChild(el('path',{'class':'ov-e',d:'M'+x1+','+a.y+' C'+mx+','+a.y+' '+mx+','+b.y+' '+x2+','+b.y})); });
+  var g={};
+  Object.keys(N).forEach(function(k){ var n=N[k],x=L[n.l].x;
+    var grp=el('g',{'class':'ov-n'+(k===SYM?' sym':'')});
+    grp.appendChild(el('rect',{x:x-W/2,y:n.y-H/2,width:W,height:H,rx:6}));
+    var tx=el('text',{x:x,y:n.y+3.4,'text-anchor':'middle'}); tx.textContent=n.t; grp.appendChild(tx);
+    svg.appendChild(grp); g[k]=grp; });
+  function paint(st,active){ Object.keys(g).forEach(function(k){
+      g[k].setAttribute('class','ov-n'+(k===SYM?' sym':'')+' '+st[k]+(k===active?' act':'')); }); }
+
+  /* ---- ui ---- */
+  var preWrap=document.getElementById('ovPre'), actWrap=document.getElementById('ovActs'),
+      planEl=document.getElementById('ovPlan'), logEl=document.getElementById('ovLog'),
+      scoreEl=document.getElementById('ovScore'), runBtn=document.getElementById('ovRun'),
+      resetBtn=document.getElementById('ovReset');
+  var plan=[], busy=false, chosen=null;
+
+  PRESETS.forEach(function(p){ var b=document.createElement('button'); b.type='button';
+    b.innerHTML=p.t+'<small>'+p.s+'</small>'; b.setAttribute('aria-pressed','false');
+    b.addEventListener('click',function(){ if(busy) return; chosen=p.k; plan=p.p.slice(); draw(); });
+    preWrap.appendChild(b); p.el=b; });
+  ACTS.forEach(function(a){ var b=document.createElement('button'); b.type='button'; b.textContent=a.lab;
+    b.addEventListener('click',function(){ if(busy) return; chosen=null; plan.push(a.id); draw(); });
+    actWrap.appendChild(b); });
+
+  function dupes(){ var seen={},d={}; plan.forEach(function(id){ if(seen[id]) d[id]=1; seen[id]=1; }); return d; }
+  function draw(){
+    PRESETS.forEach(function(p){ p.el.setAttribute('aria-pressed', chosen===p.k?'true':'false'); });
+    var d=dupes(); planEl.innerHTML='';
+    if(!plan.length){ var e=document.createElement('li'); e.className='ov-empty';
+      e.textContent='pick a starting plan, or add actions'; e.style.background='none'; planEl.appendChild(e); }
+    plan.forEach(function(id,i){ var li=document.createElement('li'); if(d[id]) li.className='dup';
+      li.innerHTML='<b>'+(i+1)+'</b>'+byId[id].lab;
+      var x=document.createElement('button'); x.className='x'; x.type='button'; x.textContent='×';
+      x.setAttribute('aria-label','remove '+byId[id].lab);
+      x.addEventListener('click',function(){ if(busy) return; chosen=null; plan.splice(i,1); draw(); });
+      li.appendChild(x); planEl.appendChild(li); });
+    runBtn.disabled=!plan.length;
+    paint(initial(),null); logEl.innerHTML='<b>Before the fix.</b> sp_calc_fill_rate is broken, and everything it feeds is out of date. fct_spend sits on another branch and is fine.';
+    scoreEl.innerHTML='<div class="ov-card"><div class="t">What Keel guarantees</div><div class="v">Not applied yet</div>'
+      + '<p>Every approved action, once each, nothing extra, even through a crash.</p></div>'
+      + '<div class="ov-card"><div class="t">What the pipeline says</div><div class="v">Not applied yet</div>'
+      + '<p>Whether the report the engineer complained about is current again.</p></div>';
+  }
+  function verdict(end){
+    var bad=Object.keys(N).filter(function(k){return end[k]!=='fresh';});
+    if(end[SYM]==='fresh') return 'The Acumen report is current again.';
+    var anc=ancestors(SYM), why=bad.filter(function(k){return anc[k];})
+      .map(function(k){return N[k].t+' is '+(end[k]==='failed'?'still broken':'out of date');});
+    return 'The Acumen report is still out of date'+(why.length?', because '+why.join(', '):'')+'.';
+  }
+  function score(end){
+    var d=Object.keys(dupes()).length, once=d===0, fixed=end[SYM]==='fresh';
+    scoreEl.innerHTML=
+      '<div class="ov-card '+(once?'ok':'no')+'"><div class="t">What Keel guarantees</div><div class="v">'+
+      (once?'Every action applied once':'An action was applied twice')+'</div><p>'+
+      (once?'The approved plan was carried out faithfully, crash or no crash.':'Keel refuses a repeat of a step that is not safe to repeat.')+'</p></div>'+
+      '<div class="ov-card '+(fixed?'ok':'no')+'"><div class="t">What the pipeline says</div><div class="v">'+
+      (fixed?'Incident resolved':'Still broken')+'</div><p>'+
+      (fixed?'The report the engineer complained about is current again.':'Faithful is not the same as correct. This is the gap the run log cannot see.')+'</p></div>';
+  }
+  function run(){
+    if(busy||!plan.length) return; busy=true; runBtn.disabled=true;
+    var r=replay(plan), i=0;
+    paint(initial(),null);
+    (function step(){
+      if(i>=r.steps.length){
+        paint(r.end,null);
+        logEl.innerHTML='<b>'+verdict(r.end)+'</b>';
+        score(r.end); busy=false; runBtn.disabled=false; return; }
+      var s=r.steps[i++];
+      paint(s.st,s.a.node);
+      logEl.innerHTML='<b>'+i+'. '+s.a.lab+'</b> &middot; '+s.note;
+      setTimeout(step, 820);
+    })();
+  }
+  runBtn.addEventListener('click',run);
+  resetBtn.addEventListener('click',function(){ if(busy) return; plan=[]; chosen=null; draw(); });
+  chosen='ok'; plan=PRESETS[0].p.slice(); draw();
+})();
+
 </script>
 
 </body>
