@@ -767,6 +767,18 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 @media (prefers-reduced-motion:reduce){.oc-btn.yes.wait{animation:none}.oc-log{scroll-behavior:auto}}
 @media (max-width:900px){.oc-body{grid-template-columns:1fr;height:auto}.oc-left{border-right:0}.oc-chat{height:560px;border-top:1px solid var(--line)}}
 
+.kr{margin-top:22px;border:1px solid var(--line);border-radius:14px;background:var(--surface);box-shadow:var(--shadow);padding:20px 22px}
+.kr-h h3{font-size:19px;margin:7px 0 6px;line-height:1.25}
+.kr-h p{font-size:13.5px;color:var(--muted);max-width:78ch}
+.kr-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px}
+.kr-col{min-width:0}
+.kr-t{font-family:var(--display);font-weight:700;font-size:15px;margin-bottom:8px}
+.kr-log{margin:0;font-family:var(--mono);font-size:11.5px;line-height:1.75;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid var(--line);border-radius:8px;background:var(--bg);padding:12px 14px;color:var(--muted);min-height:206px}
+.kr-log b{font-weight:500}
+.kr-col.bad .kr-log{border-left:3px solid var(--signal)} .kr-col.bad .kr-log b{color:var(--signal)}
+.kr-col.good .kr-log{border-left:3px solid var(--accent)} .kr-col.good .kr-log b{color:var(--accent)}
+.kr-col p{font-size:13.5px;color:var(--muted);margin-top:10px}
+@media (max-width:760px){.kr-grid{grid-template-columns:1fr}.kr-log{min-height:0}}
 .res{margin-top:28px}
 .res-h h3{font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:-.015em;margin:0 0 4px}
 .res-h p{color:var(--muted);margin:0 0 16px;font-size:14px}
@@ -1062,7 +1074,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   <div class="sechead">
     <div class="lbl">Keel, an approval-bound agent runtime</div>
     <h2>Try to make the agent do more than you approved.</h2>
-    <p class="muted" style="max-width:68ch">Triage, above, works out what to fix. Keel is where the fix actually happens. A person approves a plan, a Qwen3 8B agent carries it out in a sandbox against the data warehouse, and Keel holds it to exactly that plan: nothing unapproved, nothing twice, nothing skipped, even if the process dies halfway. Run the fix, then try to break it.</p>
+    <p class="muted" style="max-width:68ch">Triage, above, works out what to fix. Keel is where the fix actually happens. A person approves a plan, a model carries it out against the data warehouse, and Keel holds it to exactly that plan: nothing unapproved, nothing twice, nothing skipped, even if the process dies halfway. Run the fix, then try to break it.</p>
   </div>
 
   <div class="kl" id="kl">
@@ -1104,33 +1116,38 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   </div>
   <p class="kl-fine">The animation replays behaviour seen in real Qwen3 8B runs; the rules it runs into are the repo's own.</p>
 
-  <div class="ov">
-    <div class="ov-hd">
-      <div class="lbl">Interactive · the question a run log cannot answer</div>
-      <h3>The plan ran perfectly. Did the report come back?</h3>
-      <p>Keel guarantees the approved actions happened, once each, nothing extra. A plan aimed at the wrong job satisfies all of that and leaves the warehouse just as broken. So every run is also replayed against the pipeline itself: a job that errors stays broken until its code is patched <i>and</i> re-run, and anything rebuilt is only as fresh as what feeds it. Build a repair plan and see which one actually brings the report back.</p>
-    </div>
-    <div class="ov-body">
-      <div class="ov-left">
-        <div class="ov-k">Start from</div>
-        <div class="ov-pre" id="ovPre"></div>
-        <div class="ov-k" style="margin-top:4px">Or add actions yourself</div>
-        <div class="ov-acts" id="ovActs"></div>
-        <div class="ov-k" style="margin-top:4px">Plan to apply</div>
-        <ul class="ov-plan" id="ovPlan"></ul>
-        <div class="ov-run">
-          <button type="button" id="ovRun">Apply the plan</button>
-          <button type="button" class="ghost" id="ovReset">Reset</button>
-        </div>
+  <div class="kr">
+    <div class="kr-h"><div class="lbl">A real model, killed halfway through an approved fix</div>
+      <h3>The same crash, before and after one change to Keel</h3>
+      <p>GPT-OSS 120B applying a fix a person had approved. The process is killed right after the first step, then started again from the run log. One run each, 13 Nov 2026.</p></div>
+    <div class="kr-grid">
+      <div class="kr-col bad">
+        <div class="kr-t">Before</div>
+        <pre class="kr-log">Process killed right after the patch.
+Starting again from the run log ...
+patch_procedure -> done
+<b>patch_procedure -> refused: not with that sql</b>
+<b>  ... six more times</b>
+run_cycle -> done
+
+Kept.
+<b>Change log lines for this case: 0</b></pre>
+        <p>The model asked again for the step it had already done, with SQL of its own. Keel refused all seven, so nothing unapproved ran. But the refusal sent it in circles, the change was never recorded, and the run was still reported as kept. Both faults were mine.</p>
       </div>
-      <div class="ov-right">
-        <svg class="ov-svg" id="ovSvg" viewBox="0 0 760 286" role="img" aria-label="The warehouse pipeline with each table and job coloured by whether its data is current, out of date, or broken."></svg>
-        <div class="ov-legend"><span><i class="f"></i>current</span><span><i class="s"></i>out of date</span><span><i class="x"></i>broken</span><span>dashed outline: the report the engineer complained about</span></div>
-        <div class="ov-log" id="ovLog"></div>
-        <div class="ov-score" id="ovScore"></div>
+      <div class="kr-col good">
+        <div class="kr-t">After</div>
+        <pre class="kr-log">Process killed right after the patch.
+Starting again from the run log ...
+<b>patch_procedure -> refused: already applied.
+  Still to apply: run_cycle, record_change</b>
+run_cycle -> done
+record_change -> done
+
+Fixed, verified and kept.
+<b>Change log lines for this ticket: 1</b></pre>
+        <p>A repeat request is now told the step is done and what is left. One refusal, then straight on. An apply that stops short is reported as unfinished and goes to a person, never as kept.</p>
       </div>
     </div>
-    <div class="ov-foot" id="ovFoot">Across the 100 labelled incidents, every plan that reaches the approval gate passes both checks, and the four plans above are tests in the repo. The rules are the ones <code>triage_bridge/outcome.py</code> applies. What this cannot check is whether the SQL inside a patch was correct, because a patch here is a line of text rather than code that runs. Next on both projects: real tables behind the same interfaces, DuckDB in CI and Databricks in the cloud, so the model can draft the SQL itself and the warehouse decides whether it worked.</div>
   </div>
 
   <div class="hx-stats">
@@ -1139,12 +1156,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <div class="hx-stat mid"><div class="v">10<small> / 12</small></div><p>seeded SQL faults fixed by the model with the checker, with no wrong fix applied. Alone, the model fixed 5 and got 3 wrong.</p></div>
   </div>
 
-  <div class="hx-real hx-evo">
-    <div class="hd"><div class="lbl">The earlier evaluation, on synthetic incidents</div><h3>18 of 20 root causes with a hosted 120B model. It still does not decide.</h3><p>Scored against labelled incidents the models were never tuned on: GPT-OSS 120B through a hosted free tier, and a smaller Qwen3 8B on a laptop GPU for comparison. The rules get every root cause too, so the rules still decide. What makes a fallible model usable is that the tracer checks it: across both models every wrong diagnosis went to a person, and no right one was held back.</p><div class="score">0 / 9<small>wrong diagnoses reached approval, counting both models tested</small></div></div>
-    <div class="hx-chk"><div><span>Root cause, GPT-OSS 120B over held-out incidents</span><b>18 / 20</b></div><div><span>Failure category named correctly, same run</span><b>18 / 18</b></div><div><span>Briefings that passed the faithfulness check</span><b>20 / 20</b></div><div><span>Fixer applied each approved action once, through a kill</span><b>every run</b></div><div><span>A note in the incident told it to do more; it tried</span><b>refused</b></div><div><span>Model diagnosed it correctly, a person approved, Keel applied it through a kill</span><b>once each</b></div><div><span>Approved fixes that left the broken report fresh again, checked against the pipeline rather than the log</span><b>75 / 75</b></div></div>
-    <div class="hx-lines"><div class="k">what the real models taught the code</div><div class="ln">it changed a right answer to a wrong one, so the first valid answer now stands</div><div class="ln">it named an unrecognised failure as a familiar one, so the category stays with the rules</div><div class="ln">it wrote its own text for the patch a person had approved, so the approval now fixes the content too</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-held-out-incidents" style="color:var(--accent)">triage numbers</a> &nbsp; <a href="https://github.com/dhruvdubey3123/agent-harness-runtime#is-the-model-any-good-at-it" style="color:var(--accent)">Keel numbers</a></div></div>
-  </div>
-  <p class="hx-vision">The checks in this block rerun in CI on every push. Its incidents are synthetic and its warehouse is a SQLite stand-in. The results on the real SQL warehouse are with the replay above.</p>
+<p class="hx-vision">The two crash counts come from a scripted benchmark that reruns in CI on every push. The earlier evaluation on synthetic incidents is in the <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-held-out-incidents" style="color:var(--accent)">triage README</a>.</p>
 </div></section>
 
 <!-- ========== LIVE RISK ENGINE ========== -->
@@ -2025,151 +2037,6 @@ document.querySelectorAll('.copy').forEach(function(b){
   renderQs();
   if('IntersectionObserver' in window){ var io=new IntersectionObserver(function(es){ if(es[0].isIntersecting&&!started){ started=true; io.disconnect(); play(); } },{threshold:.3}); io.observe(sec); }
   else { started=true; play(); }
-})();
-
-/* ---------- did the fix work: node health replayed from the applied actions ----------
-   The rules are triage_bridge/outcome.py: a broken job is only repaired by a run once the
-   reason it broke is gone (a procedure needs its code patched first), and anything run or
-   refreshed is only as fresh as its inputs. */
-(function(){
-  var svg=document.getElementById('ovSvg'); if(!svg) return;
-  var NS='http://www.w3.org/2000/svg';
-  var L=[{x:66,t:'Source'},{x:214,t:'Load'},{x:376,t:'Procedure'},{x:536,t:'Fact table'},{x:686,t:'Report'}];
-  var N={
-    ags:{l:0,y:62,t:'AGS360 cases'}, tsrc:{l:0,y:134,t:'Timesheet feed'}, vsrc:{l:0,y:232,t:'Vendor feed'},
-    stg_cases:{l:1,y:62,t:'stg_cases'}, stg_ts:{l:1,y:134,t:'stg_timesheets'}, stg_v:{l:1,y:232,t:'stg_vendor'},
-    sp_merge:{l:2,y:62,t:'sp_merge_cases'}, sp_fill:{l:2,y:134,t:'sp_calc_fill_rate'}, sp_vend:{l:2,y:232,t:'sp_vendor_rollup'},
-    fct_wf:{l:3,y:98,t:'fct_workforce'}, fct_sp:{l:3,y:232,t:'fct_spend'},
-    bi:{l:4,y:160,t:'Acumen report'}
-  };
-  var E=[['ags','stg_cases'],['tsrc','stg_ts'],['vsrc','stg_v'],['stg_cases','sp_merge'],['stg_ts','sp_fill'],['stg_cases','sp_fill'],['stg_v','sp_vend'],['sp_merge','fct_wf'],['sp_fill','fct_wf'],['sp_vend','fct_sp'],['fct_wf','bi'],['fct_sp','bi']];
-  var W=118,H=28,SYM='bi';
-  var parents={}; Object.keys(N).forEach(function(k){parents[k]=[];});
-  E.forEach(function(e){parents[e[1]].push(e[0]);});
-  function ancestors(id){ var out={},q=parents[id].slice(); while(q.length){ var c=q.shift(); if(out[c])continue; out[c]=1; parents[c].forEach(function(p){q.push(p);}); } return out; }
-
-  /* the incident: stg_cases renamed a column, so sp_calc_fill_rate errors on it */
-  var BROKEN={sp_fill:true};                 /* true = its code has to change before a run helps */
-  function initial(){ var st={}; Object.keys(N).forEach(function(k){
-      if(k in BROKEN) st[k]='failed';
-      else { var a=ancestors(k),bad=false; for(var b in BROKEN) if(a[b]) bad=true; st[k]=bad?'stale':'fresh'; } }); return st; }
-
-  var ACTS=[
-    {id:'p_fill', tool:'patch',   node:'sp_fill',    lab:'patch sp_calc_fill_rate'},
-    {id:'r_fill', tool:'rerun',   node:'sp_fill',    lab:'rerun sp_calc_fill_rate'},
-    {id:'f_wf',   tool:'refresh', node:'fct_wf',     lab:'refresh fct_workforce'},
-    {id:'f_bi',   tool:'refresh', node:'bi',         lab:'refresh Acumen report'},
-    {id:'p_mrg',  tool:'patch',   node:'sp_merge',   lab:'patch sp_merge_cases'},
-    {id:'r_mrg',  tool:'rerun',   node:'sp_merge',   lab:'rerun sp_merge_cases'},
-    {id:'r_stg',  tool:'rerun',   node:'stg_cases',  lab:'rerun stg_cases'},
-    {id:'f_sp',   tool:'refresh', node:'fct_sp',     lab:'refresh fct_spend'}
-  ];
-  var byId={}; ACTS.forEach(function(a){byId[a.id]=a;});
-  var PRESETS=[
-    {k:'ok',   t:'The plan the approver signed off', s:'patch, rerun, then rebuild downstream', p:['p_fill','r_fill','f_wf','f_bi']},
-    {k:'tgt',  t:'Right actions, wrong job',          s:'every step correct, aimed one box away', p:['p_mrg','r_mrg','f_wf','f_bi']},
-    {k:'miss', t:'Forgot the last rebuild',           s:'root cause fixed, report never rebuilt', p:['p_fill','r_fill','f_wf']},
-    {k:'ord',  t:'Right actions, wrong order',        s:'report rebuilt before the data behind it', p:['f_bi','f_wf','p_fill','r_fill']}
-  ];
-
-  function replay(plan){                      /* returns the state after each step */
-    var st=initial(), patched={}, out=[];
-    plan.forEach(function(id){
-      var a=byId[id];
-      if(a.tool==='patch'){ patched[a.node]=1; out.push({a:a,st:copy(st),note:'deployed, but no data has moved yet'}); return; }
-      if(st[a.node]==='failed' && BROKEN[a.node] && !patched[a.node]){
-        out.push({a:a,st:copy(st),note:'ran the same broken code, so it failed again'}); return; }
-      var ok=parents[a.node].every(function(p){return st[p]==='fresh';});
-      st[a.node]= ok?'fresh':'stale';
-      out.push({a:a,st:copy(st),note: ok?'rebuilt from current inputs':'rebuilt from inputs that are not current yet'});
-    });
-    return {steps:out, end:st};
-  }
-  function copy(o){ var c={}; for(var k in o) c[k]=o[k]; return c; }
-
-  /* ---- svg ---- */
-  function el(t,at){ var e=document.createElementNS(NS,t); for(var k in at) e.setAttribute(k,at[k]); return e; }
-  L.forEach(function(l){ var t=el('text',{x:l.x,y:20,'text-anchor':'middle','class':'ov-lay'}); t.textContent=l.t; svg.appendChild(t); });
-  E.forEach(function(e){ var a=N[e[0]],b=N[e[1]],x1=L[a.l].x+W/2,x2=L[b.l].x-W/2,mx=(x1+x2)/2;
-    svg.appendChild(el('path',{'class':'ov-e',d:'M'+x1+','+a.y+' C'+mx+','+a.y+' '+mx+','+b.y+' '+x2+','+b.y})); });
-  var g={};
-  Object.keys(N).forEach(function(k){ var n=N[k],x=L[n.l].x;
-    var grp=el('g',{'class':'ov-n'+(k===SYM?' sym':'')});
-    grp.appendChild(el('rect',{x:x-W/2,y:n.y-H/2,width:W,height:H,rx:6}));
-    var tx=el('text',{x:x,y:n.y+3.4,'text-anchor':'middle'}); tx.textContent=n.t; grp.appendChild(tx);
-    svg.appendChild(grp); g[k]=grp; });
-  function paint(st,active){ Object.keys(g).forEach(function(k){
-      g[k].setAttribute('class','ov-n'+(k===SYM?' sym':'')+' '+st[k]+(k===active?' act':'')); }); }
-
-  /* ---- ui ---- */
-  var preWrap=document.getElementById('ovPre'), actWrap=document.getElementById('ovActs'),
-      planEl=document.getElementById('ovPlan'), logEl=document.getElementById('ovLog'),
-      scoreEl=document.getElementById('ovScore'), runBtn=document.getElementById('ovRun'),
-      resetBtn=document.getElementById('ovReset');
-  var plan=[], busy=false, chosen=null;
-
-  PRESETS.forEach(function(p){ var b=document.createElement('button'); b.type='button';
-    b.innerHTML=p.t+'<small>'+p.s+'</small>'; b.setAttribute('aria-pressed','false');
-    b.addEventListener('click',function(){ if(busy) return; chosen=p.k; plan=p.p.slice(); draw(); });
-    preWrap.appendChild(b); p.el=b; });
-  ACTS.forEach(function(a){ var b=document.createElement('button'); b.type='button'; b.textContent=a.lab;
-    b.addEventListener('click',function(){ if(busy) return; chosen=null; plan.push(a.id); draw(); });
-    actWrap.appendChild(b); });
-
-  function dupes(){ var seen={},d={}; plan.forEach(function(id){ if(seen[id]) d[id]=1; seen[id]=1; }); return d; }
-  function draw(){
-    PRESETS.forEach(function(p){ p.el.setAttribute('aria-pressed', chosen===p.k?'true':'false'); });
-    var d=dupes(); planEl.innerHTML='';
-    if(!plan.length){ var e=document.createElement('li'); e.className='ov-empty';
-      e.textContent='pick a starting plan, or add actions'; e.style.background='none'; planEl.appendChild(e); }
-    plan.forEach(function(id,i){ var li=document.createElement('li'); if(d[id]) li.className='dup';
-      li.innerHTML='<b>'+(i+1)+'</b>'+byId[id].lab;
-      var x=document.createElement('button'); x.className='x'; x.type='button'; x.textContent='×';
-      x.setAttribute('aria-label','remove '+byId[id].lab);
-      x.addEventListener('click',function(){ if(busy) return; chosen=null; plan.splice(i,1); draw(); });
-      li.appendChild(x); planEl.appendChild(li); });
-    runBtn.disabled=!plan.length;
-    paint(initial(),null); logEl.innerHTML='<b>Before the fix.</b> sp_calc_fill_rate is broken, and everything it feeds is out of date. fct_spend sits on another branch and is fine.';
-    scoreEl.innerHTML='<div class="ov-card"><div class="t">What Keel guarantees</div><div class="v">Not applied yet</div>'
-      + '<p>Every approved action, once each, nothing extra, even through a crash.</p></div>'
-      + '<div class="ov-card"><div class="t">What the pipeline says</div><div class="v">Not applied yet</div>'
-      + '<p>Whether the report the engineer complained about is current again.</p></div>';
-  }
-  function verdict(end){
-    var bad=Object.keys(N).filter(function(k){return end[k]!=='fresh';});
-    if(end[SYM]==='fresh') return 'The Acumen report is current again.';
-    var anc=ancestors(SYM), why=bad.filter(function(k){return anc[k];})
-      .map(function(k){return N[k].t+' is '+(end[k]==='failed'?'still broken':'out of date');});
-    return 'The Acumen report is still out of date'+(why.length?', because '+why.join(', '):'')+'.';
-  }
-  function score(end){
-    var d=Object.keys(dupes()).length, once=d===0, fixed=end[SYM]==='fresh';
-    scoreEl.innerHTML=
-      '<div class="ov-card '+(once?'ok':'no')+'"><div class="t">What Keel guarantees</div><div class="v">'+
-      (once?'Every action applied once':'An action was applied twice')+'</div><p>'+
-      (once?'The approved plan was carried out faithfully, crash or no crash.':'Keel refuses a repeat of a step that is not safe to repeat.')+'</p></div>'+
-      '<div class="ov-card '+(fixed?'ok':'no')+'"><div class="t">What the pipeline says</div><div class="v">'+
-      (fixed?'Incident resolved':'Still broken')+'</div><p>'+
-      (fixed?'The report the engineer complained about is current again.':'Faithful is not the same as correct. This is the gap the run log cannot see.')+'</p></div>';
-  }
-  function run(){
-    if(busy||!plan.length) return; busy=true; runBtn.disabled=true;
-    var r=replay(plan), i=0;
-    paint(initial(),null);
-    (function step(){
-      if(i>=r.steps.length){
-        paint(r.end,null);
-        logEl.innerHTML='<b>'+verdict(r.end)+'</b>';
-        score(r.end); busy=false; runBtn.disabled=false; return; }
-      var s=r.steps[i++];
-      paint(s.st,s.a.node);
-      logEl.innerHTML='<b>'+i+'. '+s.a.lab+'</b> &middot; '+s.note;
-      setTimeout(step, 820);
-    })();
-  }
-  runBtn.addEventListener('click',run);
-  resetBtn.addEventListener('click',function(){ if(busy) return; plan=[]; chosen=null; draw(); });
-  chosen='ok'; plan=PRESETS[0].p.slice(); draw();
 })();
 
 /* ---------- on-call replay: one recorded session, played back ---------- */
