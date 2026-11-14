@@ -1102,8 +1102,11 @@ section{scroll-margin-top:72px}
 .lf-jersey{fill:#d7263d} .lf-stripe{stroke:#f6f4f1} .lf-collar{fill:none; stroke:#f6f4f1; stroke-width:3; stroke-linecap:round}
 .lf-sleeve{stroke:#f6f4f1} .lf-shorts{stroke:#f6f4f1} .lf-sock{stroke:#d7263d} .lf-shoe{stroke:#f6f4f1}
 .lf-back{filter:brightness(.84)}
-.lf-helmet{fill:#f6f4f1} .lf-hstripe{stroke:#d7263d}
-.lf-hat{fill:#8a5a2b}
+.lf-leather{fill:#1e1b1a} .lf-zip{stroke:#b9c2c4} .lf-lapel{fill:none; stroke:#3a3432; stroke-width:4; stroke-linecap:round} .lf-leatherS{stroke:#2a2523}
+.lf-denim{stroke:#34506e} .lf-boot{stroke:#5a3a22}
+.lf-hat{fill:#8a5a2b} .lf-band{stroke:#2b1a10}
+.lf-linen{fill:#f6f4f1} .lf-tank{stroke:#d7263d} .lf-collarB{fill:none; stroke:#e4dfd8; stroke-width:3; stroke-linecap:round} .lf-linenS{stroke:#ece8e2}
+.lf-board{stroke:#d7263d} .lf-flop{stroke:#e8c27a}
 .lf-tire{fill:none; stroke:#1d2122; stroke-width:9} .lf-rim{fill:none; stroke:#b9c2c4; stroke-width:2} .lf-hub{fill:#b9c2c4; stroke:#1d2122; stroke-width:1.5}
 .lf-fender{fill:none; stroke:#1d2122; stroke-width:5; stroke-linecap:round}
 .lf-chrome{fill:none; stroke:#c9d1d3; stroke-linecap:round} .lf-chromeF{fill:#c9d1d3; stroke:#1d2122; stroke-width:1.5}
@@ -2955,19 +2958,23 @@ shown(0);loop(step);
   function ik(a,b,l1,l2,bendFwd){var dx=b[0]-a[0],dy=b[1]-a[1],d=Math.min(Math.hypot(dx,dy),l1+l2-.01),base=Math.atan2(dx,dy),k=Math.acos(Math.max(-1,Math.min(1,(l1*l1+d*d-l2*l2)/(2*l1*d))));
     var t=bendFwd?base+k:base-k;return [a[0]+Math.sin(t)*l1,a[1]+Math.cos(t)*l1];}
   var OUT='#1c1715';
-  function Person(g,gear){
-    var o={g:g};
+  var OUTFIT={
+    kit:  {torso:'lf-jersey',stripe:'lf-stripe',collar:'lf-collar',sleeve:'lf-sleeve',upper:'lf-skin',fore:'lf-skin',thigh:'lf-skin',shin:'lf-skin',sock:'lf-sock',shoe:'lf-shoe',shorts:'lf-shorts',sw:4},
+    biker:{torso:'lf-leather',stripe:'lf-zip',collar:'lf-lapel',sleeve:'lf-leatherS',upper:'lf-leatherS',fore:'lf-leatherS',thigh:'lf-denim',shin:'lf-denim',sock:'lf-denim',shoe:'lf-boot',shorts:'lf-denim',sw:1.6,hat:1,shades:1},
+    beach:{torso:'lf-linen',stripe:'lf-tank',collar:'lf-collarB',sleeve:'lf-linenS',upper:'lf-skin',fore:'lf-skin',thigh:'lf-skin',shin:'lf-skin',sock:'lf-skin',shoe:'lf-flop',shorts:'lf-board',sw:9,shades:1}};
+  function Person(g,outfit){
+    var o={g:g},F=OUTFIT[outfit||'kit'];o.F=F;
     // outlines of a layer go under all its fills, so joints read as one shape
     var bo=el('g',{},g),bf=el('g',{},g),tg=el('g',{},g),fo=el('g',{},g),ff=el('g',{},g),hg=el('g',{},g);
     function L(cls,w,back,front2){var a=el('line',{stroke:OUT,'stroke-width':w+3,'stroke-linecap':'round'},back?bo:fo),b=el('line',{class:cls+(back?' lf-back':''),'stroke-width':w,'stroke-linecap':'round'},back?bf:ff);return [a,b];}
-    o.legB=[L('lf-skin',8.5,1),L('lf-skin',8,1),L('lf-sock',8.5,1),L('lf-shoe',9,1),L('lf-shorts',13,1)];o.armB=[L('lf-skin',7.5,1),L('lf-skin',7,1),L('lf-sleeve',10.5,1)];
-    o.torsoO=el('polygon',{fill:OUT,stroke:OUT,'stroke-width':3,'stroke-linejoin':'round'},tg);o.torso=el('polygon',{class:'lf-jersey'},tg);o.stripe=el('line',{class:'lf-stripe','stroke-width':4,'stroke-linecap':'round'},tg);
-    o.legF=[L('lf-skin',8.5),L('lf-skin',8),L('lf-sock',8.5),L('lf-shoe',9),L('lf-shorts',13)];o.neck=L('lf-skin',8);o.collar=el('path',{class:'lf-collar'},hg);
-    o.armF=[L('lf-skin',7.5),L('lf-skin',7),L('lf-sleeve',10.5)];o.hand=el('circle',{class:'lf-skinf',r:4.6,stroke:OUT,'stroke-width':1.5},hg);
+    o.legB=[L(F.thigh,9,1),L(F.shin,8.5,1),L(F.sock,8.5,1),L(F.shoe,F.shoe==='lf-boot'?11:9,1),L(F.shorts,F.shorts==='lf-board'?14:13,1)];o.armB=[L(F.upper,8.5,1),L(F.fore,7.5,1),L(F.sleeve,10.5,1)];
+    o.torsoO=el('polygon',{fill:OUT,stroke:OUT,'stroke-width':3,'stroke-linejoin':'round'},tg);o.torso=el('polygon',{class:F.torso},tg);o.stripe=el('line',{class:F.stripe,'stroke-width':F.sw,'stroke-linecap':'round'},tg);
+    o.legF=[L(F.thigh,9),L(F.shin,8.5),L(F.sock,8.5),L(F.shoe,F.shoe==='lf-boot'?11:9),L(F.shorts,F.shorts==='lf-board'?14:13)];o.neck=L('lf-skin',8);o.collar=el('path',{class:F.collar},hg);
+    o.armF=[L(F.upper,8.5),L(F.fore,7.5),L(F.sleeve,10.5)];o.hand=el('circle',{class:'lf-skinf',r:4.6,stroke:OUT,'stroke-width':1.5},hg);
     o.head=el('ellipse',{class:'lf-skinf',rx:12.5,ry:14,stroke:OUT,'stroke-width':2},hg);o.ear=el('ellipse',{class:'lf-skinf',rx:3,ry:4,stroke:OUT,'stroke-width':1.5},hg);
     o.face=el('path',{fill:'none',stroke:OUT,'stroke-width':1.6,'stroke-linecap':'round'},hg);o.eye=el('circle',{r:1.7,fill:OUT},hg);
     o.hair=el('path',{class:'lf-hair',stroke:OUT,'stroke-width':1.5,'stroke-linejoin':'round'},hg);
-    if(gear==='helmet'){o.helmet=el('path',{class:'lf-helmet',stroke:OUT,'stroke-width':2},hg);o.hstripe=el('path',{class:'lf-hstripe',fill:'none','stroke-width':4},hg);o.shades=el('path',{fill:OUT},hg);}
+    if(F.hat){o.hat=el('path',{class:'lf-hat',stroke:OUT,'stroke-width':2,'stroke-linejoin':'round'},hg);o.band=el('path',{class:'lf-band',fill:'none','stroke-width':2.5},hg);}if(F.shades)o.shades=el('path',{fill:OUT},hg);
     o.bud=el('circle',{r:2.4,fill:'#fff',stroke:OUT,'stroke-width':1,opacity:0},hg);return o;}
   function seg(pair,a,b){pair.forEach(function(line){at(line,{x1:a[0],y1:a[1],x2:b[0],y2:b[1]});});}
   function pose(o,p){var H=p.hip,ux=Math.sin(p.lean),uy=-Math.cos(p.lean),px=-uy,py=ux,N=[H[0]+ux*46,H[1]+uy*46];
@@ -2980,8 +2987,9 @@ shown(0);loop(step);
     var e=R(-3,1);at(o.ear,{cx:e[0],cy:e[1]});var ey=R(7,-2);at(o.eye,{cx:ey[0],cy:ey[1]});
     o.face.setAttribute('d','M'+R(5,-6)+' L'+R(10,-6.5)+' M'+R(12,1)+' L'+R(14.5,4)+' L'+R(12,5)+' M'+R(6,9)+' Q'+R(9,11)+' '+R(11,8));
     o.hair.setAttribute('d','M'+R(-12,4)+' C'+R(-15,-8)+' '+R(-8,-18)+' '+R(2,-17)+' C'+R(10,-22)+' '+R(18,-15)+' '+R(15,-9)+' C'+R(11,-11)+' '+R(6,-10)+' '+R(3,-8)+' C'+R(0,-4)+' '+R(-4,-4)+' '+R(-5,0)+' C'+R(-7,3)+' '+R(-9,6)+' '+R(-12,4)+' Z');
-    if(o.helmet){o.helmet.setAttribute('d','M'+R(-14,4)+' C'+R(-16,-12)+' '+R(-4,-22)+' '+R(6,-20)+' C'+R(15,-18)+' '+R(17,-8)+' '+R(15,-4)+' L'+R(-2,-4)+' L'+R(-6,6)+' Z');
-      o.hstripe.setAttribute('d','M'+R(-12,-12)+' Q'+R(2,-24)+' '+R(14,-12));o.shades.setAttribute('d','M'+R(4,-4)+' L'+R(15,-4)+' L'+R(14,1)+' L'+R(5,1)+' Z');o.hair.setAttribute('opacity',0);}
+    if(o.hat){o.hat.setAttribute('d','M'+R(-27,-10)+' Q'+R(-22,-4)+' '+R(-12,-9)+' L'+R(-11,-20)+' Q'+R(-6,-30)+' '+R(0,-24)+' Q'+R(6,-30)+' '+R(11,-20)+' L'+R(12,-9)+' Q'+R(22,-4)+' '+R(27,-12)+' Q'+R(20,-6)+' '+R(0,-6)+' Q'+R(-20,-6)+' '+R(-27,-10)+' Z');
+      o.band.setAttribute('d','M'+R(-11,-12)+' Q'+R(0,-9)+' '+R(12,-12));}
+    if(o.shades)o.shades.setAttribute('d','M'+R(4,-5)+' L'+R(15,-5)+' L'+R(14,0)+' Q'+R(9,2)+' '+R(5,0)+' Z');
     var b=R(-2,0);at(o.bud,{cx:b[0],cy:b[1],opacity:p.ear?1:0});
     [['legB',p.legB],['legF',p.legF]].forEach(function(q){var L=o[q[0]],v=q[1],K=v[0],A=v[1],th=[H[0]+(K[0]-H[0])*.72,H[1]+(K[1]-H[1])*.72],sk=[K[0]+(A[0]-K[0])*.72,K[1]+(A[1]-K[1])*.72];
       seg(L[0],H,K);seg(L[1],K,sk);seg(L[2],sk,A);seg(L[3],A,[A[0]+10,A[1]+1.5]);seg(L[4],H,th);});
@@ -3035,7 +3043,7 @@ shown(0);loop(step);
   B('circle',{class:'lf-lamp',cx:WX+142,cy:WY-66,r:10});B('circle',{class:'lf-lampG',cx:WX+144,cy:WY-66,r:5});
   var beam=el('path',{class:'lf-beam',d:'M'+(WX+152)+','+(WY-70)+' L'+(WX+300)+','+(WY-96)+' L'+(WX+300)+','+(WY-40)+' Z'},bikeG);bikeG.insertBefore(beam,bike);
   var BAR=[WX+104,WY-88],PEG=[WX+70,WY-8],SEATP=[WX+40,WY-58];
-  var p2=Person(el('g',{},bikeG),'helmet'),notes=el('g',{},s2),nl=[],puffs=[],spin=0,speed=1,fast=false,km=48.6,lastNote=0,lastPuff=0,shift=0,wheelie={x:0,v:0};
+  var p2=Person(el('g',{},bikeG),'biker'),notes=el('g',{},s2),nl=[],puffs=[],spin=0,speed=1,fast=false,km=48.6,lastNote=0,lastPuff=0,shift=0,wheelie={x:0,v:0};
   function ride(t,dt){speed+=((fast?2.3:1)-speed)*(1-Math.exp(-dt/.4));spin+=dt*9*speed;shift+=dt*speed;km+=dt*speed*.012;
     hf.setAttribute('transform','translate('+(-(shift*16)%900)+' 0)');hn.setAttribute('transform','translate('+(-(shift*48)%840)+' 0)');
     posts.forEach(function(p,k){var x=((k*64-shift*130)%1024+1024)%1024-60;at(p,{x1:x,x2:x});});dash.setAttribute('stroke-dashoffset',(shift*260)%40);
@@ -3073,7 +3081,7 @@ shown(0);loop(step);
   var chair=el('g',{},shack);el('path',{class:'lf-chairF',d:'M150,290 L214,228 M238,290 L176,232 M176,232 L148,212'},chair);
   el('path',{class:'lf-canvas',d:'M150,214 L178,234 L232,262 L226,270 L172,242 L144,222 Z'},chair);
   for(i=0;i<4;i++)el('path',{class:'lf-canvasS',d:'M'+(152+i*20)+','+(220+i*12)+' l10,6 l-4,7 l-10,-6 Z'},chair);
-  var p3=Person(el('g',{},s3)),waveT=-9,tide=0;
+  var p3=Person(el('g',{},s3),'beach'),waveT=-9,tide=0;
   function beach(t,dt){var sy=156+Math.sin(t*.12)*6;at(sunC,{cy:sy});at(sunD,{cy:sy});
     var hz=192,d='M0,'+hz+' ',d2='M0,'+(hz+18)+' ';for(var x=0;x<=900;x+=20){d+='L'+x+','+(hz+Math.sin(x/60+t*1.1)*2.5).toFixed(1)+' ';d2+='L'+x+','+(hz+18+Math.sin(x/45-t*1.6)*3.5).toFixed(1)+' ';}
     sea.setAttribute('d',d+'L900,300 L0,300 Z');sea2.setAttribute('d',d2+'L900,300 L0,300 Z');
