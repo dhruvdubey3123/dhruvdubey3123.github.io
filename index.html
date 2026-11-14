@@ -1697,7 +1697,7 @@ section{scroll-margin-top:72px}
     <div class="life-h"><div><div class="lbl">Off the clock</div><h3>Soccer, country songs on long rides, and the beach</h3></div>
       <div class="life-tabs" role="tablist" aria-label="Scenes"><span class="life-ind" aria-hidden="true"></span><button role="tab" type="button" data-s="0">Soccer</button><button role="tab" type="button" data-s="1">Long rides</button><button role="tab" type="button" data-s="2">The beach</button></div></div>
     <div class="life-stage"><svg id="lifeSvg" viewBox="0 0 900 340" role="img" aria-label="An illustrated guy juggling a soccer ball, riding a bike to country music, and watching waves at the beach"></svg>
-      <div class="life-read"><span id="lifeHint">Tap the ball to take a shot.</span><b id="lifeStat"></b></div>
+      <div class="life-read"><span id="lifeHint">Tap anywhere to take a shot.</span><b id="lifeStat"></b></div>
       <i class="life-prog" id="lifeProg"></i></div>
   </div>
   <footer>
@@ -2972,7 +2972,7 @@ shown(0);loop(step);
   var net=el('path',{class:'lf-net'},goal),netBulge=0;function drawNet(){var d='',b=netBulge;for(var x=GX+12;x<GX+150;x+=14){d+='M'+x+',152 Q'+(x+b*.4)+','+(210+b)+' '+x+',266 ';}for(var y=164;y<266;y+=14){d+='M'+(GX+2)+','+y+' Q'+(GX+75)+','+(y+b*.6)+' '+(GX+148)+','+y+' ';}net.setAttribute('d',d);}drawNet();
   var p1=Person(el('g',{},s1)),ballSh=el('ellipse',{class:'lf-shadow',cy:268},s1),ball=el('g',{style:'cursor:pointer'},s1);
   var ballC=el('circle',{class:'lf-ball',r:12},ball),pents=[0,1,2,3,4,5].map(function(k){return el('circle',{class:'lf-pent',r:k?2:4.2},ball);});el('circle',{r:26,fill:'transparent'},ball);
-  var juggles=0,lastPhase=0,shot=null;ball.addEventListener('pointerdown',function(e){e.stopPropagation();if(!shot){shot={t:0};poke();}});
+  var juggles=0,lastPhase=0,shot=null;svg.addEventListener('pointerdown',function(){if(cur===0&&!shot){shot={t:0};poke();}});ball.style.cursor='pointer';
   // the goal celebration: run, jump with a half turn, land legs wide with arms out and down, "Siuuu!"
   var siu=el('g',{opacity:0},s1),siuT=el('text',{class:'lf-siu','text-anchor':'middle',x:0,y:0},siu);siuT.textContent='Siuuu!';
   var burst=[0,1,2,3,4,5,6,7].map(function(k){return el('line',{class:'lf-burst'},siu);});
@@ -3101,7 +3101,7 @@ shown(0);loop(step);
   s3.addEventListener('pointerdown',function(){waveT=clock;poke();});
 
   // ---------- tabs, auto-cycle, loop
-  var scenes=[s1,s2,s3],HINT=['Tap the ball to shoot.','Hold to open the throttle.','Tap and he waves back.'],run=[soccer,ride,beach];
+  var scenes=[s1,s2,s3],HINT=['Tap anywhere to shoot.','Hold to open the throttle.','Tap and he waves back.'],run=[soccer,ride,beach];
   var tabs=[].slice.call(document.querySelectorAll('.life-tabs button')),ind=document.querySelector('.life-ind'),hint=document.getElementById('lifeHint'),stat=document.getElementById('lifeStat'),prog=document.getElementById('lifeProg');
   var cur=0,clock=0,since=0,lastPoke=-9,visible=false,raf=0,last=0,hover=false;
   function show(i){cur=i;since=0;scenes.forEach(function(s,k){s.setAttribute('opacity',k===i?1:0);s.style.pointerEvents=k===i?'auto':'none';});
