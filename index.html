@@ -1492,41 +1492,7 @@ section{scroll-margin-top:72px}
     <div class="hx-crash"></div>
     <div class="kl-fx" id="klFx" aria-hidden="true"></div>
   </div>
-  <p class="kl-fine">The animation replays behaviour first seen with Qwen3 8B on synthetic incidents; the rules it runs into are the repo's own. The GPT-OSS 120B runs on the real SQL warehouse are below.</p>
-
-  <div class="kr">
-    <div class="kr-h"><div class="lbl">A real model, killed halfway through an approved fix</div>
-      <h3>The same crash, before and after one change to Keel</h3>
-      <p>GPT-OSS 120B applying a fix a person had approved. The process is killed right after the first step, then started again from the run log. One run each, 13 Nov 2026.</p></div>
-    <div class="kr-grid">
-      <div class="kr-col bad">
-        <div class="kr-t">Before</div>
-        <pre class="kr-log">Process killed right after the patch.
-Starting again from the run log ...
-patch_procedure -> done
-<b>patch_procedure -> refused: not with that sql</b>
-<b>  ... six more times</b>
-run_cycle -> done
-
-Kept.
-<b>Change log lines for this case: 0</b></pre>
-        <p>The model asked again for the step it had already done, with SQL of its own. Keel refused all seven, so nothing unapproved ran. But the refusal sent it in circles, the change was never recorded, and the run was still reported as kept. Both faults were mine.</p>
-      </div>
-      <div class="kr-col good">
-        <div class="kr-t">After</div>
-        <pre class="kr-log">Process killed right after the patch.
-Starting again from the run log ...
-<b>patch_procedure -> refused: already applied.
-  Still to apply: run_cycle, record_change</b>
-run_cycle -> done
-record_change -> done
-
-Fixed, verified and kept.
-<b>Change log lines for this ticket: 1</b></pre>
-        <p>A repeat request is now told the step is done and what is left. One refusal, then straight on. An apply that stops short is reported as unfinished and goes to a person, never as kept.</p>
-      </div>
-    </div>
-  </div>
+  <p class="kl-fine">The animation replays the harness's real rules: anything outside the approved plan is refused before it reaches a tool.</p>
 
   <div class="hx-stats">
     <div class="hx-stat bad"><div class="v">61<small> / 75</small></div><p>approved fixes that repeated an action when restarted from scratch after a crash</p></div>
@@ -1592,21 +1558,20 @@ Fixed, verified and kept.
 
     <article class="sys">
       <button class="sys-head" type="button" aria-expanded="false">
-        <span><span class="sys-title">Pipeline Incident Triage Graph</span><span class="sys-sub">GPT-OSS 120B via OpenRouter and Groq · DuckDB · LangGraph · Qwen3 8B via Ollama · MCP · FastAPI · Pydantic · SQLite · Docker · Kubernetes · GitHub Actions</span><span class="sys-plain">When a company report shows wrong numbers, this agent works backwards through the data warehouse pipeline to find the job that actually broke, drafts the fix, and waits for a person to approve it.</span></span>
+        <span><span class="sys-title">Pipeline Incident Triage Graph</span><span class="sys-sub">GPT-OSS 120B via OpenRouter and Groq · DuckDB · LangGraph · MCP · FastAPI · Pydantic · SQLite · Docker · Kubernetes · GitHub Actions</span><span class="sys-plain">When a company report shows wrong numbers, this agent works backwards through the data warehouse pipeline to find the job that actually broke, drafts the fix, and waits for a person to approve it.</span></span>
         <span class="sys-right"><span class="status live">Live repo</span><span class="caret">&#9654;</span></span>
       </button>
       <div class="sys-body">
         <div class="sys-ex"><b>For example</b>Monday's revenue dashboard looks wrong. Instead of an engineer opening every upstream job one by one, the agent checks each job feeding the dashboard, skips the healthy ones, finds the stored procedure where a column was renamed, and proposes the fix with a link to a similar past case. Nothing changes until someone clicks approve.</div>
-        <dl class="sys-io"><dt>In</dt><dd>a broken report or failed job, plus the pipeline's dependency graph and logs</dd><dt>Out</dt><dd>the root cause, a failure category, similar past incidents, a drafted fix and a confidence level, held at a human approval gate</dd></dl>
-        <p>The open-source rebuild of the Allegis agent. A tracer walks the dependency graph until it reaches the job that actually broke, rules decide what kind of failure it is and what to do about it, a reviewer blocks anything unsafe, and the graph stops at a person. The LLM does what it did at Allegis: once the decision is made it picks the follow-up checks worth running, then writes the briefing the approver reads, checked line by line against the trace.</p>
+        <dl class="sys-io"><dt>In</dt><dd>a report number an analyst says is wrong, and read-only access to the warehouse</dd><dt>Out</dt><dd>the cause, and either a rehearsed SQL fix for a person to approve or a closed ticket saying the source data was bad or nothing was wrong</dd></dl>
+        <p>The open-source rebuild of the Allegis agent, on a real SQL warehouse. GPT-OSS 120B investigates with read-only tools and drafts the corrected SQL; a rule-based checker confirms where the damage starts; the fix is rehearsed on a copy of the warehouse before a person approves it, and Keel applies it.</p>
         <table class="kv"><tbody>
-          <tr><td>Eval sets</td><td>2 × 100 labelled incidents, gated in CI</td></tr>
-          <tr><td>Rules: root cause</td><td>1.00 on both sets</td></tr>
-          <tr><td>Rules: category, noisy logs</td><td>0.81: misleading logs fool the rules</td></tr>
-          <tr><td>LLM walking the graph</td><td>18 of 20 root causes on synthetic incidents (GPT-OSS 120B); no wrong diagnosis reached approval</td></tr>
-          <tr><td>LLM orchestration</td><td>200 of 200 decisions unchanged by an erratic coordinator</td></tr>
-          <tr><td>Tests</td><td>49 passing, eval gated in CI</td></tr>
-          <tr><td>Next</td><td>the model drafting the procedure's SQL itself, scored against a reference fix per incident, over real tables in DuckDB and then Snowflake with dbt models for the lineage</td></tr>
+          <tr><td>Warehouse</td><td>DuckDB, 4 raw sources, 12 SQL procedures, rebuilt nightly with health checks</td></tr>
+          <tr><td>Seeded faults</td><td>10 of 12 fixed, zero incorrect fixes</td></tr>
+          <tr><td>Open-world cases</td><td>38: SQL bugs, bad source data and false alarms; no wrong fix applied</td></tr>
+          <tr><td>Model</td><td>GPT-OSS 120B via OpenRouter and Groq</td></tr>
+          <tr><td>Tests</td><td>130 passing, eval checked in CI</td></tr>
+          <tr><td>Next</td><td>more fault families, repeat runs, and a Databricks adapter behind the same interface</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/pipeline-triage-graph">github.com/dhruvdubey3123/pipeline-triage-graph</a></div>
       </div>
@@ -1614,7 +1579,7 @@ Fixed, verified and kept.
 
     <article class="sys">
       <button class="sys-head" type="button" aria-expanded="false">
-        <span><span class="sys-title">Keel: Approval-Bound Agent Runtime</span><span class="sys-sub">Python · GPT-OSS 120B via OpenRouter and Groq · DuckDB · SQLite run log · Qwen3 8B via Ollama · FastAPI · Pydantic · MCP · Docker · Kubernetes · GitHub Actions</span><span class="sys-plain">The sandboxed runtime where an AI agent's approved work actually happens. It holds the agent to exactly what a person approved, writes down every action before and after it happens, and after a crash continues where it stopped instead of repeating work.</span></span>
+        <span><span class="sys-title">Keel: Approval-Bound Agent Harness</span><span class="sys-sub">Python · GPT-OSS 120B via OpenRouter and Groq · DuckDB · SQLite run log · FastAPI · Pydantic · MCP · Docker · Kubernetes · GitHub Actions</span><span class="sys-plain">The sandboxed runtime where an AI agent's approved work actually happens. It holds the agent to exactly what a person approved, writes down every action before and after it happens, and after a crash continues where it stopped instead of repeating work.</span></span>
         <span class="sys-right"><span class="status live">Live repo</span><span class="caret">&#9654;</span></span>
       </button>
       <div class="sys-body">
@@ -1624,10 +1589,10 @@ Fixed, verified and kept.
         <table class="kv"><tbody>
           <tr><td>Crash benchmark</td><td>200 runs, duplicated side effects: restart 145, Keel 0</td></tr>
           <tr><td>Triage fixes</td><td>75 crashed mid-fix, duplicated: restart 61, Keel 0; symptom resolved 75 of 75</td></tr>
-          <tr><td>Live model runs</td><td>its own patch text refused (both models), the note's extra rerun refused, and a correct model diagnosis applied once each through a kill</td></tr>
-          <tr><td>Self-tuning</td><td>needless post-crash interruptions removed by confirming uncertain steps against the warehouse, approval gate untouched; its own gate rejected 4 of 10 rule-proposed changes and 2 of 4 from GPT-OSS 120B</td></tr>
-          <tr><td>Tests</td><td>112 passing, every benchmark in CI</td></tr>
-          <tr><td>Next</td><td>applying model-drafted SQL against a real warehouse so a fix is confirmed by the report refreshing; a Postgres run log shared by several workers on Kubernetes</td></tr>
+          <tr><td>Live model runs</td><td>GPT-OSS 120B on the real warehouse: the approved fix applied exactly once through a process kill, then verified</td></tr>
+          <tr><td>Self-tuning</td><td>post-crash interruptions removed by confirming uncertain steps against the warehouse; every change gated on never repeating or skipping approved work</td></tr>
+          <tr><td>Tests</td><td>140 passing, every benchmark in CI</td></tr>
+          <tr><td>Next</td><td>a Postgres run log shared by several workers on Kubernetes</td></tr>
         </tbody></table>
         <div class="tags"><a class="tag" href="https://github.com/dhruvdubey3123/agent-harness-runtime">github.com/dhruvdubey3123/agent-harness-runtime</a></div>
       </div>
