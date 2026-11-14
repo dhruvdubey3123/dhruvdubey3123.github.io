@@ -289,7 +289,7 @@ body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-in
 .hx-lane .verdict{margin-top:12px; font-size:13px; color:var(--muted); min-height:3.2em}
 .hx-lane .verdict b{color:var(--ink)}
 .hx-confirm{margin-top:10px}
-.hx-stats{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; margin-top:18px}
+.hx-stats{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; margin-top:18px}
 .hx-stat{border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:var(--surface)}
 .hx-stat .v{font-family:var(--display); font-weight:800; font-size:clamp(28px,4vw,40px); letter-spacing:-.02em; line-height:1}
 .hx-stat .v small{font-size:.5em; color:var(--muted); font-weight:600}
@@ -1066,6 +1066,24 @@ section{scroll-margin-top:72px}
 .cx-dots button:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
 @media (max-width:900px){.cx-stagewrap{grid-template-columns:minmax(0,1fr)} .cx-stage{min-height:400px}}
 @media (prefers-reduced-motion:reduce){.cx-dots button,.cx-bar i b{transition:none}}
+/* how triage and keel work */
+.how{margin-top:40px}
+.how-h h3{font-family:var(--round); font-weight:400; font-size:clamp(24px,3vw,32px); letter-spacing:-.025em; margin-top:8px}
+.how-h p{color:var(--muted); margin-top:6px; max-width:66ch}
+.how-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px; margin-top:20px}
+.how-card{border-radius:24px; background:color-mix(in srgb,var(--surface) 85%,transparent); border:1px solid var(--glass-line); box-shadow:var(--soft-shadow); padding:22px; min-width:0; display:flex; flex-direction:column; gap:14px}
+.how-tag{display:inline-block; font-size:12px; font-weight:500; padding:4px 11px; border-radius:999px; background:var(--ink); color:var(--bg)}
+.how-top h4{font-family:var(--round); font-weight:500; font-size:20px; letter-spacing:-.015em; margin:10px 0 0}
+.how-steps{list-style:none; counter-reset:hs; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
+.how-steps li{counter-increment:hs; position:relative; padding-left:38px; font-size:14px; line-height:1.6; color:var(--muted)}
+.how-steps li::before{content:counter(hs); position:absolute; left:0; top:1px; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font:500 12px var(--round); background:var(--accent-soft); color:var(--accent)}
+.how-steps li:not(:last-child)::after{content:""; position:absolute; left:12.5px; top:30px; bottom:-10px; width:1px; background:var(--line)}
+.how-steps b{color:var(--ink); font-weight:600}
+.how-ai{font-weight:600; color:var(--accent)}
+.how-stack{display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; padding-top:6px}
+.how-stack span{font-size:12px; padding:4px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted)}
+.how-f{font-size:13.5px; color:var(--muted); margin-top:16px} .how-f a{color:var(--accent)}
+@media (max-width:860px){.how-grid{grid-template-columns:minmax(0,1fr)}}
 </style>
 
 </head>
@@ -1345,29 +1363,36 @@ section{scroll-margin-top:72px}
   </div>
   <div class="oc-foot">Replay of a recorded session: GPT-OSS 120B, 13 Nov 2026. Every tool call, refusal and reason is what the model did.</div>
 
-  <div class="res">
-    <div class="res-h"><h3>What it scores, with the answer hidden from the model</h3><p>GPT-OSS 120B, one run of each, 13 Nov 2026. Each square is one case, so these are counts and not rates.</p></div>
-    <div class="res-grid">
-      <div class="res-card"><div class="res-t">12 seeded SQL faults</div>
-        <div class="res-row"><span class="res-l">Model alone</span><span class="res-s" role="img" aria-label="5 fixed, 3 wrong fixes rolled back, 4 handed to a person"><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="w"></i><i class="w"></i><i class="w"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i></span><span class="res-n">5 fixed, 3 wrong fixes rolled back, 4 handed to a person</span></div>
-        <div class="res-row"><span class="res-l">Model with the checker</span><span class="res-s" role="img" aria-label="10 fixed, none wrong, 2 handed to a person"><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="p"></i><i class="p"></i></span><span class="res-n">10 fixed, none wrong, 2 handed to a person</span></div>
-        <p class="res-f">The two it could not fix trip no health check at all. The checker finds where damage starts; where nothing looks damaged, it has nothing to say.</p>
-      </div>
-      <div class="res-card"><div class="res-t">38 cases where the right ending may not be a fix</div>
-        <div class="res-row"><span class="res-l">A bad change to SQL</span><span class="res-s" role="img" aria-label="21 of 29 fixed, 2 wrongly blamed on a source, 6 handed to a person"><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="w"></i><i class="w"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i></span><span class="res-n">21 of 29 fixed, 2 wrongly blamed on a source, 6 handed to a person</span></div>
-        <div class="res-row"><span class="res-l">Bad source data</span><span class="res-s" role="img" aria-label="4 of 5 named the bad table, 1 handed to a person"><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="p"></i></span><span class="res-n">4 of 5 named the bad table, 1 handed to a person</span></div>
-        <div class="res-row"><span class="res-l">Nothing wrong</span><span class="res-s" role="img" aria-label="1 of 4 said so, 3 handed to a person"><i class="r"></i><i class="p"></i><i class="p"></i><i class="p"></i></span><span class="res-n">1 of 4 said so, 3 handed to a person</span></div>
-        <p class="res-f">No wrong fix was applied in any of the 38. Its weak spot is saying "nothing is wrong": it usually hands the ticket to a person.</p>
-      </div>
+  <div class="how">
+    <div class="how-h"><div class="lbl">How it works</div><h3>Two systems: one finds the fix, the other applies it</h3>
+      <p>Both are open source and run end to end on a laptop or in CI. The only part in the cloud is the model.</p></div>
+    <div class="how-grid">
+      <article class="how-card">
+        <div class="how-top"><span class="how-tag">Pipeline Triage Graph</span><h4>Finds what broke and drafts the fix</h4></div>
+        <ol class="how-steps">
+          <li><b>The warehouse.</b> A DuckDB warehouse loaded with TPC-H data: four raw source tables and twelve SQL procedures in four layers (staging, intermediate, marts, reports). A nightly run rebuilds every table, then health checks run on each one.</li>
+          <li><b>The ticket.</b> An analyst says a number on a report looks wrong. The cause could be a bad change to one procedure's SQL, bad data arriving in a source table, or nothing at all. The agent is not told which.</li>
+          <li><b>The model investigates.</b> <span class="how-ai">GPT-OSS 120B</span>, served through OpenRouter and Groq, does the reasoning. With read-only tools it reads tables, reads each procedure's SQL, compares rows and decides where to look next. It never sees the correct answer or the case name.</li>
+          <li><b>The checker confirms.</b> A rule-based checker, not a model, reports which tables fail their checks and where the damage starts: the first failing table whose inputs all pass. The harness refuses any fix the model proposes before it has asked.</li>
+          <li><b>The fix is rehearsed.</b> The model writes the corrected SQL. It runs on a copy of the warehouse, never the real one, and the checks must pass there, within three tries. SQL that changes nothing is refused. If the cause is bad source data or nothing at all, the model closes the ticket with that reason instead of writing SQL.</li>
+          <li><b>A person decides.</b> Only a fix that passed rehearsal reaches a person, shown as the exact SQL to approve.</li>
+        </ol>
+        <div class="how-stack"><span>Python</span><span>DuckDB</span><span>LangGraph</span><span>GPT-OSS 120B</span><span>OpenRouter, Groq</span><span>Pydantic</span><span>MCP</span><span>Docker</span><span>GitHub Actions</span></div>
+      </article>
+      <article class="how-card">
+        <div class="how-top"><span class="how-tag">Keel</span><h4>Applies exactly what was approved</h4></div>
+        <ol class="how-steps">
+          <li><b>Approval is bound to the plan.</b> The approved SQL and steps are hashed into a plan id. Change anything after approval and the id no longer matches, so nothing runs.</li>
+          <li><b>The model carries it out.</b> The same <span class="how-ai">GPT-OSS 120B</span> calls the tools: patch the procedure, run the nightly cycle, record the change. Keel checks every call against the plan before it reaches a tool, and refuses anything else.</li>
+          <li><b>Every step is written down.</b> Each call goes into a SQLite run log as started, dispatched just before the tool fires, then done.</li>
+          <li><b>A crash changes nothing.</b> If the process dies, Keel resumes from the log. A step already done is answered "already applied", with what is left. An apply that stops short is reported unfinished and goes to a person, never as kept.</li>
+          <li><b>Checked on the real warehouse.</b> After the apply, the health checks run again on the real tables. Only then is the ticket closed as fixed.</li>
+        </ol>
+        <div class="how-stack"><span>Python</span><span>SQLite run log</span><span>DuckDB</span><span>GPT-OSS 120B</span><span>FastAPI chat with a nightly ticket queue</span><span>Pydantic</span><span>MCP</span><span>Docker</span><span>Kubernetes</span></div>
+      </article>
     </div>
-    <div class="res-key"><span><i class="r"></i>the right ending</span><span><i class="p"></i>handed to a person</span><span><i class="w"></i>wrong: a fix that was rolled back, or the wrong ending</span></div>
-    <div class="leak">
-      <div class="lbl">A mistake I caught in my own evaluation</div>
-      <p>The first runs passed each case's id to the model, and the ids described the fault: <code>source.cost_in_cents</code>. The model read them. For a fault no check can see, it "found" the cause by quoting the id back. I hid the ids, wrote a test that fails if any id or label reaches the model, and reran everything. The counts above are from after that. Before it, the top comparison read 4 and 9 of 12.</p>
-    </div>
-    <p class="res-links"><a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-the-model-alone-against-the-model-with-the-checker">How the twelve were measured</a> <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#when-the-answer-is-not-a-sql-fix">The 38 cases</a> <a href="https://github.com/dhruvdubey3123/agent-harness-runtime#the-same-flow-as-a-chat-beside-a-dashboard-with-tickets-arriving-each-night">The chat this replays</a></p>
+    <p class="how-f">The first version ran in the cloud at Allegis on Snowflake Cortex, against AGS's own pipelines. This open rebuild swaps Snowflake for DuckDB so anyone can run it. <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a> · <a href="https://github.com/dhruvdubey3123/agent-harness-runtime">agent-harness-runtime</a></p>
   </div>
-
   <div class="rel">
     <div>
       <div class="lbl">Why a human approves the fix</div>
@@ -1469,7 +1494,6 @@ Fixed, verified and kept.
   <div class="hx-stats">
     <div class="hx-stat bad"><div class="v">61<small> / 75</small></div><p>approved fixes that repeated an action when restarted from scratch after a crash</p></div>
     <div class="hx-stat good"><div class="v">0<small> / 75</small></div><p>with Keel resuming from its log on the same crashes: every action exactly once</p></div>
-    <div class="hx-stat mid"><div class="v">10<small> / 12</small></div><p>seeded SQL faults fixed by the model with the checker, with no wrong fix applied. Alone, the model fixed 5 and got 3 wrong.</p></div>
   </div>
 
 <p class="hx-vision">The two crash counts come from a scripted benchmark that reruns in CI on every push. The earlier evaluation on synthetic incidents is in the <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-held-out-incidents" style="color:var(--accent)">triage README</a>.</p>
@@ -2765,13 +2789,13 @@ if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es =
 (function(){
 var PROJ=[
  {k:'Krishi Mitra',when:'2023 to 2025, Pune',n:'piloted with 300 farmers',d:'Answers farmers in Hindi, Marathi or English from trusted agricultural and government sources.',parts:['LLaMA 3.2 3B','retrieval','Hindi','Marathi','English','llama.cpp','SearXNG'],v:{language:1,retrieval:.9,agents:.2,eval:.5,pipelines:.2,safety:.3},imp:.9},
- {k:'Plant health',when:'side project',n:'90% health accuracy',d:'Finds each leaf in a photo, says whether it is healthy, and forecasts the care it needs.',parts:['YOLOv5','ResNet','LSTM','FastAPI'],v:{vision:1,eval:.6,pipelines:.3,risk:.2},imp:.55},
- {k:'Login risk',when:'2025, Fortytwo Labs',n:'33% fewer manual reviews',d:'Scores every login for risk with autoencoders and clustering feeding a rule engine.',parts:['autoencoders','DBSCAN','K-means','Drools'],v:{risk:1,eval:.6,pipelines:.3,safety:.6},imp:.7},
- {k:'DS crew',when:'side project',n:'+35% workflow efficiency',d:'Six agents that each run one stage of a data science project, raw data in and a report out.',parts:['six CrewAI agents','MLflow','AutoML'],v:{agents:1,pipelines:.5,eval:.5},imp:.55},
- {k:'Repro audit',when:'2025 to 2026, UMD',n:'85 codebases reproduced',d:'A reproducibility audit of neuro-symbolic AI papers, rebuilt on the Zaratan HPC cluster.',parts:['5,497 records','1,304 eligible','85 reproduced','Zaratan HPC'],v:{eval:1,safety:.4,retrieval:.3,pipelines:.3},imp:.8},
- {k:'Allegis agent',when:'Summer 2026, AGS',n:'weeks to days',d:'Multi-agent root-cause system on Snowflake Cortex, used by analysts inside Power BI.',parts:['Cortex Agents','Cortex Search','semantic views','Power BI'],v:{agents:.9,retrieval:.8,pipelines:1,safety:.4,eval:.4},imp:.95},
- {k:'Triage',when:'2026',n:'10 of 12 faults fixed, none wrong',d:'Traces a wrong report number back to the SQL that caused it. Only a rehearsed fix reaches a person.',parts:['GPT-OSS 120B','checker','rehearsal copy','12 tables','DuckDB'],v:{agents:1,pipelines:1,eval:.9,safety:.7,retrieval:.4},imp:1},
- {k:'Keel',when:'2026',n:'0 repeated actions in crashes',d:'Applies an approved fix: nothing unapproved, nothing twice, nothing skipped, through a crash.',parts:['approval','run log','resume','plan hash'],v:{safety:1,agents:.8,pipelines:.6,eval:.6},imp:.9}];
+ {k:'Plant Health Monitor',when:'side project',n:'90% health accuracy',d:'Finds each leaf in a photo, says whether it is healthy, and forecasts the care it needs.',parts:['YOLOv5','ResNet','LSTM','FastAPI'],v:{vision:1,eval:.6,pipelines:.3,risk:.2},imp:.55},
+ {k:'Login Anomaly Detection',when:'2025, Fortytwo Labs',n:'33% fewer manual reviews',d:'Scores every login for risk with autoencoders and clustering feeding a rule engine.',parts:['autoencoders','DBSCAN','K-means','Drools'],v:{risk:1,eval:.6,pipelines:.3,safety:.6},imp:.7},
+ {k:'Autonomous Data Science Crew',when:'side project',n:'+35% workflow efficiency',d:'Six agents that each run one stage of a data science project, raw data in and a report out.',parts:['six CrewAI agents','MLflow','AutoML'],v:{agents:1,pipelines:.5,eval:.5},imp:.55},
+ {k:'Neuro-Symbolic AI Reproducibility Audit',when:'2025 to 2026, UMD',n:'85 codebases reproduced',d:'A reproducibility audit of neuro-symbolic AI papers, rebuilt on the Zaratan HPC cluster.',parts:['5,497 records','1,304 eligible','85 reproduced','Zaratan HPC'],v:{eval:1,safety:.4,retrieval:.3,pipelines:.3},imp:.8},
+ {k:'Allegis Root-Cause Agent',when:'Summer 2026, AGS',n:'weeks to days',d:'Multi-agent root-cause system on Snowflake Cortex, used by analysts inside Power BI.',parts:['Cortex Agents','Cortex Search','semantic views','Power BI'],v:{agents:.9,retrieval:.8,pipelines:1,safety:.4,eval:.4},imp:.95},
+ {k:'Pipeline Triage Graph',when:'2026',n:'10 of 12 faults fixed, none wrong',d:'Traces a wrong report number back to the SQL that caused it. Only a rehearsed fix reaches a person.',parts:['GPT-OSS 120B','checker','rehearsal copy','12 tables','DuckDB'],v:{agents:1,pipelines:1,eval:.9,safety:.7,retrieval:.4},imp:1},
+ {k:'Keel Agent Runtime',when:'2026',n:'0 repeated actions in crashes',d:'Applies an approved fix: nothing unapproved, nothing twice, nothing skipped, through a crash.',parts:['approval','run log','resume','plan hash'],v:{safety:1,agents:.8,pipelines:.6,eval:.6},imp:.9}];
 var DIMS=['language','retrieval','agents','eval','risk','pipelines','safety','vision'];
 var DLAB={language:'Language',retrieval:'Retrieval',agents:'Agents',eval:'Evaluation',risk:'Risk',pipelines:'Data pipelines',safety:'Safe action',vision:'Vision'};
 
@@ -2784,7 +2808,6 @@ function rgba(hex,a){var h=hex.replace('#','');if(h.length===3)h=h.split('').map
 function ease(x){x=Math.max(0,Math.min(1,x));return x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;}
 function easeOut(x){x=Math.max(0,Math.min(1,x));return 1-Math.pow(1-x,3);}
 var THREAD=[2,0,4,3,5,6,7].map(function(i){var o={};for(var k in PROJ[i])o[k]=PROJ[i][k];return o;});
-THREAD[0].k='Fortytwo Labs';THREAD[2].k='NSAI audit';
 function goTo(i){ var t=document.querySelector(GO[i]); if(t) t.scrollIntoView({behavior:REDUCE?'auto':'smooth',block:'start'}); }
 (function(root){ if(!root) return;
   var cv=root.querySelector('canvas'),ctx=cv.getContext('2d'),VW=0,VH=0,DPR=1;
