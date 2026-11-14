@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Dhruv Dubey, AI Engineer. Agentic LLM systems that survive production: multi-agent triage, crash-safe agent harnesses, RAG for real users.">
 <meta property="og:title" content="Dhruv Dubey, AI Engineer">
-<meta property="og:description" content="From real problems to enterprise pipelines. Break a pipeline and watch the triage agent find it.">
+<meta property="og:description" content="From real problems to enterprise pipelines. Watch an on-call agent trace a wrong number on a report to its cause.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://dhruvdubey3123.github.io/">
 <meta property="og:image" content="https://dhruvdubey3123.github.io/og.png">
@@ -28,6 +28,8 @@
   --ink:#121719; --muted:#56646A; --line:#CBD3D5;
   --accent:#0F5E52; --accent-soft:#D4E8E2; --signal:#B3400C; --signal-soft:#F5DFD3;
   --amber:#8A6100; --amber-soft:#F4E9CC;
+  --dur-fast:120ms; --dur-base:240ms; --dur-slow:480ms;
+  --ease-enter:cubic-bezier(.16,1,.3,1); --ease-exit:cubic-bezier(.7,0,.84,0); --ease-lift:cubic-bezier(.34,1.3,.64,1);
   --shadow:0 1px 2px rgba(18,23,25,.06), 0 10px 28px rgba(18,23,25,.06);
   --display:'Archivo','Helvetica Neue',Helvetica,Arial,sans-serif;
   --body:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
@@ -672,6 +674,123 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   .psg{grid-template-columns:minmax(0,1fr) 80px 40px}
   .topnav a{padding:4px 6px}
 }
+@media (prefers-reduced-motion:reduce){:root{--dur-fast:.01ms;--dur-base:.01ms;--dur-slow:.01ms}}
+
+/* ---------- on-call replay and its results ---------- */
+.oc{border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden;font-size:14px}
+.oc button{font:inherit;color:inherit}
+.oc :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.oc-bar{display:flex;align-items:stretch;border-bottom:1px solid var(--line);background:var(--bg);overflow-x:auto}
+.oc-night{font-family:var(--mono);font-size:12px;padding:11px 16px 10px;border:0;border-right:1px solid var(--line);background:transparent;color:var(--muted);cursor:pointer;white-space:nowrap;text-align:left;position:relative}
+.oc-night b{display:block;font-weight:600;color:var(--ink)}
+.oc-night.on{background:var(--surface)} .oc-night.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--ink)}
+.oc-ctl{margin-left:auto;display:flex}
+.oc-ctl button{font-family:var(--mono);font-size:12px;font-weight:600;padding:0 15px;border:0;border-left:1px solid var(--line);background:transparent;color:var(--accent);cursor:pointer;white-space:nowrap}
+.oc-ctl button:disabled{color:var(--muted);opacity:.5;cursor:default}
+.oc-body{display:grid;grid-template-columns:minmax(0,1fr) 400px;height:680px}
+.oc-left{display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--line);overflow:auto}
+.oc-pane{padding:16px 20px}
+.oc-pane+.oc-pane{border-top:1px solid var(--line)}
+.oc-h{display:flex;align-items:baseline;gap:10px;margin-bottom:10px}
+.oc-h b{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:-.01em}
+.oc-h span{font-size:12.5px;color:var(--muted)}
+.oc table{border-collapse:collapse;width:100%;font-size:12.5px;font-variant-numeric:tabular-nums}
+.oc th,.oc td{padding:5px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+.oc th{font-family:var(--mono);font-weight:500;color:var(--muted);font-size:11px}
+.oc th:first-child,.oc td:first-child{text-align:left;padding-left:0}
+.oc tr:last-child td{border-bottom:0}
+.oc td{transition:background var(--dur-base) var(--ease-enter),color var(--dur-base) var(--ease-enter)}
+.oc td.ch{background:var(--signal-soft);color:var(--signal)}
+.oc td.back{background:var(--accent-soft);color:var(--accent)}
+.oc .share{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.oc .share i{display:block;width:90px;height:8px;border-radius:2px;background:var(--bg);overflow:hidden}
+.oc .share i u{display:block;height:100%;background:var(--accent);transition:width var(--dur-slow) var(--ease-enter)}
+.oc td.ch .share i u{background:var(--signal)}
+.oc-map svg{display:block;width:100%;height:auto;min-width:560px}
+.oc-map{overflow-x:auto}
+.oc-say{min-height:20px;font-size:12.5px;color:var(--muted);margin-top:4px}
+.oc .ocol{font-family:var(--mono);font-size:10.5px;fill:var(--muted)}
+.oc .oe{fill:none;stroke:var(--line);stroke-width:1.3;transition:stroke var(--dur-base) var(--ease-enter),stroke-width var(--dur-base)}
+.oc .oe.hot{stroke:var(--signal);stroke-width:2.2} .oc .oe.good{stroke:var(--accent);stroke-width:2} .oc .oe.trial{stroke:var(--accent);stroke-width:1.8;stroke-dasharray:5 4}
+.oc .on{transition:transform var(--dur-slow) var(--ease-lift)}
+.oc .on rect,.oc .on text{transition:fill var(--dur-base) var(--ease-enter),stroke var(--dur-base) var(--ease-enter),opacity var(--dur-base)}
+.oc .on rect{fill:var(--bg);stroke:var(--line)}
+.oc .on .nm{font-family:var(--mono);font-size:10.6px;font-weight:500;fill:var(--muted)}
+.oc .on .nt{font-family:var(--body);font-size:10px;fill:var(--muted);opacity:.8}
+.oc .on.idle .nt{opacity:0}
+.oc .on.asked rect{stroke:var(--ink);stroke-width:1.6} .oc .on.asked .nm{fill:var(--ink)}
+.oc .on.hit rect{fill:var(--signal-soft);stroke:var(--signal)} .oc .on.hit .nm{fill:var(--ink)} .oc .on.hit .nt{fill:var(--signal);opacity:1}
+.oc .on.bad rect{fill:var(--signal);stroke:var(--signal)} .oc .on.bad .nm,.oc .on.bad .nt{fill:#fff;opacity:1}
+.oc .on.fixed rect{fill:var(--accent-soft);stroke:var(--accent)} .oc .on.fixed .nm{fill:var(--ink)} .oc .on.fixed .nt{fill:var(--accent);opacity:1}
+.oc .on.trial rect{stroke:var(--accent);stroke-dasharray:5 3} .oc .on.trial .nm{fill:var(--ink)} .oc .on.trial .nt{fill:var(--accent);opacity:1}
+.oc .on.lift{transform:translateY(-14px)} .oc .on.lift rect{filter:drop-shadow(0 8px 8px rgba(18,23,25,.2))}
+.oc .oslot{fill:none;stroke:var(--ink);stroke-width:1.1;stroke-dasharray:4 4;opacity:0;transition:opacity var(--dur-base)} .oc .oslot.show{opacity:.6}
+
+.oc-chat{display:flex;flex-direction:column;min-height:0;background:var(--surface)}
+.oc-q{border-bottom:1px solid var(--line);background:var(--bg);padding:10px 16px;display:flex;flex-direction:column;gap:6px}
+.oc-q .top{display:flex;gap:10px;align-items:baseline}
+.oc-q .top b{font-family:var(--display);font-size:15px}
+.oc-q .top span{font-size:12px;color:var(--muted)}
+.oc-tk{border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:6px 10px;font-size:12.5px;display:flex;gap:10px;align-items:center}
+.oc-tk .id{font-family:var(--mono);font-weight:600}
+.oc-tk .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.oc-tk .chip{font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--amber);background:var(--amber-soft);white-space:nowrap}
+.oc-tk.closed .chip{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.oc-log{flex:1;overflow:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-height:0;scroll-behavior:smooth}
+.oc-log>*{animation:ocin var(--dur-base) var(--ease-enter) both}
+.oc-log.still>*{animation:none}
+@keyframes ocin{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.oc-m.user{align-self:flex-end;max-width:90%;background:var(--ink);color:var(--bg);padding:7px 11px;border-radius:12px 12px 3px 12px}
+.oc-m.agent{align-self:flex-start;max-width:94%}
+.oc-sys{align-self:center;font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:center}
+.oc-sys.good{color:var(--accent)}
+.oc-t{font-family:var(--mono);font-size:11.5px;line-height:1.6;color:var(--muted);border-left:2px solid var(--line);padding-left:10px;overflow-wrap:anywhere}
+.oc-t.no{color:var(--signal);border-color:var(--signal)}
+.oc-t .why{display:block;opacity:.9}
+.oc-card{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:9px;background:var(--bg)}
+.oc-card h3{font-family:var(--display);font-size:15px;margin:0;line-height:1.3}
+.oc-card .k{font-size:11.5px;color:var(--muted)}
+.oc-card.good{border-color:var(--accent);background:var(--accent-soft)}
+.oc-diff{font-family:var(--mono);font-size:11px;line-height:1.7;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:var(--surface)}
+.oc-diff div{padding:1px 9px;white-space:pre-wrap;word-break:break-word;color:var(--muted)}
+.oc-diff .d{background:var(--signal-soft);color:var(--signal)} .oc-diff .a{background:var(--accent-soft);color:var(--accent)}
+.oc-plan{font-family:var(--mono);font-size:12.5px;display:flex;justify-content:space-between;padding:6px 10px;border:1px dashed var(--amber);border-radius:7px;background:var(--amber-soft)}
+.oc-row{display:flex;gap:8px}
+.oc-btn{font-family:var(--mono)!important;font-size:12px!important;font-weight:600;padding:9px 12px;border-radius:6px;cursor:pointer;border:1px solid transparent}
+.oc-btn.yes{flex:1;background:var(--accent);color:var(--surface)!important}
+.oc-btn.no{background:none;border-color:var(--signal);color:var(--signal)!important}
+.oc-btn:disabled{opacity:.4;cursor:default}
+.oc-btn.yes.wait{animation:ocpulse 1.6s ease-in-out infinite}
+@keyframes ocpulse{50%{box-shadow:0 0 0 5px var(--accent-soft)}}
+.oc-fine{font-size:11.5px;color:var(--muted)}
+.oc-foot{border-top:1px solid var(--line);padding:10px 20px;font-size:12px;color:var(--muted);background:var(--bg)}
+@media (prefers-reduced-motion:reduce){.oc-btn.yes.wait{animation:none}.oc-log{scroll-behavior:auto}}
+@media (max-width:900px){.oc-body{grid-template-columns:1fr;height:auto}.oc-left{border-right:0}.oc-chat{height:560px;border-top:1px solid var(--line)}}
+
+.res{margin-top:28px}
+.res-h h3{font-family:var(--display);font-size:22px;font-weight:700;letter-spacing:-.015em;margin:0 0 4px}
+.res-h p{color:var(--muted);margin:0 0 16px;font-size:14px}
+.res-grid{display:grid;grid-template-columns:1fr 1.25fr;gap:16px}
+.res-card{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:18px 20px}
+.res-t{font-family:var(--display);font-weight:700;font-size:16px;margin-bottom:12px}
+.res-row{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;align-items:center;margin-bottom:12px}
+.res-l{font-size:13px}
+.res-s{display:flex;flex-wrap:wrap;gap:3px}
+.res-s i,.res-key i{display:block;width:15px;height:15px;border-radius:3px;box-sizing:border-box}
+.res i.r{background:var(--accent)}
+.res i.p{border:1.5px solid var(--muted);background:transparent}
+.res i.w{background:var(--signal);position:relative}
+.res i.w::after{content:"";position:absolute;inset:3px;background:linear-gradient(45deg,transparent 42%,var(--surface) 42%,var(--surface) 58%,transparent 58%)}
+.res-n{grid-column:2;font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.res-f{font-size:13px;color:var(--muted);margin:14px 0 0;border-top:1px solid var(--line);padding-top:12px}
+.res-key{display:flex;flex-wrap:wrap;gap:8px 22px;margin:14px 0 0;font-size:12.5px;color:var(--muted)}
+.res-key span{display:flex;align-items:center;gap:7px}
+.leak{margin-top:22px;border-left:3px solid var(--signal);padding:4px 0 4px 18px;max-width:78ch}
+.leak p{margin:6px 0 0;font-size:14.5px}
+.leak code{font-family:var(--mono);font-size:.92em}
+.res-links{display:flex;flex-wrap:wrap;gap:8px 20px;margin:18px 0 0;font-size:13.5px}
+.res-links a{color:var(--accent)}
+@media (max-width:900px){.res-grid{grid-template-columns:1fr}.res-row{grid-template-columns:1fr}.res-n{grid-column:1}}
 </style>
 
 </head>
@@ -682,7 +801,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
     <a href="#equation">equation</a>
     <a href="#story">story</a>
     <a href="#krishi">krishi</a>
-    <a href="#triage">triage demo</a>
+    <a href="#triage">on-call replay</a>
     <a href="#harness">keel</a>
     <a href="#risk">risk demo</a>
     <a href="#systems">systems</a>
@@ -698,7 +817,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
       <h1 style="margin-top:16px">From <em>real problems</em> to enterprise pipelines.</h1>
       <p class="sub">I started by building AI assistants for people with real, messy problems, in <b>their own language</b>. Now I build multi-agent systems that find the broken stored procedure in a data pipeline <b>in days instead of weeks</b>. The problem underneath both is the same one, and it fits in one line of math.</p>
       <div class="chips">
-        <a class="chip primary" href="#triage">Break a pipeline, watch the agent</a>
+        <a class="chip primary" href="#triage">Watch the on-call agent work a ticket</a>
         <a class="chip" href="resume.pdf">Resume (PDF)</a>
         <a class="chip" href="https://github.com/dhruvdubey3123">GitHub</a>
         <a class="chip" href="https://www.linkedin.com/in/dhruvdubey3123/">LinkedIn</a>
@@ -868,60 +987,57 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
 <!-- ========== TRIAGE ========== -->
 <section id="triage"><div class="wrap">
   <div class="sechead">
-    <div class="lbl">Interactive · reconstruction of the Allegis system</div>
-    <h2>Break the pipeline. Watch the agent find it.</h2>
+    <div class="lbl">Interactive · replay of a recorded session</div>
+    <h2>A number on the report is wrong. Watch the on-call agent work the ticket.</h2>
     <div class="origin">
       <p><b>Where this comes from.</b> At Allegis Global Solutions I built the original version of this agent on Snowflake Cortex, so analysts could find the stored procedure that broke a pipeline in days instead of weeks. That code belongs to AGS and stays there.</p>
-      <p>Afterwards I rebuilt it in the open and measured it: <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>. The demo below runs its tracer and reviewer rules. As at Allegis, the rules make the decision, and an LLM (Qwen3 8B, running locally) chooses follow-up checks and briefs the person, checked against the trace. Letting the LLM walk the graph itself is measured too: a hosted GPT-OSS 120B found 90% of root causes, and it still stays a cross-checked second opinion.</p>
+      <p>Afterwards I rebuilt it in the open, on a real SQL warehouse: <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph">pipeline-triage-graph</a>. Here the model leads. It investigates with read-only tools, has to ask a rule-based checker where the damage starts, and can only put forward a fix that came out right on a rehearsal copy. A person approves the exact SQL, and <a href="#harness">Keel</a> applies it. Below is a session I ran, played back step by step.</p>
     </div>
-    <p class="muted" style="max-width:70ch">Click any box to break it and choose how it fails, or start from a common break, then run triage. Table and job names are invented.</p>
+    <p class="muted" style="max-width:70ch">Each night the pipeline rebuilds twelve tables. Some nights a ticket follows: a bad change to some SQL, a source table that arrived bad, or nothing at all. The agent is not told which. It plays on its own and stops where a person decided, so the two decisions are yours.</p>
   </div>
 
-  <div class="console">
-    <div class="c-top">
-      <div class="presets">
-        <span class="mini">Start from</span>
-        <button class="case" type="button" data-preset="p1">Schema change upstream</button>
-        <button class="case" type="button" data-preset="p2">Duplicate rows</button>
-        <button class="case" type="button" data-preset="p3">Load timed out</button>
+  <div class="oc" id="oc">
+  <div class="oc-bar" id="oc-bar"><div class="oc-ctl"><button id="oc-next" type="button">Next step</button><button id="oc-play" type="button">Play</button></div></div>
+  <div class="oc-body">
+    <div class="oc-left">
+      <div class="oc-pane">
+        <div class="oc-h"><b>Regional summary</b><span id="oc-asof">the report the analyst is looking at</span></div>
+        <table id="oc-tbl"></table>
       </div>
-      <div class="ctrl">
-        <label class="mini" for="ftype" id="flabel">or click a box to break it</label>
-        <select id="ftype" hidden></select>
-        <button class="runbtn" id="runbtn" type="button" disabled>Run triage</button>
-        <button class="resetbtn" id="resetbtn" type="button">Reset</button>
-      </div>
-    </div>
-    <div class="agents" id="agents">
-      <span class="ag" data-a="intake">Case intake</span>
-      <span class="ag" data-a="tracer">Tracer · dependency graph</span>
-      <span class="ag" data-a="analyst">Cortex Analyst · semantic views</span>
-      <span class="ag" data-a="search">Cortex Search · precedents</span>
-      <span class="ag" data-a="orch">Orchestrator</span>
-      <span class="ag" data-a="review">Reviewer</span>
-      <span class="ag human" data-a="human">Human approval</span>
-    </div>
-    <div class="c-body">
-      <div class="dagwrap">
-        <div class="dag-cap">AGS360 → Matillion → Snowflake → Power BI · click a box to break it</div>
-        <svg id="dag" viewBox="-4 0 792 360" aria-label="Pipeline dependency graph. Each box can be selected to inject a failure."></svg>
-      </div>
-      <div class="logpane">
-        <div class="log" id="log" aria-live="polite"></div>
-        <div class="gate" id="gate" hidden>
-          <div class="g-t">Human approval required</div>
-          <div class="g-fix" id="gfix"></div>
-          <div class="g-row">
-            <button class="gbtn ok" id="approve" type="button">Approve and apply</button>
-            <button class="gbtn no" id="reject" type="button">Reject, escalate</button>
-          </div>
-        </div>
+      <div class="oc-pane oc-map">
+        <div class="oc-h"><b>What the health checks see</b><span>twelve tables, and the sources they read</span></div>
+        <svg id="oc-dag" viewBox="0 0 982 392" role="img" aria-label="The pipeline's tables and which of them fail a health check"></svg>
+        <div class="oc-say" id="oc-say" aria-live="polite"></div>
       </div>
     </div>
-    <div class="c-foot">
-      <span><b id="hops">0</b> of <b id="ntotal">12</b> boxes opened by the tracer. Healthy branches are ruled out without being explored.</span>
-      <span>Things to try: break a Matillion load with a schema change that hits two jobs, or break a source system.</span>
+    <aside class="oc-chat" aria-label="Replay of the chat with the pipeline agent">
+      <div class="oc-q"><div class="top"><b>Pipeline agent</b><span id="oc-tally">no tickets yet</span></div><div id="oc-tix"></div></div>
+      <div class="oc-log" id="oc-log" aria-live="polite"></div>
+    </aside>
+  </div>
+  <div class="oc-foot">Replay of a recorded session: GPT-OSS 120B, 13 Nov 2026. Every tool call, refusal and reason is what the model did.</div>
+
+  <div class="res">
+    <div class="res-h"><h3>What it scores, with the answer hidden from the model</h3><p>GPT-OSS 120B, one run of each, 13 Nov 2026. Each square is one case, so these are counts and not rates.</p></div>
+    <div class="res-grid">
+      <div class="res-card"><div class="res-t">12 seeded SQL faults</div>
+        <div class="res-row"><span class="res-l">Model alone</span><span class="res-s" role="img" aria-label="5 fixed, 3 wrong fixes rolled back, 4 handed to a person"><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="w"></i><i class="w"></i><i class="w"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i></span><span class="res-n">5 fixed, 3 wrong fixes rolled back, 4 handed to a person</span></div>
+        <div class="res-row"><span class="res-l">Model with the checker</span><span class="res-s" role="img" aria-label="10 fixed, none wrong, 2 handed to a person"><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="p"></i><i class="p"></i></span><span class="res-n">10 fixed, none wrong, 2 handed to a person</span></div>
+        <p class="res-f">The two it could not fix trip no health check at all. The checker finds where damage starts; where nothing looks damaged, it has nothing to say.</p>
+      </div>
+      <div class="res-card"><div class="res-t">38 cases where the right ending may not be a fix</div>
+        <div class="res-row"><span class="res-l">A bad change to SQL</span><span class="res-s" role="img" aria-label="21 of 29 fixed, 2 wrongly blamed on a source, 6 handed to a person"><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="w"></i><i class="w"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i><i class="p"></i></span><span class="res-n">21 of 29 fixed, 2 wrongly blamed on a source, 6 handed to a person</span></div>
+        <div class="res-row"><span class="res-l">Bad source data</span><span class="res-s" role="img" aria-label="4 of 5 named the bad table, 1 handed to a person"><i class="r"></i><i class="r"></i><i class="r"></i><i class="r"></i><i class="p"></i></span><span class="res-n">4 of 5 named the bad table, 1 handed to a person</span></div>
+        <div class="res-row"><span class="res-l">Nothing wrong</span><span class="res-s" role="img" aria-label="1 of 4 said so, 3 handed to a person"><i class="r"></i><i class="p"></i><i class="p"></i><i class="p"></i></span><span class="res-n">1 of 4 said so, 3 handed to a person</span></div>
+        <p class="res-f">No wrong fix was applied in any of the 38. Its weak spot is saying "nothing is wrong": it usually hands the ticket to a person.</p>
+      </div>
     </div>
+    <div class="res-key"><span><i class="r"></i>the right ending</span><span><i class="p"></i>handed to a person</span><span><i class="w"></i>wrong: a fix that was rolled back, or the wrong ending</span></div>
+    <div class="leak">
+      <div class="lbl">A mistake I caught in my own evaluation</div>
+      <p>The first runs passed each case's id to the model, and the ids described the fault: <code>source.cost_in_cents</code>. The model read them. For a fault no check can see, it "found" the cause by quoting the id back. I hid the ids, wrote a test that fails if any id or label reaches the model, and reran everything. The counts above are from after that. Before it, the top comparison read 4 and 9 of 12.</p>
+    </div>
+    <p class="res-links"><a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-the-model-alone-against-the-model-with-the-checker">How the twelve were measured</a> <a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#when-the-answer-is-not-a-sql-fix">The 38 cases</a> <a href="https://github.com/dhruvdubey3123/agent-harness-runtime#the-same-flow-as-a-chat-beside-a-dashboard-with-tickets-arriving-each-night">The chat this replays</a></p>
   </div>
 
   <div class="rel">
@@ -1020,15 +1136,15 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   <div class="hx-stats">
     <div class="hx-stat bad"><div class="v">61<small> / 75</small></div><p>approved fixes that repeated an action when restarted from scratch after a crash</p></div>
     <div class="hx-stat good"><div class="v">0<small> / 75</small></div><p>with Keel resuming from its log on the same crashes: every action exactly once</p></div>
-    <div class="hx-stat mid"><div class="v">90%</div><p>root causes found by GPT-OSS 120B walking the graph itself, with the approval gate deciding what a person sees</p></div>
+    <div class="hx-stat mid"><div class="v">10<small> / 12</small></div><p>seeded SQL faults fixed by the model with the checker, with no wrong fix applied. Alone, the model fixed 5 and got 3 wrong.</p></div>
   </div>
 
   <div class="hx-real hx-evo">
-    <div class="hd"><div class="lbl">How accurate the AI is, in both projects</div><h3>Nine in ten root causes with a hosted 120B model. It still does not decide.</h3><p>Scored against labelled incidents the models were never tuned on: GPT-OSS 120B through a hosted free tier, and a smaller Qwen3 8B on a laptop GPU for comparison. The rules get every root cause too, so the rules still decide. What makes a fallible model usable is that the tracer checks it: across both models every wrong diagnosis went to a person, and no right one was held back.</p><div class="score">0 / 9<small>wrong diagnoses reached approval, counting both models tested</small></div></div>
-    <div class="hx-chk"><div><span>Root cause, GPT-OSS 120B over held-out incidents</span><b>90%</b></div><div><span>Failure category named correctly, same run</span><b>100%</b></div><div><span>Briefings that passed the faithfulness check</span><b>20 / 20</b></div><div><span>Fixer applied each approved action once, through a kill</span><b>every run</b></div><div><span>A note in the incident told it to do more; it tried</span><b>refused</b></div><div><span>Model diagnosed it correctly, a person approved, Keel applied it through a kill</span><b>once each</b></div><div><span>Approved fixes that left the broken report fresh again, checked against the pipeline rather than the log</span><b>75 / 75</b></div></div>
-    <div class="hx-lines"><div class="k">what the real models taught the code</div><div class="ln">it changed a right answer to a wrong one, so the first valid answer now stands</div><div class="ln">it named an unrecognised failure as a familiar one, so the category stays with the rules</div><div class="ln">it wrote its own text for the patch a person had approved, so the approval now fixes the content too</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-two-models-held-out-incidents" style="color:var(--accent)">triage numbers</a> &nbsp; <a href="https://github.com/dhruvdubey3123/agent-harness-runtime#is-the-model-any-good-at-it" style="color:var(--accent)">Keel numbers</a></div></div>
+    <div class="hd"><div class="lbl">The earlier evaluation, on synthetic incidents</div><h3>18 of 20 root causes with a hosted 120B model. It still does not decide.</h3><p>Scored against labelled incidents the models were never tuned on: GPT-OSS 120B through a hosted free tier, and a smaller Qwen3 8B on a laptop GPU for comparison. The rules get every root cause too, so the rules still decide. What makes a fallible model usable is that the tracer checks it: across both models every wrong diagnosis went to a person, and no right one was held back.</p><div class="score">0 / 9<small>wrong diagnoses reached approval, counting both models tested</small></div></div>
+    <div class="hx-chk"><div><span>Root cause, GPT-OSS 120B over held-out incidents</span><b>18 / 20</b></div><div><span>Failure category named correctly, same run</span><b>18 / 18</b></div><div><span>Briefings that passed the faithfulness check</span><b>20 / 20</b></div><div><span>Fixer applied each approved action once, through a kill</span><b>every run</b></div><div><span>A note in the incident told it to do more; it tried</span><b>refused</b></div><div><span>Model diagnosed it correctly, a person approved, Keel applied it through a kill</span><b>once each</b></div><div><span>Approved fixes that left the broken report fresh again, checked against the pipeline rather than the log</span><b>75 / 75</b></div></div>
+    <div class="hx-lines"><div class="k">what the real models taught the code</div><div class="ln">it changed a right answer to a wrong one, so the first valid answer now stands</div><div class="ln">it named an unrecognised failure as a familiar one, so the category stays with the rules</div><div class="ln">it wrote its own text for the patch a person had approved, so the approval now fixes the content too</div><div class="k" style="margin-top:10px"><a href="https://github.com/dhruvdubey3123/pipeline-triage-graph#measured-held-out-incidents" style="color:var(--accent)">triage numbers</a> &nbsp; <a href="https://github.com/dhruvdubey3123/agent-harness-runtime#is-the-model-any-good-at-it" style="color:var(--accent)">Keel numbers</a></div></div>
   </div>
-  <p class="hx-vision">Every number here reruns in CI on every push. The incidents are synthetic and the warehouse is a SQLite stand-in.</p>
+  <p class="hx-vision">The checks in this block rerun in CI on every push. Its incidents are synthetic and its warehouse is a SQLite stand-in. The results on the real SQL warehouse are with the replay above.</p>
 </div></section>
 
 <!-- ========== LIVE RISK ENGINE ========== -->
@@ -1098,7 +1214,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
           <tr><td>Eval sets</td><td>2 × 100 labelled incidents, gated in CI</td></tr>
           <tr><td>Rules: root cause</td><td>1.00 on both sets</td></tr>
           <tr><td>Rules: category, noisy logs</td><td>0.81: misleading logs fool the rules</td></tr>
-          <tr><td>LLM walking the graph</td><td>90% of root causes (GPT-OSS 120B); no wrong diagnosis reached approval</td></tr>
+          <tr><td>LLM walking the graph</td><td>18 of 20 root causes on synthetic incidents (GPT-OSS 120B); no wrong diagnosis reached approval</td></tr>
           <tr><td>LLM orchestration</td><td>200 of 200 decisions unchanged by an erratic coordinator</td></tr>
           <tr><td>Tests</td><td>49 passing, eval gated in CI</td></tr>
           <tr><td>Next</td><td>the model drafting the procedure's SQL itself, scored against a reference fix per incident, over real tables in DuckDB and then Snowflake with dbt models for the lineage</td></tr>
@@ -1223,7 +1339,7 @@ footer{padding-block:24px 40px; font-family:var(--mono); font-size:11.5px; color
   </div>
   <footer>
     <span>M.S. Data Science, University of Maryland · B.Tech CSE, MIT-ADT University</span>
-    <span>The triage demo is a reconstruction with invented names.</span>
+    <span>The on-call replay is a recorded session on sample data.</span>
   </footer>
 </div></section>
 
@@ -1402,238 +1518,6 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
     tn.textContent = T<0.6 ? 'sharp: nearly all weight on one passage' : (T>2 ? 'flat: the model reads everything and trusts nothing' : '');
   }
   tr.addEventListener('input',render); render();
-})();
-
-/* ---------- triage console ---------- */
-(function(){
-  var L=[{x:70,t:'Source'},{x:225,t:'Matillion load'},{x:390,t:'Stored procedure'},{x:555,t:'Fact table'},{x:710,t:'Power BI'}];
-  var N={
-    ags:{l:0,y:70,t:'AGS360 cases',k:'source',owner:'source system team'}, tsrc:{l:0,y:170,t:'Timesheet feed',k:'source',owner:'source system team'}, vsrc:{l:0,y:290,t:'Vendor feed',k:'source',owner:'source system team'},
-    stg_cases:{l:1,y:70,t:'stg_cases',k:'load',owner:'data engineering'}, stg_ts:{l:1,y:170,t:'stg_timesheets',k:'load',owner:'data engineering'}, stg_v:{l:1,y:290,t:'stg_vendor',k:'load',owner:'data engineering'},
-    sp_merge:{l:2,y:70,t:'sp_merge_cases',k:'proc',owner:'data engineering'}, sp_fill:{l:2,y:170,t:'sp_calc_fill_rate',k:'proc',owner:'analytics engineering'}, sp_vend:{l:2,y:290,t:'sp_vendor_rollup',k:'proc',owner:'analytics engineering'},
-    fct_wf:{l:3,y:120,t:'fct_workforce',k:'table',owner:'analytics engineering'}, fct_sp:{l:3,y:290,t:'fct_spend',k:'table',owner:'analytics engineering'},
-    bi:{l:4,y:190,t:'Acumen report',k:'report',owner:'BI'}
-  };
-  var E=[['ags','stg_cases'],['tsrc','stg_ts'],['vsrc','stg_v'],['stg_cases','sp_merge'],['stg_ts','sp_fill'],['stg_cases','sp_fill'],['stg_v','sp_vend'],['sp_merge','fct_wf'],['sp_fill','fct_wf'],['sp_vend','fct_sp'],['fct_wf','bi'],['fct_sp','bi']];
-  var PROTECTED={ags:1,tsrc:1,vsrc:1,fct_wf:1,fct_sp:1,bi:1};
-  var W=136,H=34, SYMPTOM='bi';
-  var parents={}, children={}; Object.keys(N).forEach(function(k){parents[k]=[];children[k]=[];});
-  E.forEach(function(e){children[e[0]].push(e[1]); parents[e[1]].push(e[0]);});
-  function downstream(id){ var out=[],q=[id],seen={}; seen[id]=1; while(q.length){ var c=q.shift(); children[c].forEach(function(ch){ if(!seen[ch]){seen[ch]=1; out.push(ch); q.push(ch);} }); } return out; }
-
-  /* failure types a person can inject, by kind of box */
-  var FAILS={
-    source:[{v:'down',l:'Source system unavailable'}],
-    load:[{v:'schema',l:'Schema change upstream (column renamed)'},{v:'timeout',l:'Load job timed out'}],
-    proc:[{v:'ident',l:'Job fails: column not found'},{v:'dup',l:'Duplicate rows from MERGE'},{v:'perm',l:'Lost permission on schema'}],
-    table:[{v:'weird',l:'Unrecognised internal error'}]
-  };
-  var SYMPTOMS={down:'Report stopped updating',schema:'Report shows blanks where a metric should be',timeout:'Report numbers have not moved since the last load',ident:'Report shows blanks where a metric should be',dup:'A total on the report roughly doubled overnight',perm:'Report stopped updating',weird:'Report refresh fails with an error'};
-
-  function inject(id,type){
-    var s={};
-    if(type==='down'){ s[id]={status:'missing',err:'source extract failed: system unavailable'}; }
-    else if(type==='timeout'){ s[id]={status:'missing',err:'load job timed out; dependent jobs skipped'}; }
-    else if(type==='schema'){ s[id]={status:'changed',err:'upstream column renamed'};
-      children[id].forEach(function(c){ if(N[c].k==='proc') s[c]={status:'failed',err:'invalid identifier: column not found'}; }); }
-    else if(type==='ident'){ s[id]={status:'failed',err:'invalid identifier: column not found'}; }
-    else if(type==='dup'){ s[id]={status:'failed',err:'MERGE matched more than one source row; duplicate rows written'}; }
-    else if(type==='perm'){ s[id]={status:'failed',err:'insufficient privileges on target schema'}; }
-    else if(type==='weird'){ s[id]={status:'failed',err:'unexpected internal error'}; }
-    Object.keys(s).forEach(function(k){ downstream(k).forEach(function(d){ if(!s[d]) s[d]={status:'stale',err:'not refreshed since last good run'}; }); });
-    return s;
-  }
-  function st(S,id){ return (S[id]&&S[id].status)||'ok'; }
-
-  /* same algorithm as triage/dag.py: walk upstream through unhealthy boxes only */
-  var STRENGTH={failed:3,missing:3,changed:2,stale:1};
-  function trace(S,symptom){
-    var hops=[],seen={},cands=[],q=[symptom];
-    while(q.length){
-      var id=q.shift(); if(seen[id]) continue; seen[id]=1;
-      var s=st(S,id), healthy=s==='ok';
-      hops.push({id:id,status:s,ruled:healthy&&id!==symptom});
-      if(healthy&&id!==symptom) continue;
-      var sick=parents[id].filter(function(p){return st(S,p)!=='ok';});
-      parents[id].forEach(function(p){ if(!seen[p]) q.push(p); });
-      if(!sick.length&&id!==symptom) cands.push(id);
-    }
-    var res={};
-    function put(t,cause,s2){ var str=STRENGTH[s2]||0, prev=res[t]; if(!prev||str>prev.str||(!prev.cause&&cause)) res[t]={cause:cause,str:str}; }
-    cands.forEach(function(c){
-      var s2=st(S,c), fc=s2==='changed'?children[c].filter(function(ch){return st(S,ch)==='failed';}):[];
-      if(fc.length) fc.forEach(function(ch){put(ch,c,'failed');}); else put(c,null,s2);
-    });
-    var ranked=Object.keys(res).sort(function(a,b){return res[b].str-res[a].str;});
-    if(!ranked.length) return {hops:hops,target:null,cause:null,ambiguous:false,ranked:[]};
-    var top=res[ranked[0]].str, amb=ranked.filter(function(t){return res[t].str===top;}).length>1;
-    return {hops:hops,target:ranked[0],cause:res[ranked[0]].cause,ambiguous:amb,ranked:ranked};
-  }
-
-  /* same rule set as triage/knowledge.py */
-  var RULES=[['permission',/insufficient privileges|access denied/i],['schema_drift',/invalid identifier|column .*not found|renamed/i],['duplicate_merge',/duplicate|more than one source row/i],['missed_load',/timed? ?out|skipped|unavailable/i]];
-  function classify(text){ for(var i=0;i<RULES.length;i++){ if(RULES[i][1].test(text)) return RULES[i][0]; } return 'unknown'; }
-  var CASES={
-    schema_drift:'procedure failed with invalid identifier after an upstream load renamed a column',
-    duplicate_merge:'fact table doubled after the source started sending versioned rows; MERGE key too narrow',
-    missed_load:'load job timed out after source throttling; downstream jobs skipped',
-    permission:'procedure lost its grant after a service role rotation'
-  };
-  function fixText(cat,t,cause,ds){
-    var d=ds.length?ds.map(function(x){return N[x].t;}).join(', '):'dependent jobs';
-    if(cat==='schema_drift') return 'Update '+N[t].t+' to the new column name'+(cause?' introduced by '+N[cause].t:'')+', keep an alias for the old one, re-run it, then refresh '+d+'.';
-    if(cat==='duplicate_merge') return 'Widen the MERGE key in '+N[t].t+' so each versioned source row matches one target row, remove the duplicates from the last run, then refresh '+d+'.';
-    if(cat==='missed_load') return 'Re-run '+N[t].t+' with a backfill from its last successful run, then trigger '+d+'. Transient: no code change.';
-    if(cat==='permission') return 'Restore the grant '+N[t].t+' needs on its target schema, re-run it, then refresh '+d+'.';
-    return null;
-  }
-
-  var svg=document.getElementById('dag'), NS='http://www.w3.org/2000/svg';
-  function el(t,a){ var e=document.createElementNS(NS,t); for(var k in a) e.setAttribute(k,a[k]); return e; }
-  function cx(id){ return L[N[id].l].x; }
-  L.forEach(function(l){ var t=el('text',{x:l.x,y:22,'text-anchor':'middle','class':'layer'}); t.textContent=l.t; svg.appendChild(t); });
-  var defs=el('defs',{}); defs.innerHTML='<filter id="tgGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="3.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'; svg.appendChild(defs);
-  var REDUCE_T=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var edgeEls={}, flowEls={};
-  E.forEach(function(p){ var a=N[p[0]],b=N[p[1]],x1=cx(p[0])+W/2,x2=cx(p[1])-W/2,mx=(x1+x2)/2;
-    var pid='tge_'+p[0]+'_'+p[1], path=el('path',{id:pid,d:'M'+x1+','+a.y+' C'+mx+','+a.y+' '+mx+','+b.y+' '+x2+','+b.y,'class':'e'}); svg.appendChild(path); edgeEls[p[0]+'>'+p[1]]=path;
-    var fg=el('g',{'class':'flow'}); if(!REDUCE_T){ [0,1].forEach(function(k){ var c=el('circle',{r:2.3,'class':'pt'}); var am=el('animateMotion',{dur:'2.6s',repeatCount:'indefinite',begin:(k*1.3+Math.random()*.6).toFixed(2)+'s'}); var mp=el('mpath',{}); mp.setAttributeNS('http://www.w3.org/1999/xlink','href','#'+pid); mp.setAttribute('href','#'+pid); am.appendChild(mp); c.appendChild(am); fg.appendChild(c); }); } svg.appendChild(fg); flowEls[p[0]+'>'+p[1]]=fg; });
-  var nodeEls={};
-  Object.keys(N).forEach(function(id){
-    var n=N[id], breakable=n.k!=='report';
-    var g=el('g',{'class':'n'+(breakable?' pick':''), tabindex: breakable?'0':'-1', role: breakable?'button':'img', 'aria-label': n.t+(breakable?', select to break':'')});
-    g.appendChild(el('rect',{x:cx(id)-W/2,y:n.y-H/2,width:W,height:H,rx:6}));
-    g.appendChild(el('circle',{cx:cx(id)-W/2+13,cy:n.y,r:8,'class':'ic'}));
-    var il=el('text',{x:cx(id)-W/2+13,y:n.y+.5,'text-anchor':'middle','dominant-baseline':'middle','class':'icl'}); il.textContent={source:'S',load:'L',proc:'P',table:'T',report:'R'}[n.k]; g.appendChild(il);
-    var t=el('text',{x:cx(id)+10,y:n.y+1,'text-anchor':'middle','dominant-baseline':'middle'}); t.textContent=n.t; g.appendChild(t);
-    var s=el('text',{x:cx(id),y:n.y+H/2+12,'text-anchor':'middle','class':'st'}); g.appendChild(s);
-    svg.appendChild(g); nodeEls[id]=g;
-    if(breakable){ g.addEventListener('click',function(){ pick(id); }); g.addEventListener('keydown',function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); pick(id); } }); }
-  });
-  document.getElementById('ntotal').textContent=Object.keys(N).length;
-  var ringG=el('g',{}); svg.appendChild(ringG);
-  var orb=el('g',{'class':'orb'}); orb.appendChild(el('circle',{r:11,'class':'halo'})); orb.appendChild(el('circle',{r:5,'class':'core',filter:'url(#tgGlow)'})); svg.appendChild(orb);
-  function orbTo(id){ var x=cx(id)+W/2-6, y=N[id].y-H/2+2; orb.style.transform='translate('+x+'px,'+y+'px)'; orb.classList.add('on'); }
-  function orbOff(){ orb.classList.remove('on'); }
-  function ringAt(id){ ringG.innerHTML=''; if(!id) return; [1,2].forEach(function(k){ ringG.appendChild(el('rect',{x:cx(id)-W/2,y:N[id].y-H/2,width:W,height:H,rx:8,'class':'ring'+(k===2?' r2':'')})); }); }
-  function flows(mode){ Object.keys(flowEls).forEach(function(k){ var src=k.split('>')[0], bad=mode!=='good'&&S[src]&&S[src].status!=='ok'; flowEls[k].setAttribute('class','flow'+(bad?' bad':'')); if(bad) edgeEls[k].setAttribute('class','e bad'); }); }
-  var AGORDER=['intake','tracer','analyst','search','orch','review','human'], agtrack=document.createElement('div'); agtrack.className='agtrack'; agtrack.innerHTML='<i></i>'; document.getElementById('agents').after(agtrack);
-
-  var logEl=document.getElementById('log'), runbtn=document.getElementById('runbtn'), resetbtn=document.getElementById('resetbtn'),
-      gate=document.getElementById('gate'), gfix=document.getElementById('gfix'), hopsEl=document.getElementById('hops'),
-      ftype=document.getElementById('ftype'), flabel=document.getElementById('flabel');
-  var S={}, chosen=null, running=false, symptomText='';
-
-  function setNode(id,cls,txt){ var g=nodeEls[id], base=N[id].k!=='report'?'n pick':'n'; g.setAttribute('class',base+(cls?' '+cls:'')); g.querySelector('.st').textContent=txt||''; }
-  function paintInjected(){
-    Object.keys(N).forEach(function(id){ setNode(id,'',''); });
-    Object.keys(edgeEls).forEach(function(k){ edgeEls[k].setAttribute('class','e'); });
-    Object.keys(S).forEach(function(id){ var s=S[id].status; if(s!=='stale') setNode(id,'broken', s==='changed'?'changed':'broken'); });
-    if(chosen) setNode(chosen,'broken sel', S[chosen]?(S[chosen].status==='changed'?'changed':'broken'):'');
-    flows(); ringAt(null); orbOff();
-  }
-  function line(tag,html,cls){ var d=document.createElement('div'); d.className='ln'; d.innerHTML='<span class="tag '+(cls||'')+'">'+tag+'</span><span class="msg">'+html+'</span>'; logEl.appendChild(d); logEl.scrollTop=logEl.scrollHeight; }
-  function idle(msg){ logEl.innerHTML='<div class="empty">'+msg+'</div>'; }
-  function setAgent(a){ var ix=AGORDER.indexOf(a); if(ix>=0) agtrack.firstChild.style.width=((ix+1)/AGORDER.length*100)+'%'; document.querySelectorAll('.ag').forEach(function(x){ if(x.dataset.a===a) x.classList.add('on'); else if(x.classList.contains('on')){ x.classList.remove('on'); x.classList.add('done'); } }); }
-  function clearAgents(){ agtrack.firstChild.style.width='0'; document.querySelectorAll('.ag').forEach(function(x){ x.classList.remove('on','done'); }); }
-  function code(id){ return '<code>'+N[id].t+'</code>'; }
-
-  function pick(id){
-    if(running) return;
-    chosen=id; var opts=FAILS[N[id].k];
-    ftype.innerHTML=opts.map(function(o){return '<option value="'+o.v+'">'+o.l+'</option>';}).join('');
-    ftype.hidden=false; flabel.textContent='Break '+N[id].t+':';
-    applyChoice();
-  }
-  function applyChoice(){
-    S=inject(chosen,ftype.value); symptomText=SYMPTOMS[ftype.value];
-    clearAgents(); gate.hidden=true; hopsEl.textContent='0'; paintInjected(); markPresets(null);
-    runbtn.disabled=false; runbtn.textContent='Run triage';
-    idle('<b>'+N[chosen].t+'</b> is broken: '+S[chosen].err+'. Everything downstream of it is now stale. The analyst only sees the symptom on the report: <i>'+symptomText.toLowerCase()+'</i>. Press <b>Run triage</b>.');
-  }
-  ftype.addEventListener('change',applyChoice);
-
-  var PRESETS={p1:['stg_ts','schema'],p2:['sp_vend','dup'],p3:['stg_cases','timeout']};
-  function markPresets(p){ document.querySelectorAll('[data-preset]').forEach(function(b){ b.setAttribute('aria-pressed', b.dataset.preset===p?'true':'false'); }); }
-  document.querySelectorAll('[data-preset]').forEach(function(b){ b.addEventListener('click',function(){ if(running) return; var p=PRESETS[b.dataset.preset]; pick(p[0]); ftype.value=p[1]; applyChoice(); markPresets(b.dataset.preset); }); });
-
-  function reset(){ if(running) return; S={}; chosen=null; ftype.hidden=true; flabel.textContent='or click a box to break it'; runbtn.disabled=true; clearAgents(); gate.hidden=true; hopsEl.textContent='0'; markPresets(null); paintInjected();
-    idle('Nothing is broken yet. Pick a common break above, or click any box in the pipeline to break it yourself.'); }
-  resetbtn.addEventListener('click',reset);
-
-  async function run(){
-    if(running||!chosen) return; running=true; runbtn.disabled=true; resetbtn.disabled=true; logEl.innerHTML=''; clearAgents(); gate.hidden=true;
-    Object.keys(N).forEach(function(id){ setNode(id,'',''); }); flows(); ringAt(null);
-    setAgent('intake'); line('intake','Case opened in AGS360, landed in Snowflake via Matillion.'); await sleep(550);
-    line('intake','Symptom on '+code(SYMPTOM)+': '+symptomText.toLowerCase()+'.'); setNode(SYMPTOM,'symptom','symptom'); await sleep(550);
-
-    setAgent('tracer'); line('tracer','Walking upstream from the report, opening only boxes that look unhealthy.'); orbTo(SYMPTOM);
-    var T=trace(S,SYMPTOM), opened=0;
-    for(var i=0;i<T.hops.length;i++){
-      var h=T.hops[i]; if(h.id===SYMPTOM){ opened++; hopsEl.textContent=opened; continue; }
-      orbTo(h.id); setNode(h.id,'visit','checking'); await sleep(420); opened++; hopsEl.textContent=opened;
-      var cls=h.status==='ok'?'ok':h.status==='stale'?'warn':h.status==='changed'?'cause':'fail';
-      setNode(h.id,cls,h.status==='ok'?'healthy':h.status==='stale'?'stale':h.status==='changed'?'changed':h.status);
-      children[h.id].forEach(function(c){ var e=edgeEls[h.id+'>'+c]; if(e&&h.status!=='ok') e.setAttribute('class','e walk'); });
-      line('tracer', code(h.id)+' '+(h.status==='ok'?'healthy, branch ruled out':(S[h.id]?S[h.id].err:'')), (h.status==='failed'||h.status==='missing')?'x':'');
-      await sleep(260);
-    }
-    var target=T.target, cause=T.cause;
-    if(target){ line('tracer','Root cause: '+code(target)+(cause?', caused upstream by '+code(cause):'')+(T.ambiguous?'. More than one box failed independently: '+T.ranked.map(code).join(', '):'')+'.','x'); orbOff(); setNode(target,'fail','root cause'); ringAt(target); }
-    else { orbOff(); line('tracer','No unhealthy upstream box found.'); }
-
-    setAgent('analyst'); line('analyst','Querying the semantic view behind '+code(SYMPTOM)+' to confirm the data matches the symptom.'); await sleep(700);
-    line('analyst','Confirmed: affected rows trace back through '+(target?code(target):'an unknown box')+'.'); await sleep(350);
-
-    var evidence=[target&&S[target]?S[target].err:'', cause&&S[cause]?S[cause].err:''].join(' ');
-    var cat=classify(evidence);
-    setAgent('search'); line('search','Searching resolved cases.'); await sleep(600);
-    line('search', CASES[cat]?'Closest past case: <span class="dim">'+CASES[cat]+'</span>':'No similar resolved case found.'); await sleep(350);
-
-    setAgent('orch');
-    var ds=target?downstream(target):[], fix=target?fixText(cat,target,cause,ds):null;
-    line('orch','Failure type: <b>'+cat.replace('_',' ')+'</b>.'); await sleep(450);
-    line('orch', fix?'Proposed fix: '+fix:'No safe fix template for this failure type.'); await sleep(450);
-
-    setAgent('review');
-    var issues=[];
-    if(!target) issues.push('no root cause found');
-    if(target&&PROTECTED[target]) issues.push(N[target].t+' is owned by the '+N[target].owner+'; the agent may not change it');
-    if(cat==='unknown') issues.push('failure type not recognised');
-    if(T.ambiguous) issues.push('several boxes need fixing at once');
-    await sleep(500);
-    var decision;
-    if(issues.length){
-      line('review','Blocked: '+issues.join('; ')+'.','x');
-      decision='blocked';
-    } else {
-      line('review','Checks passed: single root, not a protected box, known failure type.');
-      setAgent('human'); line('human','Waiting for an engineer. Nothing changes until someone approves.','h');
-      gfix.textContent=fix; gate.hidden=false;
-      decision=await new Promise(function(res){ window.__decide=res; });
-      gate.hidden=true;
-    }
-    if(decision==='approve'){
-      line('human','Approved.','h'); setAgent('orch'); line('orch','Applying the fix, then refreshing downstream in dependency order.');
-      var order=[target].concat(ds);
-      for(var j=0;j<order.length;j++){ setNode(order[j],'fixed',j===0?'fixed':'refreshed');
-        E.forEach(function(p){ if(order.indexOf(p[0])>=0&&order.indexOf(p[1])>=0) edgeEls[p[0]+'>'+p[1]].setAttribute('class','e fixed'); });
-        await sleep(330); }
-      ringAt(null); Object.keys(flowEls).forEach(function(k){ flowEls[k].setAttribute('class','flow'); });
-      line('orch','Report healthy again. Analyst notified in the Power BI chat.');
-    } else {
-      var owner=target?N[target].owner:'on-call';
-      line(decision==='reject'?'human':'review', (decision==='reject'?'Rejected. ':'')+'Escalated to '+owner+' with the full trace, evidence and closest past case attached. No changes made.', decision==='reject'?'h':'x');
-    }
-    await sleep(300);
-    line('learn', cat!=='unknown'&&target?'Case added to the instruction layer as <code>'+cat+'</code>. The next break like this starts from here.':'Not added to the case library: nothing confirmed to learn from.');
-    document.querySelectorAll('.ag').forEach(function(x){ if(x.classList.contains('on')){ x.classList.remove('on'); x.classList.add('done'); } });
-    running=false; runbtn.disabled=false; resetbtn.disabled=false; runbtn.textContent='Run again';
-  }
-  document.getElementById('approve').addEventListener('click',function(){ if(window.__decide) window.__decide('approve'); });
-  document.getElementById('reject').addEventListener('click',function(){ if(window.__decide) window.__decide('reject'); });
-  runbtn.addEventListener('click',function(){ if(!running){ var keep=chosen, v=ftype.value; S=inject(keep,v); run(); } });
-  reset();
 })();
 
 /* ---------- reliability ---------- */
@@ -2286,6 +2170,191 @@ document.querySelectorAll('.copy').forEach(function(b){
   runBtn.addEventListener('click',run);
   resetBtn.addEventListener('click',function(){ if(busy) return; plan=[]; chosen=null; draw(); });
   chosen='ok'; plan=PRESETS[0].p.slice(); draw();
+})();
+
+/* ---------- on-call replay: one recorded session, played back ---------- */
+var REPORT={"cols":["region","customers","revenue","revenue_share","margin_rate"],"good":[["AFRICA",292,411237357.5763,0.20108079379605973,0.6340264650098404],["AMERICA",296,393264525.1865,0.19229270259489983,0.6340264650098404],["ASIA",302,391062672.799,0.19121607320376263,0.6340264650098404],["EUROPE",266,359051037.7754,0.1755634948018577,0.6340264650098404],["MIDDLE EAST",314,447621970.9723,0.2188716068358818,0.6340264650098404],["UNASSIGNED",30,42897377.7844,0.020975328767538323,0.6340264650098404]],"t1":[["AFRICA",292,411237357.5763,0.20108079379605973,0.6354435912290415],["AMERICA",296,393264525.1865,0.19229270259489983,0.6354435912290415],["ASIA",302,391062672.799,0.19121607320376263,0.6354435912290415],["EUROPE",266,359051037.7754,0.1755634948018577,0.6354435912290415],["MIDDLE EAST",314,447621970.9723,0.2188716068358818,0.6354435912290415],["UNASSIGNED",30,42897377.7844,0.020975328767538323,0.6354435912290415]],"t2":[["AFRICA",292,411237357.5763,0.000688632855465958,0.6340264650098404],["AMERICA",296,393264525.1865,0.0006496375087665534,0.6340264650098404],["ASIA",302,391062672.799,0.0006331658053104723,0.6340264650098404],["EUROPE",266,359051037.7754,0.0006600131383528486,0.6340264650098404],["MIDDLE EAST",314,447621970.9723,0.000697043333872235,0.6340264650098404],["UNASSIGNED",30,42897377.7844,0.0006991776255846107,0.6340264650098404]]};
+// One script drives the chat, the report and the map. What is on screen is a pure function of the step
+// number, so any step can be jumped to, and a shorter cut is a shorter list.
+(() => {
+const PLAN = "cb67d748a439";
+const LOOK = "Looking into rpt_regional_summary. While I investigate I can read tables and their SQL, and I can't change anything.";
+// k: kind. rep: which report state is live from here. map: which map state. say: line under the map.
+const STEPS = [
+ {night:1, k:"sys", t:"Night 1: all twelve tables rebuilt. Ticket T-1 was raised.", rep:"t1", map:"asked", tk:{id:"T-1", tx:"margin_rate in rpt_regional_summary looks wrong", st:"open"}, say:"A ticket came in. Nothing has been looked at yet."},
+ {k:"user", t:"T-1: margin_rate in rpt_regional_summary looks wrong", st:"with the agent"},
+ {k:"agent", t:LOOK},
+ {k:"tool", t:"where_checks_fail()", map:"t1checks", say:"Two tables fail a check: stg_supplier and mart_supplier_performance have fewer rows than on the last good run."},
+ {k:"no", t:"close_without_fix(source_data, stg_supplier, …)", why:"Refused by the harness: call where_checks_fail and check_sources before closing an incident without a fix."},
+ {k:"tool", t:"check_sources()", map:"t1source", say:"The source checks: raw.supplier has 80 rows, and had 100 on the last good run."},
+ {k:"no", t:"close_without_fix(source_data, stg_supplier, …)", why:"Refused by the harness: stg_supplier is a table the pipeline builds, not a source. Name the source table that is bad."},
+ {k:"tool", t:"close_without_fix(source_data, supplier, …)"},
+ {k:"closure", gate:"reload", st:"your call", h:"I am not changing any SQL. raw.supplier arrived bad.", why:"Supplier source table missing rows, leading to wrong margin_rate.", fine:"A fix in SQL would hide this from whoever owns the source. It has to be reloaded there.", yes:"Owner reloads raw.supplier", no:"Give it to a person"},
+ {k:"sys", t:"The owner of raw.supplier reloaded it. The pipeline was rebuilt.", rep:"good", map:"t1ok", say:"After the reload, every table matches the last good run."},
+ {k:"sys", good:1, t:"Checked against the reference: every table is right. T-1 is closed. It was bad source data in raw.supplier: a fifth of the suppliers are missing from the extract.", st:"agent was right"},
+ {night:2, k:"sys", t:"Night 2: all twelve tables rebuilt. No tickets.", map:"quiet", say:"A quiet night."},
+ {night:3, k:"sys", t:"Night 3: all twelve tables rebuilt. Ticket T-2 was raised.", rep:"t2", map:"asked", tk:{id:"T-2", tx:"revenue_share in rpt_regional_summary looks wrong", st:"open"}, say:"A second ticket. The share column on the report has collapsed."},
+ {k:"user", t:"T-2: revenue_share in rpt_regional_summary looks wrong", st:"with the agent"},
+ {k:"agent", t:LOOK},
+ {k:"tool", t:"where_checks_fail()", map:"t2checks", say:"No table fails a health check, and no source does. The checks look at shape, and the shape is fine. The model has to read the SQL."},
+ {k:"tool", t:"upstream(rpt_regional_summary)"},
+ {k:"tool", t:"read_sql(mart_customer_revenue)"},
+ {k:"tool", t:"read_sql(rpt_regional_summary)"},
+ {k:"no", t:"try_fix(rpt_regional_summary, select m.region, count(*) as customers, …)", why:"Refused by the harness: call check_node on rpt_regional_summary before proposing a fix for it."},
+ {k:"tool", t:"check_node(rpt_regional_summary)", map:"t2suspect", say:"The model blames the report's own SQL. The checker can neither confirm nor rule that out, so the fix has to prove itself."},
+ {k:"tool", t:"try_fix(rpt_regional_summary, select m.region, count(*) as customers, …)", map:"t2trial", say:"Rehearsed on a copy: the report and every other table came out right. The real warehouse is untouched."},
+ {k:"tool", t:"submit_diagnosis(rpt_regional_summary, …)"},
+ {k:"proposal", gate:"approve", st:"waiting for your approval"},
+ {k:"user", t:"Approve plan " + PLAN, st:"applying"},
+ {k:"step", t:"patch_procedure -> done", map:"t2patched", say:"The approved SQL is deployed. The table has not been rebuilt yet."},
+ {k:"step", t:"run_cycle -> done", rep:"good", map:"t2ok", say:"Rebuilt. Every table matches the reference."},
+ {k:"step", t:"record_change -> done"},
+ {k:"result"},
+ {k:"sys", good:1, t:"Checked against the reference: every table is right. T-2 is closed. It was a change to the SQL of rpt_regional_summary: a total that became an average.", st:"agent was right"},
+];
+const HOLD = {sys:1300, user:900, agent:1400, tool:800, no:1700, step:800, result:1800};
+
+const $ = s => document.querySelector(s);
+const h = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const ns = "http://www.w3.org/2000/svg";
+const el = (t, a = {}, txt) => { const e = document.createElementNS(ns, t); for (const k in a) e.setAttribute(k, a[k]); if (txt != null) e.textContent = txt; return e; };
+
+// ---------------------------------------------------------------- the map
+const W = 176, H = 44, X = [108, 338, 568, 798];
+const N = {stg_orders:[0,34], stg_lineitem:[0,122], stg_customer:[0,224], stg_supplier:[0,312],
+  int_order_items:[1,78], int_part_cost:[1,186], int_customer_geo:[1,274],
+  mart_daily_revenue:[2,34], mart_customer_revenue:[2,176], mart_supplier_performance:[2,318],
+  rpt_revenue_dashboard:[3,94], rpt_regional_summary:[3,258]};
+const SRC = {"raw.orders":"stg_orders", "raw.lineitem":"stg_lineitem", "raw.customer":"stg_customer", "raw.supplier":"stg_supplier"};
+const E = [["stg_lineitem","int_order_items"],["stg_orders","int_order_items"],["stg_customer","int_customer_geo"],["stg_lineitem","int_part_cost"],
+  ["int_order_items","mart_daily_revenue"],["int_customer_geo","mart_customer_revenue"],["int_order_items","mart_customer_revenue"],
+  ["stg_supplier","mart_supplier_performance"],["int_order_items","mart_supplier_performance"],["int_part_cost","mart_supplier_performance"],
+  ["mart_daily_revenue","rpt_revenue_dashboard"],["mart_customer_revenue","rpt_revenue_dashboard"],
+  ["mart_customer_revenue","rpt_regional_summary"],["mart_supplier_performance","rpt_regional_summary"]];
+const RPT = "rpt_regional_summary", SUP = "stg_supplier", MSP = "mart_supplier_performance";
+// map state -> {node: [class, note]}; anything not named is "pass" once checks have been read, "idle" before
+const MAPS = {
+  quiet: {all:"idle"},
+  asked: {all:"idle", [RPT]:["asked","reported wrong"]},
+  t1checks: {[RPT]:["asked","reported wrong"], [SUP]:["hit","80 rows, 100 before"], [MSP]:["hit","rows and values moved"]},
+  t1source: {[RPT]:["asked","reported wrong"], [SUP]:["hit","80 rows, 100 before"], [MSP]:["hit","rows and values moved"], "raw.supplier":["bad","80 of 100 rows"]},
+  t1ok: {[SUP]:["fixed","rebuilt, matches"], [MSP]:["fixed","rebuilt, matches"], [RPT]:["fixed","matches the reference"], "raw.supplier":["fixed","reloaded"]},
+  t2checks: {[RPT]:["asked","reported wrong"]},
+  t2suspect: {[RPT]:["asked lift","blamed, not yet proven"], slot:1},
+  t2trial: {[RPT]:["trial lift","right, on the copy"], slot:1},
+  t2patched: {[RPT]:["asked","approved SQL deployed"]},
+  t2ok: {[RPT]:["fixed","rebuilt, matches the reference"]},
+};
+const svg = $("#oc-dag"), nodeEl = {}, edgeEl = [];
+["sources","staging","intermediate","marts","reports"].forEach((l, i) => svg.append(el("text", {class:"ocol", x: i ? X[i-1] : 0, y: 14}, l)));
+for (const s in SRC) { const y = N[SRC[s]][1] + H / 2; const p = el("path", {class:"oe", d:`M88,${y} L${X[0]},${y}`}); svg.append(p); edgeEl.push([s, SRC[s], p]); }
+E.forEach(([a, b]) => { const x1 = X[N[a][0]] + W, y1 = N[a][1] + H / 2, x2 = X[N[b][0]], y2 = N[b][1] + H / 2, m = (x1 + x2) / 2;
+  const p = el("path", {class:"oe", d:`M${x1},${y1} C${m},${y1} ${m},${y2} ${x2},${y2}`}); svg.append(p); edgeEl.push([a, b, p]); });
+const slot = el("rect", {class:"oslot", x: X[3], y: N[RPT][1], width: W, height: H, rx: 5}); svg.append(slot);
+const box = (id, x, y, w) => { const g = el("g", {class:"on idle"});
+  g.append(el("rect", {x, y, width: w, height: H, rx: 5}), el("text", {class:"nm", x: x + 9, y: y + 18}, id), el("text", {class:"nt", x: x + 9, y: y + 33}, ""));
+  svg.append(g); nodeEl[id] = g; };
+for (const s in SRC) box(s, 0, N[SRC[s]][1], 88);
+for (const n in N) box(n, X[N[n][0]], N[n][1], W);
+function drawMap(name) {
+  const m = MAPS[name] || MAPS.quiet, cls = {};
+  for (const id in nodeEl) { const v = m[id] || [m.all || "pass", m.all ? "" : id.startsWith("raw.") ? "as before" : "passes its checks"]; cls[id] = v[0];
+    nodeEl[id].setAttribute("class", "on " + v[0]); nodeEl[id].children[2].textContent = v[1]; }
+  slot.setAttribute("class", "oslot" + (m.slot ? " show" : ""));
+  const hurt = c => /hit|bad/.test(c), ok = c => /fixed/.test(c);
+  edgeEl.forEach(([a, b, p]) => p.setAttribute("class", "oe" + (hurt(cls[a]) && hurt(cls[b]) ? " hot" : ok(cls[a]) && ok(cls[b]) ? " good" : "")));
+  // the damage on night one reaches the report through the supplier mart
+  if (name === "t1checks" || name === "t1source") edgeEl.forEach(([a, b, p]) => { if (a === MSP && b === RPT) p.setAttribute("class", "oe hot"); });
+}
+
+// ---------------------------------------------------------------- the report
+const pct = v => (v * 100).toFixed(2) + "%", money = v => v.toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const FMT = [v => v, v => v.toLocaleString("en-US"), money, pct, pct];
+let shown = null;
+function drawReport(name, mark) {
+  const rows = REPORT[name], prev = shown ? REPORT[shown] : null, t = $("#oc-tbl");
+  const head = h("tr"); REPORT.cols.forEach(c => head.append(h("th", null, c)));
+  t.replaceChildren(head, ...rows.map((r, i) => { const tr = h("tr");
+    r.forEach((v, j) => { const td = h("td");
+      if (j === 3) { const w = h("span", "share"), bar = h("i"), fill = h("u"); fill.style.width = Math.min(100, v / 0.22 * 100) + "%"; bar.append(fill); w.append(bar, h("span", null, FMT[j](v))); td.append(w); }
+      else td.textContent = FMT[j](v);
+      if (mark && prev && prev[i][j] !== v) { td.className = name === "good" ? "back" : "ch"; td.title = "was " + FMT[j](prev[i][j]); }
+      tr.append(td); });
+    return tr; }));
+  $("#oc-asof").textContent = !mark || !prev || shown === name ? "the report the analyst is looking at" : name === "good" ? "reloaded: marked cells are back to what they were" : "reloaded after the nightly run: marked cells changed";
+  shown = name;
+}
+
+// ---------------------------------------------------------------- the chat
+const DIFF = [[" ", "  sum(m.revenue) as revenue,"], ["d", "- avg(m.revenue) / (select sum(revenue)"], ["a", "+ sum(m.revenue) / (select sum(revenue)"], [" ", "  from mart_customer_revenue) as revenue_share,"]];
+function card(s, live) {
+  const c = h("div", "oc-card");
+  const two = (yes, no, onYes, onNo) => { const row = h("div", "oc-row"), y = h("button", "oc-btn yes" + (live ? " wait" : ""), yes), n = h("button", "oc-btn no", no);
+    y.type = n.type = "button"; y.disabled = n.disabled = !live; y.onclick = onYes; n.onclick = onNo; row.append(y, n); return row; };
+  if (s.k === "closure") {
+    c.append(h("h3", null, s.h));
+    const w = h("div"); w.append(h("div", "k", "Why, in the model's words"), h("div", null, s.why)); c.append(w, h("div", "oc-fine", s.fine));
+    c.append(two(s.yes, s.no, go, () => aside(c, "The on-call engineer would take the ticket and put the warehouse right by hand. It would be closed as a person's work, not the agent's. In the recorded session the owner reloaded the table.")));
+  } else if (s.k === "proposal") {
+    c.append(h("h3", null, "I have a fix for rpt_regional_summary. Nothing has been applied."));
+    const w = h("div"); w.append(h("div", "k", "Why, in the model's words"), h("div", null, "Revenue_share was calculated using avg(revenue) instead of total revenue, causing incorrect values.")); c.append(w);
+    const d = h("div", "oc-diff"); DIFF.forEach(([k, t]) => d.append(h("div", k.trim(), t)));
+    const dw = h("div"); dw.append(h("div", "k", "The change to its SQL"), d); c.append(dw);
+    c.append(h("div", null, "Rehearsal: verified on a rehearsal copy: the report and every other table came out right. Tries: 1. Calls the harness refused while I worked: 1."));
+    const p = h("div", "oc-plan"); p.append(h("span", null, "Plan id"), h("b", null, PLAN)); c.append(p);
+    c.append(two("Approve this plan", "Reject", go, () => aside(c, "Rejected: nothing would be applied, the warehouse would stay as it was, and the ticket would go to a person. In the recorded session the plan was approved.")));
+    c.append(h("div", "oc-fine", "Approval covers this SQL only. A different query is a different plan and is refused."));
+  } else {
+    c.className = "oc-card good";
+    c.append(h("h3", null, "Fixed, verified and kept."), h("div", null, "This report right: yes. Every other table right: yes."),
+      h("div", "oc-fine", "Change log lines for this ticket: 1. “Revenue_share was calculated using avg(revenue) instead of total revenue, causing incorrect values.”"));
+  }
+  return c;
+}
+function aside(c, text) { let a = c.querySelector(".oc-aside"); if (!a) { a = h("div", "oc-fine oc-aside"); c.append(a); } a.textContent = text; }
+function bubble(s, live) {
+  if (s.k === "user" || s.k === "agent") return h("div", "oc-m " + s.k, s.t);
+  if (s.k === "sys") return h("div", "oc-sys" + (s.good ? " good" : ""), s.t);
+  if (s.k === "tool" || s.k === "step") return h("div", "oc-t", s.t);
+  if (s.k === "no") { const d = h("div", "oc-t no", s.t); d.append(h("span", "why", s.why)); return d; }
+  return card(s, live);
+}
+
+// ---------------------------------------------------------------- playing it
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let at = -1, timer = null, playing = false;
+const nights = [...new Set(STEPS.filter(s => s.night).map(s => s.night))];
+$("#oc-bar").prepend(...nights.map(n => { const b = h("button", "oc-night"); b.type = "button"; b.dataset.n = n;
+  b.append(h("b", null, "Night " + n)); b.append(document.createTextNode(n === 2 ? "quiet" : "one ticket")); b.onclick = () => { stop(); render(STEPS.findIndex(s => s.night === n), false); }; return b; }));
+
+function render(i, animate) {            // everything on screen follows from i
+  at = i;
+  const upto = STEPS.slice(0, i + 1), last = k => { for (let j = i; j >= 0; j--) if (STEPS[j][k] !== undefined) return STEPS[j][k]; };
+  const log = $("#oc-log"); log.classList.toggle("still", !animate);
+  if (animate && log.children.length === i) log.append(bubble(STEPS[i], true));
+  else log.replaceChildren(...upto.map((s, j) => bubble(s, j === i)));
+  log.querySelectorAll(".oc-btn").forEach(b => { if (!b.closest(".oc-card") || b.closest(".oc-card") !== log.lastElementChild) { b.disabled = true; b.classList.remove("wait"); } });
+  log.scrollTop = log.scrollHeight;
+  const rep = last("rep") || "good"; if (rep !== shown || !animate) { if (!animate) { shown = null; const before = upto.filter(s => s.rep).map(s => s.rep); shown = before.length > 1 ? before[before.length - 2] : "good"; } drawReport(rep, true); }
+  drawMap(last("map") || "quiet"); $("#oc-say").textContent = last("say") || "";
+  const tix = {}; upto.forEach(s => { if (s.tk) tix[s.tk.id] = {...s.tk}; if (s.st) { const ids = Object.keys(tix); tix[ids[ids.length - 1]].st = s.st; } });
+  const list = Object.values(tix).reverse(), done = list.filter(t => t.st === "agent was right").length;
+  $("#oc-tix").replaceChildren(...list.map(t => { const d = h("div", "oc-tk" + (t.st === "agent was right" ? " closed" : "")); d.append(h("span", "id", t.id), h("span", "tx", t.tx), h("span", "chip", t.st)); return d; }));
+  $("#oc-tally").textContent = list.length ? done + " of " + list.length + " closed, rightly by the agent" : "no tickets yet";
+  const night = last("night"); document.querySelectorAll(".oc-night").forEach(b => b.classList.toggle("on", +b.dataset.n === night));
+  const gate = STEPS[i].gate, end = i === STEPS.length - 1;
+  $("#oc-next").disabled = !!gate || end; $("#oc-play").textContent = end ? "Play again" : playing && !gate ? "Pause" : gate ? "Your decision" : "Play"; $("#oc-play").disabled = !!gate;
+  if (playing && !gate && !end) timer = setTimeout(() => render(at + 1, true), HOLD[STEPS[i].k] || 1000);
+  if (end) playing = false;
+}
+function stop() { playing = false; clearTimeout(timer); }
+function go() { clearTimeout(timer); render(at + 1, true); }      // a decision was made: carry on
+$("#oc-next").onclick = () => { stop(); render(at + 1, true); };
+$("#oc-play").onclick = () => { if (at === STEPS.length - 1) { playing = true; shown = null; render(0, false); return; }
+  if (playing) { stop(); render(at, false); } else { playing = true; clearTimeout(timer); render(at + 1 > STEPS.length - 1 ? 0 : at + 1, true); } };
+drawReport("good", false); drawMap("quiet");
+const start = () => { playing = !reduce; render(0, true); };
+if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); start(); } }, {threshold: 0.35}); io.observe($("#oc")); } else start();
 })();
 
 </script>
