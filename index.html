@@ -1527,12 +1527,6 @@ Fixed, verified and kept.
     <h2>Systems</h2>
     <p class="muted" style="max-width:62ch">Every number here comes from a real run: a pilot, a published eval, or a benchmark you can rerun from the repo.</p>
   </div>
-  <figure class="cx " id="cxOrbit">
-    <div class="cx-stagewrap"><div class="cx-stage"><canvas aria-label="Projects orbiting the idea that retrieval is attention" role="img"></canvas></div>
-      <aside class="cx-card" aria-live="polite"><div class="cx-k" data-r="cK">On the board</div><div class="cx-t" data-r="cT"></div><div class="cx-w" data-r="cW"></div><div class="cx-d" data-r="cD"></div><div class="cx-n" data-r="cN"></div><div class="cx-bars" data-r="cB"></div></aside></div>
-    <figcaption class="cx-hint">Everything orbits one idea, earliest work on the inner rings. Move the cursor to tilt it, point at a project to stop the comet, click to open it.</figcaption>
-  </figure>
-
   <div class="systems">
 
     <article class="sys">
@@ -2902,54 +2896,6 @@ REDRAW.push(function(){fit();draw();});
 shown(0);loop(step);
 
 })(document.getElementById('cxThread'));
-(function(root){ if(!root) return;
-  var cv=root.querySelector('canvas'),ctx=cv.getContext('2d'),VW=0,VH=0,DPR=1;
-  function byId(x){ return root.querySelector('[data-r="'+x+'"]'); }
-  function fit(){var r=cv.getBoundingClientRect();DPR=Math.min(2,devicePixelRatio||1);VW=r.width;VH=r.height;cv.width=Math.round(VW*DPR);cv.height=Math.round(VH*DPR);ctx.setTransform(DPR,0,0,DPR,0,0);}
-  addEventListener('resize',fit); fit();
-  function card(p,extra){byId('cT').textContent=p.k;byId('cW').textContent=p.when;byId('cD').textContent=p.d;byId('cN').textContent=p.n;if(extra!==undefined)byId('cB').innerHTML=extra;}
-  function loop(step){var raf=0,last=0,vis=false;function f(now){var dt=last?Math.min((now-last)/1000,1/30):1/60;last=now;step(dt);raf=vis&&!REDUCE?requestAnimationFrame(f):0;}
-    if('IntersectionObserver' in window) new IntersectionObserver(function(es){vis=es[es.length-1].isIntersecting;if(vis){fit();if(!raf&&!REDUCE){last=0;raf=requestAnimationFrame(f);}}},{rootMargin:'120px'}).observe(cv); else {vis=true;raf=requestAnimationFrame(f);}
-    step(0);}
-// The idea underneath sits at the centre; projects orbit it, earliest work on the inner rings. The plane tilts toward the
-// cursor. A comet with a glowing tail visits each project in the order the work happened.
-var RING=[0,0,1,1,2,2,3,3], R=[.36,.56,.76,.96], ANG=[.3,3.4,1.6,4.9,.9,3.9,2.4,5.6], SP=[.16,.12,.09,.07];
-var tilt=1.08,tiltT=1.08,yaw=0,yawT=0,clock=0,cur=0,from=0,tS=-9,hold=0,user=-9,trail=[],hover=-1,pos=[];
-function place(i){var a=ANG[i]+clock*SP[RING[i]];return [Math.cos(a)*R[RING[i]],0,Math.sin(a)*R[RING[i]]];}
-function proj(x,y,z){var cy=Math.cos(yaw),sy=Math.sin(yaw);var X=x*cy-z*sy,Z=x*sy+z*cy;var ct=Math.cos(tilt),st=Math.sin(tilt);var Y=y*ct-Z*st,ZZ=y*st+Z*ct;var f=3/(3-ZZ),s=Math.min(VW*.8,VH*1.05)*.5;return [VW/2+X*s*f,VH/2+12-Y*s*f,ZZ,f];}
-cv.addEventListener('pointermove',function(e){var r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;tiltT=1.08-y*.5;yawT=x*.5;
- var best=-1,bd=30*30;pos.forEach(function(p,i){var d=(p[0]-e.clientX+r.left)**2+(p[1]-e.clientY+r.top)**2;if(d<bd){bd=d;best=i;}});
- if(best!==hover){hover=best;if(best>=0){user=clock;show(best,'Pointed at');}}cv.style.cursor=best>=0?'pointer':'default';});
-cv.addEventListener('pointerleave',function(){tiltT=1.08;yawT=0;hover=-1;user=clock;});
-function show(i,k){byId('cK').textContent=k||('Stop '+(i+1)+' of '+PROJ.length);card(PROJ[i],'');}
-function step(dt){clock+=dt;tilt+=(tiltT-tilt)*(1-Math.exp(-dt/.25));yaw+=(yawT-yaw)*(1-Math.exp(-dt/.25));
- pos=PROJ.map(function(p,i){var q=place(i);return proj(q[0],q[1],q[2]);});
- var cp;if(tS>=0&&clock-tS<1.4){var u=ease((clock-tS)/1.4),a=pos[from],b=pos[cur],mx=(a[0]+b[0])/2,my=Math.min(a[1],b[1])-60-Math.hypot(b[0]-a[0],b[1]-a[1])*.2;
-  cp=[(1-u)*(1-u)*a[0]+2*(1-u)*u*mx+u*u*b[0],(1-u)*(1-u)*a[1]+2*(1-u)*u*my+u*u*b[1]];}
- else{cp=pos[cur].slice(0,2);if(tS>=0&&clock-tS>=1.4&&hold===0)show(cur);hold+=dt;if(hover<0&&clock-user>3.6&&hold>2.8){from=cur;cur=(cur+1)%PROJ.length;tS=clock;hold=0;}}
- trail.unshift(cp);if(trail.length>26)trail.pop();draw();}
-function ring(r,front){ctx.beginPath();var first=true;for(var a=0;a<=6.3;a+=.04){var q=proj(Math.cos(a)*r,0,Math.sin(a)*r);if((q[2]>0)!==front){first=true;continue;}if(first){ctx.moveTo(q[0],q[1]);first=false;}else ctx.lineTo(q[0],q[1]);}ctx.stroke();}
-function draw(){ctx.clearRect(0,0,VW,VH);ctx.lineWidth=1;
- ctx.strokeStyle=rgba(C.muted,.28);R.forEach(function(r){ring(r,false);});
- var order=pos.map(function(p,i){return i;}).sort(function(a,b){return pos[a][2]-pos[b][2];});
- order.forEach(function(i){if(pos[i][2]<=0)planet(i);});
- var o=proj(0,0,0),pr=1+.02*Math.sin(clock*2.1);var g=ctx.createRadialGradient(o[0],o[1],0,o[0],o[1],70*pr);g.addColorStop(0,rgba(C.accent,.5));g.addColorStop(1,rgba(C.accent,0));ctx.fillStyle=g;ctx.beginPath();ctx.arc(o[0],o[1],70*pr,0,6.283);ctx.fill();
- ctx.fillStyle=C.accent;ctx.beginPath();ctx.arc(o[0],o[1],16*pr,0,6.283);ctx.fill();ctx.font='500 13px Outfit, sans-serif';ctx.textAlign='center';ctx.fillStyle=C.ink;ctx.fillText('retrieval is attention',o[0],o[1]+36);ctx.textAlign='left';
- ctx.strokeStyle=rgba(C.muted,.45);R.forEach(function(r){ring(r,true);});
- order.forEach(function(i){if(pos[i][2]>0)planet(i);});
- for(var k=trail.length-1;k>0;k--){var a=trail[k],b=trail[k-1];ctx.strokeStyle=rgba(C.accent,(1-k/trail.length)*.8);ctx.lineWidth=(1-k/trail.length)*6;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a[0],a[1]);ctx.lineTo(b[0],b[1]);ctx.stroke();}
- var h=trail[0];if(h){ctx.fillStyle=rgba(C.accent,.25);ctx.beginPath();ctx.arc(h[0],h[1],11+2*Math.sin(clock*4),0,6.283);ctx.fill();ctx.fillStyle=C.accent;ctx.beginPath();ctx.arc(h[0],h[1],4.5,0,6.283);ctx.fill();}}
-function planet(i){var q=pos[i],p=PROJ[i],on=(i===cur&&hold>0)||i===hover,r=(6+p.imp*9)*q[3];
- ctx.fillStyle=rgba(C.ink,.08);ctx.beginPath();ctx.ellipse(q[0],q[1]+r+4,r*1.1,r*.35,0,0,6.283);ctx.fill();
- ctx.fillStyle=on?C.accent:C.surface;ctx.strokeStyle=on?C.accent:rgba(C.ink,.5);ctx.lineWidth=1.3;ctx.beginPath();ctx.arc(q[0],q[1],r,0,6.283);ctx.fill();ctx.stroke();
- if(on){ctx.strokeStyle=rgba(C.accent,.4);ctx.beginPath();ctx.arc(q[0],q[1],r+7,0,6.283);ctx.stroke();}
- ctx.font=(on?'500 ':'400 ')+(12+(on?3:0))+'px Outfit, sans-serif';ctx.fillStyle=rgba(C.ink,on?1:.4+.5*(q[3]-.7));ctx.textAlign='center';ctx.fillText(p.k,q[0],q[1]-r-10);ctx.textAlign='left';}
-REDRAW.push(function(){fit();draw();});
-show(0);loop(step);
-
-cv.addEventListener('click',function(){ if(hover>=0) goTo(hover); });
-
-})(document.getElementById('cxOrbit'));
 })();
 </script>
 
