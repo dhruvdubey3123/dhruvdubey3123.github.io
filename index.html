@@ -1017,6 +1017,30 @@ section{scroll-margin-top:72px}
   .pill-ind,.floatnav,.arrowc,.fdots i,.fthumb svg,.gcard.dark,.circ{transition:none}
   .core-pulse,.i-orb-h{animation:none}
 }
+.xv.rack{max-width:720px; overflow:visible}
+.rk-floor{fill:var(--ink); opacity:.10}
+.rk-l{fill:var(--surface-2); stroke:var(--line); stroke-width:.9} .rk-r{fill:color-mix(in srgb,var(--surface-2) 65%,var(--line)); stroke:var(--line); stroke-width:.9}
+.rk-cap{fill:var(--surface); stroke:var(--line); stroke-width:.9}
+.rk-badge{fill:none; stroke:var(--accent); stroke-width:1.2; opacity:.7}
+.rk-side{fill:color-mix(in srgb,var(--surface-2) 55%,var(--line)); stroke:var(--line); stroke-width:.9}
+.rk-vent{stroke:color-mix(in srgb,var(--muted) 60%,transparent); stroke-width:1.6; stroke-linecap:round}
+.rk-foot{stroke:color-mix(in srgb,var(--line) 60%,var(--muted)); stroke-width:6; stroke-linecap:round}
+.rk-hole{fill:color-mix(in srgb,var(--ink) 78%,var(--bg)); stroke:var(--line)}
+.rk-post{fill:var(--surface-2); stroke:var(--line); stroke-width:.8}
+.rk-screw{fill:var(--bg); stroke:var(--muted); stroke-width:.5}
+.rk-tray{fill:var(--surface); stroke:var(--line); stroke-width:.9; stroke-linejoin:round}
+.rk-tside{fill:color-mix(in srgb,var(--surface-2) 45%,var(--line)); stroke:var(--line); stroke-width:.8}
+.rk-front{fill:var(--surface); stroke:var(--line); stroke-width:.9; stroke-linejoin:round; transition:fill var(--dur-base), stroke var(--dur-base)}
+.rk-front.dash{stroke:var(--accent); stroke-dasharray:4 3}
+.rk-lip{fill:none; stroke:var(--surface); stroke-width:1.2; opacity:.9}
+.rk-handle{stroke:var(--muted); stroke-width:2.2; stroke-linecap:round}
+.rk-slot{stroke:var(--line); stroke-width:1.6; stroke-linecap:round}
+.rk-led{stroke:none} .rk-led.sig{fill:var(--signal)} .rk-led.acc{fill:var(--accent)} .rk-led.amb{fill:var(--amber)}
+.rk-art{pointer-events:none}
+.rk-hit{fill:transparent; pointer-events:all; cursor:pointer}
+.xv.rack.hot .rk-dr .rk-front{fill:color-mix(in srgb,var(--surface) 80%,var(--surface-2))}
+.xv.rack .xl{cursor:pointer}
+@media (max-width:600px){.xv.rack .xl-t{font-size:23px}.xv.rack .xl-s{display:none}}
 </style>
 
 </head>
@@ -1736,9 +1760,12 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
   function select(md){
     if(md===current) return; current=md;
     svg.classList.toggle('focus',!!md);
-    ALL.forEach(function(x){ var on=x===md; x.el.classList.toggle('open',on);
-      // explode: lid leads, body follows, base last, 45 ms apart; closing reverses the order
-      x.target=on?1:0; x.at=[0,1,2].map(function(j){ return clock+(on?(2-j):j)*0.045; }); });
+    ALL.forEach(function(x){ var on=x===md, dist=md?Math.max(Math.abs(x.g[0]-md.g[0]),Math.abs(x.g[1]-md.g[1]))/3:0;
+      x.el.classList.toggle('open',on);
+      // explode: lid leads, body follows, base last, 45 ms apart; closing reverses the order.
+      // Neighbours answer with a small lift that shrinks with distance and arrives 50 ms later per step (Hairline).
+      x.target=on?1:(md&&dist<=1.01?.16:md&&dist<=2.01?.06:0);
+      x.at=[0,1,2].map(function(j){ return clock+(on?(2-j)*0.045:(md?dist*0.05:0)+j*0.03); }); });
     if(md) card(md);
     wake();
   }
@@ -1765,7 +1792,7 @@ function sleep(ms){ return new Promise(function(r){ setTimeout(r, REDUCED ? Math
     tour.dur=REDUCE?0:Math.min(1.6,.55+len/420);           // distance scales duration
     if(byUser){ held=false; lastTouch=clock; } if(!held) select(null); wake(); }
   function along(path,u){ var segs=path.length-1; if(segs<1) return path[0]; var L=[],tot=0; for(var k=1;k<path.length;k++){ var d=Math.hypot(path[k][0]-path[k-1][0],path[k][1]-path[k-1][1]); L.push(d); tot+=d; }
-    var want=u*tot; for(k=0;k<L.length;k++){ if(want<=L[k]||k===L.length-1){ var fr=L[k]?Math.min(1,want/L[k]):1; return [path[k][0]+(path[k+1][0]-path[k][0])*fr, path[k][1]+(path[k+1][1]-path[k][1])*fr]; } want-=L[k]; } return path[path.length-1]; }
+    var want=u*tot; for(k=0;k<L.length;k++){ if(want<=L[k]||k===L.length-1){ var fr=L[k]?Math.min(1,want/L[k]):1; return [path[k][0]+(path[k+1][0]-path[k][0])*fr, path[k][1]+(path[k+1][1]-path[k][1])*fr-Math.sin(Math.PI*fr)*Math.min(18,L[k]*.12)]; } want-=L[k]; } return path[path.length-1]; }
   function easeOut(x){ x=Math.min(1,Math.max(0,x)); return 1-Math.pow(1-x,3); }
   if(fc.Dots) MODS.forEach(function(){ dots.push(fc.Dots.appendChild(document.createElement('i'))); });
   function step(d){ var i=MODS.indexOf(shown); if(i<0) i=tour.i<0?0:tour.i; tour.started=true; goTo(i+d,true); }
@@ -2076,11 +2103,12 @@ document.querySelectorAll('.copy').forEach(function(b){
   var area=document.getElementById('riskBox');
   area.addEventListener('mouseenter',function(){ hovering=true; }); area.addEventListener('mouseleave',function(){ hovering=false; });
   var visible=false;
-  if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ visible=es[0].isIntersecting; },{threshold:.15}).observe(box); } else visible=true;
+  var riskRaf=0;
+  if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ visible=es[es.length-1].isIntersecting; if(visible&&!riskRaf) riskRaf=requestAnimationFrame(loop); },{threshold:.15}).observe(box); } else visible=true;
   layout(); addEventListener('resize',layout);
   if(window.ResizeObserver) new ResizeObserver(layout).observe(wrapEl);
-  function loop(now){ if(visible||wave>=0) draw(now); requestAnimationFrame(loop); }
-  requestAnimationFrame(loop);
+  function loop(now){ if(visible||wave>=0){ draw(now); riskRaf=requestAnimationFrame(loop); } else riskRaf=0; }
+  riskRaf=requestAnimationFrame(loop);
   show(make('normal')); if(REDUCE){ paused=true; pauseBtn.textContent='resume stream'; }
   schedule();
 })();
@@ -2483,12 +2511,16 @@ const FOCUS = {asked:RPT, t1checks:SUP, t1source:"raw.supplier", t1ok:RPT, t2che
 function centre(id) { const r = nodeEl[id].querySelector("rect"); return [+r.getAttribute("x") + (+r.getAttribute("width")) - 12, +r.getAttribute("y") + 12]; }
 function point(id) { if (!id) { orb.classList.remove("show"); return; } if (svg.lastChild !== orb) svg.append(orb); const [x, y] = centre(id); orb.setAttribute("transform", `translate(${x} ${y})`); orb.classList.add("show"); }
 const STILL = matchMedia("(prefers-reduced-motion: reduce)").matches;
-(function flow(){                       // data moving through the pipeline: faster and brighter where it is damaged
+let flowOn = true, flowRaf = 0;
+if ("IntersectionObserver" in window) new IntersectionObserver(es => { flowOn = es[es.length - 1].isIntersecting; if (flowOn && !flowRaf && !STILL) flowRaf = requestAnimationFrame(flow); }, {rootMargin: "120px 0px"}).observe(svg);
+function flow(){                       // data moving through the pipeline: faster and brighter where it is damaged
+  flowRaf = 0;
   dots.forEach(d => { if (!d.len) d.len = d.p.getTotalLength(); const hot = /hot/.test(d.p.getAttribute("class")), good = /good/.test(d.p.getAttribute("class"));
     if (!STILL) d.u = (d.u + (hot ? .011 : .005)) % 1; const q = d.p.getPointAtLength(d.u * d.len);
     d.c.setAttribute("cx", q.x); d.c.setAttribute("cy", q.y); d.c.setAttribute("class", "odot" + (hot ? " hot" : good ? " good" : "")); });
-  if (!STILL) requestAnimationFrame(flow);
-})();
+  if (!STILL && flowOn) flowRaf = requestAnimationFrame(flow);
+}
+flow();
 function drawMap(name) {
   const m = MAPS[name] || MAPS.quiet, cls = {};
   for (const id in nodeEl) { const v = m[id] || [m.all || "pass", m.all ? "" : id.startsWith("raw.") ? "as before" : "passes its checks"]; cls[id] = v[0];
@@ -2590,24 +2622,102 @@ const start = () => { playing = !reduce; render(0, true); };
 if ("IntersectionObserver" in window) { const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); start(); } }, {threshold: 0.35}); io.observe($("#oc")); } else start();
 })();
 
-/* ---------- hero: the system taken apart ---------- */
+/* ---------- triage: the system as a rack of seven drawers ----------
+   A real object instead of floating plates. Each part of the system is a drawer; pointing at it (or its label) pulls it
+   out on a spring and shows what is inside. Hit areas are the drawer fronts at rest, so a moving drawer never slides
+   out from under the pointer. When the rack scrolls into view the drawers ripple out and back, top first, 60 ms apart;
+   then an idle tour opens them one at a time, pauses on any touch, and the loop sleeps when nothing moves. */
 (function(){
-  var svg=document.querySelector('.xv'); if(!svg) return;
-  var plates=[].slice.call(svg.querySelectorAll('.pl')), labels=[].slice.call(svg.querySelectorAll('.xl'));
-  var REDUCE=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
-  plates.forEach(function(p){ p.style.setProperty('--k', 6-(+p.dataset.i)); });     // the bottom plate settles first
-  if(svg.classList.contains('shut')) setTimeout(function(){ svg.classList.remove('shut'); }, 300);   // closed at first paint, then lifts apart once
-  function hot(i){
-    svg.classList.toggle('hot', i!=null);
-    plates.forEach(function(p){ p.classList.toggle('up', p.dataset.i===String(i)); });
-    labels.forEach(function(l){ l.classList.toggle('up', l.dataset.i===String(i)); });
+  var old=document.querySelector('.xv'); if(!old) return;
+  var NS='http://www.w3.org/2000/svg', REDUCE=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function el(tag,a,parent){ var e=document.createElementNS(NS,tag); for(var k in a) e.setAttribute(k,a[k]); if(parent) parent.appendChild(e); return e; }
+  // reuse the drawings and labels already on the page
+  var glyphs=[], labels=[].slice.call(old.querySelectorAll('.xl'));
+  [].forEach.call(old.querySelectorAll('.pl'),function(p){ glyphs[+p.dataset.i]=p.querySelector('g[transform]').innerHTML; });
+  var LED=['sig','acc','sig','acc','amb','acc','sig'];
+  var W=170, D=180, S=150, U=44, Z0=16, N=7, H=Z0+N*U, OX=300, OY=345;
+  function P(x,y,z){ return [OX+(x-y)*.866, OY+(x+y)*.5-z]; }
+  function pts(a){ return a.map(function(p){ return p[0].toFixed(1)+','+p[1].toFixed(1); }).join(' '); }
+  function face(list){ return pts(list.map(function(q){ return P(q[0],q[1],q[2]); })); }
+  var svg=el('svg',{class:'xv rack',viewBox:'0 0 720 600',role:'img','aria-label':old.getAttribute('aria-label').replace('taken apart','as a rack of drawers')});
+  var defs=el('defs',{},svg), blur=el('filter',{id:'rkSoft',x:'-30%',y:'-30%',width:'160%',height:'160%'},defs); el('feGaussianBlur',{stdDeviation:'6'},blur);
+
+  // body: floor shadow, plinth, the right side with vents, the open front, posts with screw holes, a cap
+  var c=P(W/2,D/2+20,0); el('ellipse',{class:'rk-floor',cx:c[0],cy:c[1]+8,rx:230,ry:72,filter:'url(#rkSoft)'},svg);
+  el('polygon',{class:'rk-l',points:face([[-6,D+6,Z0],[W+6,D+6,Z0],[W+6,D+6,0],[-6,D+6,0]])},svg);
+  el('polygon',{class:'rk-r',points:face([[W+6,-6,Z0],[W+6,D+6,Z0],[W+6,D+6,0],[W+6,-6,0]])},svg);
+  [[0,D],[W,D],[W,0]].forEach(function(f){ var a=P(f[0]+(f[0]?3:3),f[1]+(f[1]?3:0),0), b=P(f[0]+3,f[1]+3,-6); el('line',{class:'rk-foot',x1:a[0],y1:a[1],x2:b[0],y2:b[1]},svg); });
+  el('polygon',{class:'rk-side',points:face([[W,0,H],[W,D,H],[W,D,Z0],[W,0,Z0]])},svg);
+  for(var k=0;k<N;k++) for(var v=0;v<5;v++){ var a1=P(W,30+v*26,Z0+k*U+U/2-6), a2=P(W,30+v*26,Z0+k*U+U/2+6); el('line',{class:'rk-vent',x1:a1[0],y1:a1[1],x2:a2[0],y2:a2[1]},svg); }
+  el('polygon',{class:'rk-hole',points:face([[0,D,H],[W,D,H],[W,D,Z0],[0,D,Z0]])},svg);
+  el('polygon',{class:'rk-post',points:face([[0,D,H],[8,D,H],[8,D,Z0],[0,D,Z0]])},svg);
+  el('polygon',{class:'rk-post',points:face([[W-8,D,H],[W,D,H],[W,D,Z0],[W-8,D,Z0]])},svg);
+  for(k=0;k<N;k++) [4,W-4].forEach(function(x){ [8,U-8].forEach(function(dz){ var p=P(x,D,Z0+k*U+dz); el('circle',{class:'rk-screw',cx:p[0],cy:p[1],r:1.3},svg); }); });
+  el('polygon',{class:'rk-l',points:face([[-4,D+4,H+8],[W+4,D+4,H+8],[W+4,D+4,H],[-4,D+4,H]])},svg);
+  el('polygon',{class:'rk-r',points:face([[W+4,-4,H+8],[W+4,D+4,H+8],[W+4,D+4,H],[W+4,-4,H]])},svg);
+  el('polygon',{class:'rk-cap',points:face([[-4,-4,H+8],[W+4,-4,H+8],[W+4,D+4,H+8],[-4,D+4,H+8]])},svg);
+  var lit=P(W/2,D/2,H+8); el('ellipse',{class:'rk-badge',cx:lit[0],cy:lit[1],rx:16,ry:8},svg);
+
+  // drawers, drawn bottom up so an open drawer sits over the one below it
+  var drawers=[];
+  for(var i=N-1;i>=0;i--){ (function(i){
+    var k=N-1-i, zb=Z0+k*U, zt=zb+U, g=el('g',{class:'rk-dr'},svg);
+    var cp=el('clipPath',{id:'rkc'+i},defs), cpp=el('polygon',{},cp);
+    var top=el('polygon',{class:'rk-tray'},g), side=el('polygon',{class:'rk-tside'},g);
+    var art=el('g',{class:'rk-art','clip-path':'url(#rkc'+i+')'},g), inner=el('g',{},art); inner.innerHTML=glyphs[i];
+    var front=el('polygon',{class:'rk-front'+(i===3?' dash':'')},g), lip=el('polyline',{class:'rk-lip'},g);
+    var handle=el('line',{class:'rk-handle'},g), led=el('circle',{class:'rk-led '+LED[i],r:3},g), slots=[0,1,2,3].map(function(){ return el('line',{class:'rk-slot'},g); });
+    drawers[i]={i:i,zb:zb,zt:zt,g:g,top:top,side:side,art:art,inner:inner,cpp:cpp,front:front,lip:lip,handle:handle,led:led,slots:slots,s:{x:0,v:0},target:0,at:0};
+  })(i); }
+  function pose(d){
+    var s=d.s.x*S, y=D+s, zt=d.zt-4, zb=d.zb+3;
+    d.top.setAttribute('points',face([[10,D,zt],[W-10,D,zt],[W-10,y,zt],[10,y,zt]]));
+    d.side.setAttribute('points',face([[W-10,D,zt],[W-10,y,zt],[W-10,y,zb+4],[W-10,D,zb+4]]));
+    d.cpp.setAttribute('points',face([[10,D,zt],[W-10,D,zt],[W-10,y,zt],[10,y,zt]]));
+    var cc=P(W/2,y-S/2-4,zt); d.inner.setAttribute('transform','matrix('+[.866*.92,.5*.92,-.866*.92,.5*.92,cc[0].toFixed(1),cc[1].toFixed(1)].join(',')+')');
+    d.art.style.opacity=Math.min(1,Math.max(0,(d.s.x-.15)/.5)).toFixed(3);
+    d.front.setAttribute('points',face([[8,y,d.zt-2],[W-8,y,d.zt-2],[W-8,y,zb],[8,y,zb]]));
+    d.lip.setAttribute('points',face([[8,y,d.zt-3],[W-8,y,d.zt-3],[W-8,y-6,d.zt-3]]));
+    var zm=(d.zt+d.zb)/2, h1=P(W/2-26,y,zm), h2=P(W/2+26,y,zm); d.handle.setAttribute('x1',h1[0]); d.handle.setAttribute('y1',h1[1]); d.handle.setAttribute('x2',h2[0]); d.handle.setAttribute('y2',h2[1]);
+    var lp=P(22,y,zm); d.led.setAttribute('cx',lp[0]); d.led.setAttribute('cy',lp[1]);
+    d.slots.forEach(function(e,j){ var a=P(W-44+j*7,y,zm-6), b=P(W-44+j*7,y,zm+6); e.setAttribute('x1',a[0]); e.setAttribute('y1',a[1]); e.setAttribute('x2',b[0]); e.setAttribute('y2',b[1]); });
   }
-  labels.forEach(function(l){ l.addEventListener('mouseenter',function(){hot(l.dataset.i)}); l.addEventListener('focus',function(){hot(l.dataset.i)}); l.addEventListener('mouseleave',function(){hot(null)}); l.addEventListener('blur',function(){hot(null)}); });
-  plates.forEach(function(p){
-    var l=labels[+p.dataset.i];
-    p.addEventListener('mouseenter',function(){hot(p.dataset.i)}); p.addEventListener('mouseleave',function(){hot(null)});
-    p.addEventListener('click',function(){ location.hash=l.getAttribute('href').slice(1); var t=document.querySelector(l.getAttribute('href')); if(t) t.scrollIntoView({behavior:REDUCE?'auto':'smooth'}); });
+  drawers.forEach(pose);
+
+  // labels move beside their drawer; hit areas are the fronts at rest and never move
+  var hits=el('g',{class:'rk-hits'},svg);
+  labels.forEach(function(l,i){ var d=drawers[i], zm=(d.zt+d.zb)/2, a=P(W+6,D*.3,zm), x0=P(W+6,0,0)[0]+16, ly=a[1];
+    l.querySelector('line').setAttribute('x1',a[0]+4); l.querySelector('line').setAttribute('x2',x0+18); l.querySelector('line').setAttribute('y1',ly); l.querySelector('line').setAttribute('y2',ly);
+    var ts=l.querySelectorAll('text'); ts[0].setAttribute('x',x0+26); ts[0].setAttribute('y',ly-2); ts[1].setAttribute('x',x0+26); ts[1].setAttribute('y',ly+15);
+    svg.appendChild(l);
+    var h=el('polygon',{class:'rk-hit',points:face([[0,D,d.zt],[W,D,d.zt],[W,D,d.zb],[0,D,d.zb]]),'aria-hidden':'true'},hits);
+    [h,l].forEach(function(t){ t.addEventListener('pointerenter',function(){ touch(i); }); t.addEventListener('pointerleave',release); });
+    l.addEventListener('focus',function(){ touch(i); }); l.addEventListener('blur',release);
+    h.addEventListener('click',function(){ var t=document.querySelector(l.getAttribute('href')); if(t) t.scrollIntoView({behavior:REDUCE?'auto':'smooth'}); });
   });
+  old.parentNode.replaceChild(svg,old);
+  var cap=svg.parentNode.querySelector('.xcap'); if(cap) cap.textContent='The system as a rack. Point at a drawer to pull it out. Drawers 1 to 4 are triage, 5 and 6 are Keel.';
+
+  // motion
+  var clock=0, cur=-1, held=false, lastTouch=-1e9, tourOn=false, tourAt=0, raf=0, last=0, visible=false, revealed=false;
+  function open(i){ cur=i; svg.classList.toggle('hot',i>=0);
+    drawers.forEach(function(d){ d.target=d.i===i?1:0; d.at=clock+(d.i===i?0:Math.abs(d.i-i)*.03); });   // neighbours let go in order of distance
+    labels.forEach(function(l,j){ l.classList.toggle('up',j===i); }); wake(); }
+  function touch(i){ held=true; lastTouch=clock; open(i); }
+  function release(){ held=false; lastTouch=clock; wake(); }
+  function reveal(){ if(revealed) return; revealed=true;
+    if(REDUCE){ open(3); return; }
+    drawers.forEach(function(d){ d.target=.32; d.at=clock+d.i*.06; });            // ripple out, top first
+    setTimeout(function(){ drawers.forEach(function(d){ d.target=0; d.at=clock+(N-1-d.i)*.06; }); wake(); },700);   // and back, bottom first
+    setTimeout(function(){ tourOn=true; tourAt=clock; if(!held) open(0); },1500); wake(); }
+  function spring(s,t,dt){ for(var n=0;n<4;n++){ var h=dt/4; s.v+=(100*(t-s.x)-18*s.v)*h; s.x+=s.v*h; } if(Math.abs(t-s.x)<4e-4&&Math.abs(s.v)<4e-4){ s.x=t; s.v=0; return false; } return true; }
+  function tick(now){ var dt=last?Math.min((now-last)/1000,1/30):1/60; last=now; clock+=dt; var moving=false;
+    drawers.forEach(function(d){ var t=clock>=d.at?d.target:d.s.x; if(spring(d.s,t,dt)||clock<d.at) moving=true; pose(d); });
+    if(tourOn&&!held&&clock-lastTouch>3.6){ moving=true; if(clock-tourAt>3.2){ tourAt=clock; open((cur+1)%N); } } else if(tourOn) { tourAt=clock; moving=moving||!held; }
+    raf=visible&&moving?requestAnimationFrame(tick):0; }
+  function wake(){ if(!raf&&visible){ last=0; raf=requestAnimationFrame(tick); } }
+  if('IntersectionObserver' in window) new IntersectionObserver(function(es){ var e=es[es.length-1]; visible=e.isIntersecting; if(visible){ if(e.intersectionRatio>.25) reveal(); wake(); } },{threshold:[0,.3],rootMargin:'120px 0px'}).observe(svg);
+  else { visible=true; reveal(); }
 })();
 
 </script>
